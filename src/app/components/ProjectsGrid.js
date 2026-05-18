@@ -2,8 +2,13 @@ import Link from "next/link";
 import { projects } from "@/lib/projects";
 
 function ProjectCard({ p }) {
-  const inner = (
-    <>
+  return (
+    <div
+      className={`project${p.comingSoon ? " project--coming-soon" : ""}`}
+      role="article"
+      aria-label={p.name}
+      tabIndex={p.comingSoon ? -1 : 0}
+    >
       <div className="project__image">
         <div className="project__image-placeholder" aria-hidden="true" />
       </div>
@@ -20,29 +25,41 @@ function ProjectCard({ p }) {
       <div className="project__reveal">
         <div className="project__reveal-inner">
           <div className="project__reveal-content">
+            {p.metrics?.length > 0 && (
+              <ul className="project__metrics" aria-label="Outcomes">
+                {p.metrics.map(([label, value, unit]) => (
+                  <li key={label} className="project__metric">
+                    <span className="project__metric-value">
+                      {value}
+                      {unit && <span className="project__metric-unit">{unit}</span>}
+                    </span>
+                    <span className="project__metric-label">{label}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
             <p className="project__desc">{p.blurb}</p>
             {!p.comingSoon && (
-              <span className="project__cta">
-                Open case study<span className="arrow" aria-hidden="true">→</span>
-              </span>
+              <div className="project__actions">
+                <Link href={`/${p.slug}`} className="btn btn-primary">
+                  View case
+                </Link>
+                {p.liveUrl && (
+                  <a
+                    href={p.liveUrl}
+                    className="btn btn-secondary"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Live site
+                  </a>
+                )}
+              </div>
             )}
           </div>
         </div>
       </div>
-    </>
-  );
-
-  if (p.comingSoon) {
-    return (
-      <div className="project project--coming-soon" role="article" aria-label={`${p.name}, case study coming soon`}>
-        {inner}
-      </div>
-    );
-  }
-  return (
-    <Link href={`/${p.slug}`} className="project" aria-label={`Open case study: ${p.name}`}>
-      {inner}
-    </Link>
+    </div>
   );
 }
 

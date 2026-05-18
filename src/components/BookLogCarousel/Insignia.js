@@ -71,7 +71,7 @@ export default function Insignia({ seed, ink, inkSoft }) {
           />
         ))}
         <polygon points="50,38 53,44 47,44" fill={stroke} />
-        <text x="50" y="62" fontSize="7" fontFamily='"Sora", ui-sans-serif, system-ui, sans-serif' fontWeight="500" textAnchor="middle" fill={stroke}>
+        <text x="50" y="62" fontSize="7" fontWeight="500" textAnchor="middle" fill={stroke}>
           R.A. 80
         </text>
       </svg>
@@ -83,7 +83,7 @@ export default function Insignia({ seed, ink, inkSoft }) {
       <svg viewBox="0 0 100 100">
         <rect x="22" y="42" width="56" height="16" fill="none" stroke={stroke} strokeWidth="0.5" />
         <rect x="22" y="42" width="34" height="16" fill={stroke} />
-        <text x="29" y="54" fontSize="8" fontFamily='"Sora", ui-sans-serif, system-ui, sans-serif' fontWeight="500" fill={inv}>
+        <text x="29" y="54" fontSize="8" fontWeight="500" fill={inv}>
           75%
         </text>
         <line x1="22" y1="34" x2="78" y2="34" stroke={soft} strokeWidth="0.5" strokeDasharray="2 2" />

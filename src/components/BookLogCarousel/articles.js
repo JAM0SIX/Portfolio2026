@@ -1,5 +1,13 @@
 /* BookLog Carousel — article data.
-   Source of truth for the "My Notes" / "Currently reading" section. */
+   Each article has:
+   - `paper`: palette key (see Cover.js PAPER_PALETTES) — cardstock colour
+   - `decorations`: array of one or two stickers/doodles on the cover */
+
+const defaultSections = [
+  { id: "context", label: "Context" },
+  { id: "excerpt", label: "Excerpt" },
+  { id: "takeaway", label: "Takeaway" },
+];
 
 export const ARTICLES = [
   {
@@ -18,6 +26,15 @@ export const ARTICLES = [
     coords: "51.50 N / 00.12 W",
     field: "ESS_04",
     revision: "R.04",
+    paper: "manila",
+    decorations: [
+      /* Yellow post-it nudged down into the middle-right so it no
+         longer overlaps the tape label at the top. */
+      { type: "postit", color: "yellow", style: { top: "44%", right: "8%" }, rotate: -5 },
+      { type: "doodle", shape: "asterisk", style: { bottom: "30%", left: "32%" }, rotate: 14 },
+      { type: "paper-out", side: "bottom", style: { left: "40%", width: "32%" }, rotate: -2 },
+    ],
+    sections: defaultSections,
   },
   {
     id: "002",
@@ -35,6 +52,13 @@ export const ARTICLES = [
     coords: "40.71 N / 74.00 W",
     field: "FN_11",
     revision: "R.02",
+    paper: "slate",
+    decorations: [
+      { type: "paper-out", side: "bottom", style: { left: "30%", width: "44%" }, rotate: 1 },
+      { type: "paper-out", side: "right", style: { top: "32%", height: "28%" }, rotate: 3 },
+      { type: "doodle", shape: "star", style: { bottom: "40%", left: "32%" }, rotate: -8 },
+    ],
+    sections: defaultSections,
   },
   {
     id: "003",
@@ -52,6 +76,14 @@ export const ARTICLES = [
     coords: "55.95 N / 03.18 W",
     field: "LF_27",
     revision: "R.07",
+    paper: "moss",
+    decorations: [
+      /* Mug ring moved down-right to clear the tape label. */
+      { type: "mug-ring", variant: "a", style: { top: "42%", right: "8%" }, rotate: 0 },
+      { type: "doodle", shape: "arrow", style: { bottom: "30%", left: "30%" }, rotate: -22 },
+      { type: "paper-out", side: "bottom", style: { left: "44%", width: "30%" }, rotate: 3 },
+    ],
+    sections: defaultSections,
   },
   {
     id: "004",
@@ -69,6 +101,14 @@ export const ARTICLES = [
     coords: "48.85 N / 02.35 E",
     field: "ARG_14",
     revision: "R.03",
+    paper: "clay",
+    decorations: [
+      /* Pink post-it moved over to the middle-left so the tape stays
+         clear. */
+      { type: "postit", color: "pink", style: { top: "38%", left: "30%" }, rotate: 7 },
+      { type: "paper-out", side: "right", style: { top: "55%", height: "24%" }, rotate: -2 },
+    ],
+    sections: defaultSections,
   },
   {
     id: "005",
@@ -86,6 +126,15 @@ export const ARTICLES = [
     coords: "37.77 N / 122.41 W",
     field: "ESS_28",
     revision: "R.05",
+    paper: "legal",
+    decorations: [
+      /* Orange post-it moved into the middle so the tape stays
+         readable. */
+      { type: "postit", color: "orange", style: { top: "44%", right: "8%" }, rotate: -3 },
+      { type: "paper-out", side: "top", style: { left: "35%", width: "42%" }, rotate: -2 },
+      { type: "paper-out", side: "bottom", style: { left: "30%", width: "26%" }, rotate: 4 },
+    ],
+    sections: defaultSections,
   },
   {
     id: "006",
@@ -103,6 +152,14 @@ export const ARTICLES = [
     coords: "52.52 N / 13.40 E",
     field: "FN_14",
     revision: "R.02",
+    paper: "ash",
+    decorations: [
+      { type: "mug-ring", variant: "c", style: { bottom: "30%", right: "12%" }, rotate: 12 },
+      { type: "doodle", shape: "heart", style: { bottom: "44%", left: "32%" }, rotate: -10 },
+      { type: "paper-out", side: "right", style: { top: "26%", height: "30%" }, rotate: 2 },
+      { type: "paper-out", side: "bottom", style: { left: "38%", width: "28%" }, rotate: -3 },
+    ],
+    sections: defaultSections,
   },
 ];
 

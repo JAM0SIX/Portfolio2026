@@ -31,7 +31,13 @@ export default function ThemeToggle() {
   }, []);
 
   function apply(next) {
-    document.documentElement.dataset.theme = next;
+    const root = document.documentElement;
+    // Add the transient class so the long, soft theme-fade kicks in.
+    // Cleared after the transition window so it doesn't interfere with
+    // normal hover/interaction transitions.
+    root.classList.add("is-theme-changing");
+    root.dataset.theme = next;
+    window.setTimeout(() => root.classList.remove("is-theme-changing"), 750);
     try { localStorage.setItem(THEME_KEY, next); } catch {}
     setTheme(next);
   }

@@ -4,10 +4,14 @@
    Classnames are camelCase per Next.js CSS Module convention.
    ───────────────────────────────────────────────────────────── */
 
-/* ============ ROOT ============ */
+/* ============ ROOT ============
+   Sits inside the page reading column (.col). The column already
+   provides outer padding, so no extra padding here — only internal
+   rhythm via gap. Card dimensions reduced to fit a 2-column grid in
+   the column's content area while keeping the 2:3 book proportion. */
 .root {
-  --card-w: 200px;
-  --card-h: 300px;
+  --card-w: 160px;
+  --card-h: 240px;
 
   position: relative;
   z-index: 1;
@@ -15,88 +19,34 @@
   flex-direction: column;
   align-items: stretch;
   min-height: 0;
-  padding: 80px var(--space-7);
   gap: var(--space-6);
   font-family: var(--font-sans);
   color: var(--ink);
 }
 
-/* ============ TOPBAR ============ */
-.topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: end;
-  padding: var(--space-2) var(--space-1) var(--space-4);
-  border-bottom: 1px solid var(--ink-22);
-  position: relative;
-}
-
-.topbarLeft {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.topbarTitle {
-  margin: 0;
-  font-family: var(--font-heading);
-  font-size: 28px;
-  font-weight: var(--weight-bold);
-  letter-spacing: var(--track-tight);
-  line-height: var(--leading-tight);
-  color: var(--ink);
-}
-
-.topbarRight {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-.topbarCount {
-  font-family: var(--font-sans);
-  font-size: var(--text-sm);
-  letter-spacing: var(--track-wide);
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-62);
-}
+/* The section header uses the shared .section__head / .section__label /
+   .section__rule / .section__count recipe from globals.css — same
+   treatment as the projects section above. */
 
 /* ============ BOOK GRID ============
-   Layout: 3×2 desktop, 2×3 tablet, 1×6 mobile. Centered in the section
-   with generous row/column rhythm. */
+   Layout: fixed 2×3 grid (6 entries) inside the page reading column.
+   Each cell takes its share of the column; the book itself is centred
+   within the cell with breathing room on both sides (see .bookGridLink
+   below). The cover keeps its 2:3 proportion via aspect-ratio. */
 .bookGrid {
-  --book-col-gap: clamp(2.75rem, 5vw, 5rem);
-  --book-row-gap: clamp(3.25rem, 6vw, 5.5rem);
-
   display: grid;
-  width: fit-content;
-  max-width: 100%;
-  margin-inline: auto;
+  width: 100%;
   padding-block: var(--space-6);
-  column-gap: var(--book-col-gap);
-  row-gap: var(--book-row-gap);
+  column-gap: var(--space-6);
+  row-gap: var(--space-8);
   justify-items: center;
-  /* Mobile: single column */
-  grid-template-columns: minmax(0, 200px);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-@media (max-width: 639px) {
+@media (max-width: 480px) {
   .bookGrid {
-    --book-row-gap: clamp(3.75rem, 12vw, 6.5rem);
-  }
-}
-
-@media (min-width: 640px) {
-  .bookGrid {
-    /* Tablet: two columns */
-    grid-template-columns: repeat(2, minmax(0, 200px));
-  }
-}
-
-@media (min-width: 1024px) {
-  .bookGrid {
-    /* Desktop: three columns (two rows of three) */
-    grid-template-columns: repeat(3, minmax(0, 200px));
+    grid-template-columns: 1fr;
+    row-gap: var(--space-7);
   }
 }
 
@@ -104,8 +54,10 @@
   position: relative;
   z-index: 0;
   display: block;
-  width: 100%;
-  max-width: 200px;
+  /* Sit inside the cell with generous breathing room — books take
+     60% of their cell, centred. */
+  width: 60%;
+  max-width: 220px;
   justify-self: center;
   text-decoration: none;
   color: inherit;
@@ -118,25 +70,9 @@
     box-shadow 0.4s var(--ease-soft);
 }
 
-/* Slight irregular rotations — order matches article list in BookLogCarousel */
-.bookGridLink:nth-child(1) {
-  --book-tilt: -2.4deg;
-}
-.bookGridLink:nth-child(2) {
-  --book-tilt: 1.9deg;
-}
-.bookGridLink:nth-child(3) {
-  --book-tilt: -1.1deg;
-}
-.bookGridLink:nth-child(4) {
-  --book-tilt: 2.2deg;
-}
-.bookGridLink:nth-child(5) {
-  --book-tilt: -1.6deg;
-}
-.bookGridLink:nth-child(6) {
-  --book-tilt: 1.3deg;
-}
+/* Tilt is set per book via an inline --book-tilt CSS variable in
+   BookLogCarousel.js (deterministic pseudo-random from the article id
+   so SSR + client render the same value). */
 
 .bookGridLink:hover {
   z-index: 2;
@@ -153,7 +89,7 @@
   outline-offset: 4px;
 }
 
-.bookGridLink .cover {
+.bookGridLink .coverContainer {
   flex: none;
   width: 100%;
   aspect-ratio: 2 / 3;
@@ -257,206 +193,215 @@
 }
 
 /* ============ COVER ============ */
-.cover {
+/* ============ COVER ============
+   Utility / archival folder. Cardstock paper background (one of 6
+   palettes via inline custom properties from Cover.js), vertical
+   binding strip with two metal clips on the left, a tilted paper
+   tape label top-right, the title underlined at the bottom, and per-
+   book decoration stickers (post-its, peeking paper, mug rings,
+   doodles) on top. Theme-independent — books look the same in
+   light and dark mode like physical objects. */
+/* Container holds the cover + any "paper-out" siblings rendered
+   BEFORE the cover in DOM order, so the cover paints on top of them
+   and only their edges peek out around the cover bounds. */
+.coverContainer {
   position: relative;
-  flex: 1;
-  overflow: hidden;
-  border: 1px solid var(--ink-22);
-  display: flex;
-  flex-direction: column;
-  isolation: isolate;
+  width: 100%;
+  height: 100%;
 }
 
-.coverPunches {
-  position: absolute;
-  left: 7px;
-  top: 0;
-  bottom: 0;
-  width: 13px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
-  align-items: center;
-  z-index: 5;
-  pointer-events: none;
-}
+.cover {
+  /* Fallback palette (slate). Inline style on the element overrides. */
+  --cover-bg:        #A8B0BC;
+  --cover-bg-deep:   #96A0AC;
+  --cover-ink:       #1A1815;
+  --cover-tape-bg:   #F1ECDD;
+  --cover-tape-ink:  #2A2622;
+  --cover-clip:      linear-gradient(180deg, #d6d4ce 0%, #f0eee8 35%, #b9b4ac 100%);
+  --cover-clip-edge: rgba(0, 0, 0, 0.35);
+  --cover-edge:      rgba(0, 0, 0, 0.18);
 
-.coverPunch {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--paper-deep);
-  box-shadow:
-    inset 1px 1px 1.5px rgba(26, 24, 21, 0.32),
-    inset -0.5px -0.5px 1px rgba(245, 243, 238, 0.18),
-    0.5px 0.5px 0 rgba(245, 243, 238, 0.15);
-  border: 1px solid var(--ink-22);
-}
-
-.coverSpine {
-  position: absolute;
-  left: 22px;
-  top: 8px;
-  bottom: 8px;
-  width: 1px;
-  background: var(--ink-22);
-  z-index: 4;
-  pointer-events: none;
-}
-
-.coverGrid {
   position: absolute;
   inset: 0;
-  background-size: 22px 22px;
-  opacity: 0.25;
-  pointer-events: none;
-  z-index: 0;
+  /* Cover clips its own contents (grain, post-its, doodles, mug
+     rings) so they stay inside. Paper-out is a sibling — outside
+     this overflow box — so it remains visible at the edges. */
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--cover-bg);
+  color: var(--cover-ink);
+  border: 1px solid var(--cover-edge);
 }
 
-.coverCorner {
+/* Paper grain — a faint multi-spot noise overlay multiplied onto the
+   cardstock background. Keeps the cover from feeling flat without
+   adding a heavy texture. */
+.grain {
   position: absolute;
-  width: 11px;
-  height: 11px;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    radial-gradient(circle at 20% 28%, rgba(0,0,0,0.06) 0.5px, transparent 1.6px),
+    radial-gradient(circle at 78% 18%, rgba(0,0,0,0.05) 0.5px, transparent 1.6px),
+    radial-gradient(circle at 42% 64%, rgba(0,0,0,0.05) 0.5px, transparent 1.6px),
+    radial-gradient(circle at 88% 78%, rgba(0,0,0,0.05) 0.5px, transparent 1.6px),
+    radial-gradient(circle at 10% 88%, rgba(0,0,0,0.06) 0.5px, transparent 1.6px);
+  background-size: 14px 14px, 11px 11px, 9px 9px, 13px 13px, 10px 10px;
+  mix-blend-mode: multiply;
+  opacity: 0.55;
+}
+
+/* Binding strip — vertical column on the left with two metal clips. */
+.binding {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 22px;
+  background: var(--cover-bg-deep);
+  box-shadow: inset -1px 0 0 0 var(--cover-edge);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  padding: 18% 0;
+  z-index: 2;
+}
+
+.clip {
+  width: 7px;
+  height: 18px;
+  background: var(--cover-clip);
+  border: 0.5px solid var(--cover-clip-edge);
+  border-radius: 2px;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.5),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.2),
+    0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+/* Tape label — small tilted paper rectangle in the top-right corner
+   with reference text. */
+.tape {
+  position: absolute;
+  top: 14px;
+  right: 12px;
+  max-width: 60%;
+  padding: 6px 9px;
+  background: var(--cover-tape-bg);
+  color: var(--cover-tape-ink);
+  transform: rotate(2deg);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.18),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
   z-index: 3;
 }
 
-.cornerTl {
-  top: 6px;
-  left: 6px;
-}
-
-.cornerTr {
-  top: 6px;
-  right: 6px;
-}
-
-.cornerBl {
-  bottom: 6px;
-  left: 6px;
-}
-
-.cornerBr {
-  bottom: 6px;
-  right: 6px;
-}
-
-/* Symmetric horizontal padding so centered content reads balanced.
-   The punch column on the left occupies ~30px; text sits inside the
-   symmetric inset and centers within that area. */
-.coverBand,
-.coverBignum,
-.coverTitleBlock {
-  padding-left: 28px;
-  padding-right: 28px;
-}
-
-.coverInsignia {
-  padding-left: 28px;
-  padding-right: 28px;
-}
-
-.coverBand {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--space-7);
-  padding-top: 12px;
-  padding-bottom: 12px;
-}
-
-.coverBandTop {
-  padding-top: 16px;
-}
-
-.coverBandLabel {
+.tapeText {
   font-family: var(--font-sans);
-  font-size: var(--text-2xs);
+  font-size: 9px;
   font-weight: var(--weight-medium);
-  letter-spacing: var(--track-caps);
+  letter-spacing: 0.04em;
+  line-height: 1.3;
   text-transform: none;
 }
 
-/* Stacked: "NO." sits on top of the big number, both centered. */
-.coverBignum {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding-top: 7px;
-  font-family: var(--font-sans);
-  font-size: 50px;
-  letter-spacing: -0.03em;
-  font-weight: var(--weight-regular);
-  line-height: var(--leading-tight);
-  text-align: center;
-}
-
-.bignumPrefix {
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  line-height: var(--leading-tight);
-}
-
-.bignumVal {
-  font-variant-numeric: tabular-nums;
-  line-height: var(--leading-tight);
-}
-
-.coverInsignia {
-  position: relative;
-  z-index: 2;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-top: 12px;
-  padding-bottom: 12px;
-}
-
-.coverInsignia svg {
-  width: 60%;
-  height: auto;
-  max-height: 100%;
-}
-
-.coverTitleBlock {
-  position: relative;
-  z-index: 2;
-  padding-bottom: 16px;
-  text-align: center;
-}
-
-.coverTitle {
-  font-family: var(--font-sans);
-  font-size: 16px;
-  line-height: 1.15;
-  letter-spacing: -0.005em;
-  margin: 0;
-  text-wrap: pretty;
-}
-
-.coverFocusedPulse {
+/* Title — sits at the bottom of the cover, underlined, industrial sans. */
+.titleBlock {
   position: absolute;
-  inset: -1px;
-  border: 1px solid var(--accent);
+  left: 32px;
+  right: 16px;
+  bottom: 18px;
+  z-index: 1;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 17px;
+  font-weight: var(--weight-medium);
+  letter-spacing: -0.005em;
+  line-height: 1.2;
+  color: var(--cover-ink);
+  text-wrap: balance;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+/* ─── Decorations ───
+   Post-its, peeking paper, mug rings and doodles, all positioned via
+   inline styles authored per-book in articles.js (top / right / etc.
+   passed through). Layered above the cover background but the
+   binding/tape still sit on top via their higher z-index. */
+
+.postit {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  background: var(--postit-bg, #FFE57A);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.22),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.08);
+  z-index: 4;
+  /* Subtle diagonal gradient to fake the slight curl of a sticky
+     note. */
+  background-image: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.18),
+    rgba(0, 0, 0, 0.05)
+  );
+  background-blend-mode: multiply;
+}
+
+.paperOut {
+  position: absolute;
+  background: #F8F2E2;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.18),
+    inset 0 0 0 0.5px rgba(0, 0, 0, 0.05);
+  /* No z-index needed — paper-out sits as a SIBLING of .cover in DOM
+     order (rendered before the cover), so the cover naturally paints
+     on top of it. Only the bits outside the cover's box show. */
+}
+/* Horizontal sheet — short height, peeks above or below the cover. */
+.paperOutBottom { bottom: -10px; height: 18px; }
+.paperOutTop    { top: -10px;    height: 18px; }
+/* Vertical sheet — narrow width, peeks past the right edge. */
+.paperOutRight  { right: -8px;   width: 14px; }
+
+/* Mug ring — wrapper sized box; the actual imperfect ellipse(s) live
+   in an inline SVG inside (see Cover.js MugRing component). */
+.mugRing {
+  position: absolute;
+  width: 44px;
+  height: 44px;
   pointer-events: none;
-  animation: pulse 1.6s ease-in-out infinite;
   z-index: 4;
 }
+.mugRing svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
 
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.45;
-  }
+.doodle {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: var(--cover-ink);
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: 4;
+}
+.doodle svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 /* ============ FUSED SCALE BAR ============ */
@@ -482,14 +427,14 @@
   right: 0;
   bottom: 6px;
   height: 1px;
-  background: var(--ink-42);
+  background: var(--ink-faint);
 }
 
 .scalebarTick {
   position: absolute;
   bottom: 6px;
   width: 1px;
-  background: var(--ink-42);
+  background: var(--ink-faint);
   transform: translateX(-0.5px);
 }
 
@@ -502,7 +447,7 @@
   position: relative;
   bottom: auto;
   height: 12px;
-  background: var(--ink-82);
+  background: var(--ink-soft);
 }
 
 .scalebarMajor {
@@ -538,7 +483,7 @@
   bottom: 14px;
   left: 50%;
   transform: translateX(-50%);
-  color: var(--ink-42);
+  color: var(--ink-faint);
   font-family: var(--font-sans);
   font-size: var(--text-2xs);
   font-weight: var(--weight-medium);
@@ -623,7 +568,7 @@
 
 .rule {
   height: 1px;
-  background: var(--ink-22);
+  background: var(--rule);
 }
 
 .previewRow {
@@ -657,49 +602,10 @@
   }
 }
 
-/* ============ RESPONSIVE ============ */
-/* Tablet: bring page padding down so the active card has comfortable
-   breathing room from the left viewport edge while still reading as
-   content-margin-aligned. */
-@media (max-width: 1100px) {
-  .root {
-    padding: var(--space-6) var(--space-6);
-  }
-
-  .trackWrap {
-    margin-left: calc(-1 * var(--space-6));
-    margin-right: calc(-1 * var(--space-6));
-  }
-
-  .track {
-    padding-left: var(--space-6);
-  }
-}
-
-/* Mobile: tighten further; shrink card to keep things in 100vh.
-   Override the card-size custom properties here so all derived values
-   (.card box, .cardFocus margin, .trackWrap buffer, JS step constants)
-   reflow to mobile dimensions automatically. */
+/* ============ RESPONSIVE ============
+   Section now sits inside the page reading column, so the column owns
+   horizontal padding. We only tighten internal gap and top type on
+   narrow viewports. */
 @media (max-width: 720px) {
-  .root {
-    padding: 64px var(--space-5);
-    gap: var(--space-4);
-  }
-
-  .trackWrap {
-    margin-left: calc(-1 * var(--space-5));
-    margin-right: calc(-1 * var(--space-5));
-  }
-
-  .track {
-    padding-left: var(--space-5);
-  }
-
-  .topbarTitle {
-    font-size: 22px;
-  }
-
-  .previewTitle {
-    font-size: 24px;
-  }
+  .root { gap: var(--space-4); }
 }

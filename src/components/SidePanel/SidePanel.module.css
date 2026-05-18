@@ -1,0 +1,186 @@
+/* ─────────────────────────────────────────────────────────────────────
+   SidePanel — secondary button + drawer.
+   Desktop  (≥ 721px): slides in from the right edge of the viewport,
+                       fixed 420px wide, sits over the page on z-index
+                       1000. Slide + fade animation.
+   Mobile   (≤ 720px): becomes an inline accordion that expands
+                       beneath the trigger button. Uses the
+                       grid-template-rows 0fr → 1fr trick so the
+                       transition is fully smooth.
+   Dismiss is via the close button inside the panel head only —
+   no backdrop, no Esc by design.
+   ─────────────────────────────────────────────────────────────────── */
+
+.trigger {
+  /* Inherit .btn .btn-secondary look from the design system; this
+     class is just a hook in case we want per-instance tweaks. */
+}
+
+/* Inline variant — strips button chrome so the trigger reads as an
+   inline link inside a paragraph (uses global .link .link--ink for
+   the underline + colour). */
+.triggerInline {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  display: inline;
+}
+
+/* Floating drawer — fixed but offset from every edge so it reads as
+   a panel hovering in space, not pinned to the screen. Uses the
+   design-system layered chamfer pattern (outer element = border
+   colour, ::before inset 1px = fill colour) so the 8px chamfered
+   corners keep their 1px border instead of being clipped off. */
+.panel {
+  position: fixed;
+  top: var(--space-8);
+  right: var(--space-6);
+  bottom: var(--space-8);
+  width: 360px;
+  max-width: calc(100vw - var(--space-6) * 2);
+  z-index: 1000;
+  isolation: isolate;
+
+  background: var(--rule);                       /* outer = border colour */
+  clip-path: polygon(
+    var(--chamfer-size) 0,
+    100% 0,
+    100% calc(100% - var(--chamfer-size)),
+    calc(100% - var(--chamfer-size)) 100%,
+    0 100%,
+    0 var(--chamfer-size)
+  );
+
+  /* drop-shadow (not box-shadow) so the shadow respects the
+     chamfered clip-path silhouette rather than being clipped. */
+  filter: drop-shadow(0 12px 32px rgba(0, 0, 0, 0.10));
+
+  /* Closed: slide off the right edge (with the right-offset added
+     so it disappears fully) and fade out. */
+  transform: translateX(calc(100% + var(--space-6)));
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform 280ms var(--ease-out),
+    opacity   200ms var(--ease-default);
+}
+
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: var(--border-default);
+  z-index: -1;
+  background: var(--paper-deep);                 /* inner = tinted fill */
+  clip-path: polygon(
+    var(--chamfer-inner) 0,
+    100% 0,
+    100% calc(100% - var(--chamfer-inner)),
+    calc(100% - var(--chamfer-inner)) 100%,
+    0 100%,
+    0 var(--chamfer-inner)
+  );
+}
+
+.panel.isOpen {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-6);
+  border-bottom: var(--border-default) solid var(--rule);
+  flex: 0 0 auto;
+}
+
+.heading {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 18px;
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-tight);
+  line-height: var(--leading-snug);
+  color: var(--ink);
+}
+
+.close {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: var(--ink-mute);
+  cursor: pointer;
+  padding: var(--space-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--dur-base) var(--ease-default);
+}
+.close:hover,
+.close:focus-visible { color: var(--ink); }
+.close:focus-visible {
+  outline: var(--border-emphasis) solid var(--accent);
+  outline-offset: 2px;
+}
+.close svg { display: block; }
+
+.body {
+  padding: var(--space-6);
+  overflow-y: auto;
+  flex: 1 1 auto;
+  font-size: 14px;
+  line-height: var(--leading-relaxed);
+  color: var(--ink-soft);
+}
+.body p        { margin: 0 0 var(--space-4); }
+.body p:last-child { margin-bottom: 0; }
+
+
+/* ─── Mobile: inline accordion ───
+   On narrow viewports the panel switches from a floating drawer to
+   an inline accordion under the trigger. The chamfer + drop-shadow
+   are dropped here for a quieter inline look. */
+@media (max-width: 720px) {
+  .panel {
+    position: relative;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    width: 100%;
+    max-width: 100%;
+    background: var(--paper-deep);
+    isolation: auto;
+    clip-path: none;
+    filter: none;
+    transform: none;
+    opacity: 1;
+    pointer-events: auto;
+    margin-top: var(--space-3);
+    border: var(--border-default) solid var(--rule);
+
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 320ms var(--ease-out);
+  }
+  .panel::before { display: none; }
+  .panel.isOpen { grid-template-rows: 1fr; }
+  .shell {
+    height: auto;
+    overflow: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel { transition: none !important; }
+}

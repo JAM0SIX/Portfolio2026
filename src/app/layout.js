@@ -1,6 +1,7 @@
 import { Sora } from "next/font/google";
 import Sidebar from "./components/Sidebar";
 import LocalClock from "./components/LocalClock";
+import CursorDotField from "./components/CursorDotField";
 import "./globals.css";
 
 const sora = Sora({
@@ -21,14 +22,22 @@ const themeBootScript = `(function(){try{var t=localStorage.getItem('harrys-them
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" data-theme="paper" className={sora.variable}>
+    <html
+      lang="en"
+      data-theme="paper"
+      className={sora.variable}
+      suppressHydrationWarning
+    >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
       </head>
       <body>
         <div className="shell">
           <Sidebar />
-          {children}
+          <div className="shell__main">
+            <CursorDotField />
+            {children}
+          </div>
         </div>
         <LocalClock />
       </body>

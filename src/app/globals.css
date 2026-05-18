@@ -1,141 +1,29 @@
-/* ─── Haz. Design System ─────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════
+   globals.css
+   ───────────────────────────────────────────────────────────────────────
+   This file holds COMPONENT LAYOUT only. The design system (tokens,
+   themes, reset, chamfer + tag primitives) lives in design-system.css,
+   which is imported below. Treat design-system.css as the reference —
+   never edit it ad-hoc from a component; either reuse a token/primitive
+   or add a new one there with clear docs.
+   ═══════════════════════════════════════════════════════════════════════ */
 
-:root {
-  /* Type */
-  --font-sans:    var(--font-sora), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
-  --font-heading: "Apple Garamond", "Garamond", "Times New Roman", serif;
-  --font-mono:    ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+@import "./design-system.css";
 
-  --text-2xs: 10px;
-  --text-xs:  11px;
-  --text-sm:  12px;
-  --text-base: 14px;
-  --text-md:   16px;
-  --text-lg:   20px;
-  --text-xl:   28px;
-  --text-2xl:  44px;
-  --text-hero: 64px;
-
-  --weight-regular: 400;
-  --weight-medium:  500;
-  --weight-semibold: 600;
-  --weight-bold:    700;
-
-  --track-tight: -0.02em;
-  --track-normal: 0;
-  --track-wide: 0.04em;
-  --track-caps: 0.16em;
-  --track-caps-wide: 0.22em;
-
-  --leading-tight:   1;
-  --leading-snug:    1.15;
-  --leading-normal:  1.5;
-  --leading-relaxed: 1.6;
-
-  /* Spacing */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 22px;
-  --space-6: 28px;
-  --space-7: 36px;
-  --space-8: 44px;
-  --space-9: 64px;
-
-  --radius-none: 0;
-  --radius-full: 50%;
-
-  --border-hairline: 0.5px;
-  --border-default: 1px;
-  --border-emphasis: 1.5px;
-
-  --chamfer-size:  8px;
-  --chamfer-inner: 7px;
-
-  --ease-default: cubic-bezier(0.32, 0.72, 0.32, 1);
-  --ease-out:     cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-soft:    cubic-bezier(0.22, 0.8, 0.2, 1);
-
-  --dur-fast:   150ms;
-  --dur-base:   250ms;
-  --dur-slow:   450ms;
-  --dur-slower: 650ms;
-
-  /* Accent — single system accent */
-  --accent:        #C2410C;
-  --accent-hover:  #A8380A;
-  --accent-soft:   rgba(194, 65, 12, 0.18);
-
-  /* Theme tokens — DEFAULT: paper (light). [data-theme="onyx"] overrides below. */
-  --bg:        #F5F3EE;
-  --sidebar:   #ECEAE3;
-  --panel:     #ECEAE3;
-  --tile:      rgba(26, 24, 21, 0.06);
-  --rule:      rgba(26, 24, 21, 0.22);
-  --rule-soft: rgba(26, 24, 21, 0.07);
-  --guide:     rgba(26, 24, 21, 0.22);
-  --ink:       #1A1815;
-  --ink-soft:  rgba(26, 24, 21, 0.82);
-  --ink-mute:  rgba(26, 24, 21, 0.62);
-  --chev:      rgba(26, 24, 21, 0.42);
-  --active:    var(--accent);
-  --hover-bg:  #ECEAE3;
-  --ink-hover: #2A2722;
-  --row-h:     30px;
-
-  /* Aliases — naming used by ported component CSS modules */
-  --paper:      var(--bg);
-  --paper-deep: var(--sidebar);
-  --ink-22:     var(--rule);
-  --ink-42:     var(--chev);
-  --ink-62:     var(--ink-mute);
-  --ink-82:     var(--ink-soft);
-}
-
-[data-theme="onyx"] {
-  --bg:        #0B0B0E;
-  --sidebar:   #121216;
-  --panel:     #1a1a20;
-  --tile:      #22222a;
-  --rule:      #26262e;
-  --rule-soft: #15151a;
-  --guide:     #2f2f38;
-  --hover-bg:  #1a1a20;
-  --ink:       #F5F3EE;
-  --ink-soft:  rgba(245, 243, 238, 0.82);
-  --ink-mute:  rgba(245, 243, 238, 0.62);
-  --chev:      rgba(245, 243, 238, 0.42);
-  --ink-hover: var(--accent);
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-html, body {
-  background: var(--bg);
-  color: var(--ink);
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-  min-height: 100vh;
-}
-
-a { color: inherit; text-decoration: none; }
-button { font: inherit; color: inherit; }
-::selection { background: var(--accent-soft); }
 
 /* ─── Layout shell ───────────────────────────────────────────────────── */
 .shell {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 220px 1fr;
   min-height: 100vh;
 }
 @media (max-width: 880px) {
   .shell { grid-template-columns: 1fr; }
 }
 
-/* ─── Page main column ─────────────────────────────────────────────────
-   .page is full-bleed (no padding); .col carries the reading-column padding
-   so full-bleed sections (e.g. BookLogSection) can sit between columns. */
+/* Page main column. .page is full-bleed; .col carries the reading-column
+   padding so full-bleed sections (e.g. BookLogSection) can sit between
+   reading-column blocks. */
 main.page {
   position: relative;
   display: flex;
@@ -146,64 +34,43 @@ main.page {
   width: 100%;
   padding: 80px 56px 120px 128px;
 }
-@media (max-width: 880px) {
-  .col { padding: 56px 32px 96px; }
-}
-@media (max-width: 720px) {
-  .col { padding: 48px 24px 80px; }
-}
+@media (max-width: 880px) { .col { padding: 56px 32px 96px; } }
+@media (max-width: 720px) { .col { padding: 48px 24px 80px; } }
 
-/* ─── Generic chamfer (corner-clipped) shape ─────────────────────────── */
-.chamfer {
-  clip-path: polygon(
-    var(--chamfer-size) 0,
-    100% 0,
-    100% calc(100% - var(--chamfer-size)),
-    calc(100% - var(--chamfer-size)) 100%,
-    0 100%,
-    0 var(--chamfer-size)
-  );
-}
 
-/* ─── Tag chip ───────────────────────────────────────────────────────── */
-.tag {
-  --tag-chamfer: 6px;
-  --tag-border: 0.5px;
+/* ─── Cursor-tracked dot field ─────────────────────────────────────────
+   The dot-field canvas is FIXED to the viewport (not the column), so its
+   size only changes on window resize — never on page content changes
+   like a card's hover reveal expanding. This avoids canvas-buffer flash
+   during reveal transitions. It's positioned to start just right of the
+   sidebar so it never spills onto the file tree. Page content sits
+   above it via z-index. */
+.shell__main {
   position: relative;
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 10px;
-  font-family: var(--font-sans);
-  font-size: var(--text-xs);
-  font-weight: var(--weight-medium);
-  line-height: var(--leading-tight);
-  color: var(--ink-mute);
-  background: var(--ink-mute);
-  clip-path: polygon(
-    var(--tag-chamfer) 0,
-    100% 0,
-    100% calc(100% - var(--tag-chamfer)),
-    calc(100% - var(--tag-chamfer)) 100%,
-    0 100%,
-    0 var(--tag-chamfer)
-  );
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
-.tag::before {
-  content: "";
-  position: absolute;
-  inset: var(--tag-border);
+.dot-field {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 220px;        /* matches .shell sidebar column width */
+  pointer-events: none;
   z-index: 0;
-  background: var(--bg);
-  clip-path: polygon(
-    calc(var(--tag-chamfer) - var(--tag-border)) 0,
-    100% 0,
-    100% calc(100% - (var(--tag-chamfer) - var(--tag-border))),
-    calc(100% - (var(--tag-chamfer) - var(--tag-border))) 100%,
-    0 100%,
-    0 calc(var(--tag-chamfer) - var(--tag-border))
-  );
+  opacity: 0.55;
 }
-.tag > span { position: relative; z-index: 1; }
+@media (max-width: 880px) {
+  .dot-field { left: 0; }   /* sidebar stacks above main on mobile */
+}
+.dot-field canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+main.page { position: relative; z-index: 1; }
+
 
 /* ─── Sidebar ────────────────────────────────────────────────────────── */
 .sidebar {
@@ -211,11 +78,11 @@ main.page {
   top: 0;
   align-self: start;
   height: 100vh;
-  background: var(--sidebar);
+  background: var(--paper-deep);
   border-right: var(--border-default) solid var(--rule);
   box-shadow:
     inset -5px 0 0 0 var(--rule-soft),
-    inset -4px 0 0 0 var(--sidebar);
+    inset -4px 0 0 0 var(--paper-deep);
   padding: var(--space-4) var(--space-3) var(--space-6);
   font-size: var(--text-base);
   user-select: none;
@@ -241,6 +108,7 @@ main.page {
 }
 .logo-mark:hover { color: var(--accent); }
 .logo-mark:focus-visible { outline: var(--border-emphasis) solid var(--accent); outline-offset: 2px; }
+
 .logo-square {
   width: 28px; height: 28px;
   display: inline-grid;
@@ -273,24 +141,77 @@ main.page {
 
 .sidebar-header__slot { display: none; align-items: center; }
 
+/* ───── Doc-mode sidebar pieces ─────
+   Shown when the user is inside a project or a note. The back link
+   takes them back to the global file-tree at /. */
+.sidebar-back {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-2);
+  margin: 0 0 var(--space-3);
+  height: var(--row-h);
+  cursor: pointer;
+  color: var(--ink-mute);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--track-wide);
+  text-transform: uppercase;
+  transition:
+    background var(--dur-base) var(--ease-default),
+    color      var(--dur-base) var(--ease-default);
+}
+.sidebar-back:hover,
+.sidebar-back:focus-visible {
+  background: var(--accent-tint);
+  color: var(--accent);
+}
+.sidebar-back:focus-visible {
+  outline: var(--border-emphasis) solid var(--accent);
+  outline-offset: 2px;
+}
+.sidebar-back svg {
+  width: 14px;
+  height: 14px;
+  transition: transform var(--dur-base) var(--ease-default);
+}
+.sidebar-back:hover svg { transform: translateX(-3px); }
+
+/* In doc-mode the project/note title sits at the top of the tree, no
+   chevron-space indent — it's the root of this view, not a nested file. */
+.tree .row.file.doc-title {
+  color: var(--ink);
+  font-weight: var(--weight-semibold);
+  background: transparent;
+}
+.tree .row.file.doc-title:hover { background: var(--accent-tint); color: var(--accent); }
+
 .tree { display: flex; flex-direction: column; }
 .tree .row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   height: var(--row-h);
-  padding: 0 8px;
-  border-radius: var(--radius-none);
+  padding: 0 var(--space-2);
   color: var(--ink-soft);
   cursor: pointer;
   transition: background .12s ease, color .12s ease;
 }
-.tree .row:hover { background: var(--accent-soft); color: var(--accent); }
+.tree .row:hover { background: var(--accent-tint); color: var(--accent); }
 .tree .row:hover .chev { color: var(--accent); }
 .tree .row:focus-visible { outline: var(--border-emphasis) solid var(--accent); outline-offset: -1px; }
-.tree .row .label { white-space: nowrap; }
+.tree .row .label {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .tree .row.active {
-  color: var(--active);
+  /* Match the resting text colour of the neighbouring rows so the
+     active state reads through weight + tinted background, not via a
+     colour shift. */
+  color: var(--ink-soft);
   font-weight: var(--weight-semibold);
   background: var(--accent-soft);
 }
@@ -298,7 +219,7 @@ main.page {
   width: 12px; height: 12px;
   flex: 0 0 12px;
   display: inline-flex; align-items: center; justify-content: center;
-  color: var(--chev);
+  color: var(--ink-faint);
   transition: transform .15s ease, color .12s ease;
 }
 .tree .chev svg { width: 10px; height: 10px; display: block; }
@@ -308,7 +229,7 @@ main.page {
 .children {
   position: relative;
   margin-left: 11px;
-  padding-left: 13px;
+  padding-left: 4px;
   overflow: hidden;
   max-height: 0;
   transition: max-height .25s ease;
@@ -348,7 +269,8 @@ main.page {
   .sidebar.is-open .tree { display: flex; }
 }
 
-/* ─── Local clock module (bottom-left, hosts theme toggle on desktop) ── */
+
+/* ─── Local clock module (bottom-left; hosts theme toggle on desktop) ── */
 .local-clock {
   position: fixed;
   left: 20px;
@@ -368,14 +290,14 @@ main.page {
   gap: 2px;
   padding: 2px;
   border: var(--border-default) solid var(--rule);
-  background: var(--bg);
+  background: var(--paper);
   margin-bottom: var(--space-1);
 }
 .tt-btn {
   appearance: none;
   border: 0;
   background: transparent;
-  color: var(--chev);
+  color: var(--ink-faint);
   width: 28px;
   height: 28px;
   display: inline-flex;
@@ -398,6 +320,7 @@ main.page {
   .local-clock { left: 16px; bottom: 16px; }
 }
 
+
 /* ─── Hero ───────────────────────────────────────────────────────────── */
 .hero-identity {
   display: flex;
@@ -407,10 +330,10 @@ main.page {
 }
 .avatar {
   width: 36px; height: 36px;
-  background: linear-gradient(135deg, #6a3a2a, #c1825d);
+  background: var(--tile);
+  border: var(--border-default) solid var(--rule);
   display: inline-block;
   flex: 0 0 36px;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
   cursor: pointer;
   transform-origin: top left;
   transition: transform var(--dur-base) var(--ease-default);
@@ -419,7 +342,7 @@ main.page {
 .hero-identity .name {
   font-size: 18px;
   color: var(--ink-soft);
-  font-weight: 400;
+  font-weight: var(--weight-regular);
   transition: transform var(--dur-base) var(--ease-default);
 }
 .hero-identity:has(.avatar:hover) .name { transform: translateX(24px); }
@@ -440,61 +363,64 @@ main.page {
 .id-location .dot {
   width: 7px; height: 7px;
   border-radius: 50%;
-  background: #4ade80;
-  box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.65);
+  background: var(--live-green);
+  box-shadow: 0 0 0 0 var(--live-green-ring);
   animation: lc-pulse 2s ease-out infinite;
 }
 .id-sep { margin-right: var(--space-1); }
 .id-time { font-variant-numeric: tabular-nums; }
 @keyframes lc-pulse {
-  0%   { box-shadow: 0 0 0 0    rgba(74, 222, 128, 0.65); }
+  0%   { box-shadow: 0 0 0 0    var(--live-green-ring); }
   70%  { box-shadow: 0 0 0 10px rgba(74, 222, 128, 0); }
   100% { box-shadow: 0 0 0 0    rgba(74, 222, 128, 0); }
 }
 
 .hc-root {
-  --hc-paper: var(--bg);
-  --hc-ink: var(--ink);
-  --hc-ink-panel: var(--ink);
-  --hc-ink-12: rgba(26, 24, 21, 0.12);
-  --hc-accent: var(--accent);
-  --hc-chamfer: 8px;
-  --hc-ease: var(--ease-default);
-  --hc-dur: 250ms;
+  /* Local hc-* tokens map onto the design-system tokens. The hc-type /
+     hc-ink components inside use --hc-paper / --hc-ink-panel / etc. so
+     they stay readable when ported between projects. */
+  --hc-paper:      var(--paper);
+  --hc-ink:        var(--ink);
+  --hc-ink-panel:  var(--ink);
+  --hc-ink-12:     rgba(26, 24, 21, 0.12);
+  --hc-accent:     var(--accent);
+  --hc-font-sans:  var(--font-sans);
+  --hc-font-serif: var(--font-sans);
+  --hc-chamfer:    var(--chamfer-size);
+  --hc-ease:       var(--ease-default);
+  --hc-dur:        var(--dur-base);
+
   max-width: 640px;
-  margin: var(--space-7) 0 0;
-  color: var(--hc-ink);
+  margin: calc(72px + 8px) 0 0;
+  color: var(--ink);
 }
 [data-theme="onyx"] .hc-root {
   --hc-ink-12: rgba(245, 243, 238, 0.12);
 }
-.hc-headline {
-  font-family: var(--font-heading);
-  font-size: clamp(2.2rem, 4.4vw, 44px);
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-  color: var(--hc-ink);
-}
-.hc-body {
-  font-family: var(--font-sans);
-  font-size: 16px;
-  line-height: 1.6;
-  color: var(--ink-soft);
-  margin-top: var(--space-6);
-}
 
-.hc-ink {
-  position: relative;
+/* AutoTypeSlot — surface-toned chassis with orange chev. Uses
+   --paper-deep for the pill background and default --ink for the text so
+   the pill sits as a quiet panel in both themes (deeper-than-paper on
+   light, lighter-than-paper on dark). */
+.hc-type {
   display: inline-flex;
   align-items: center;
-  padding: 2px 8px;
-  line-height: 1em;
-  background: var(--hc-ink-12);
-  color: inherit;
+  vertical-align: 0.06em;
+  padding: 0.18em 0.5em 0.14em;
+  background: var(--paper-deep);
+  color: var(--ink);
+  font-family: var(--hc-font-serif);
+  font-style: inherit;
+  font-weight: inherit;
+  font-size: 0.78em;
+  letter-spacing: -0.02em;
+  line-height: 1;
   cursor: pointer;
-  border: none;
-  font-family: inherit;
+  user-select: none;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 100% 100%, 0 100%, 0 0);
+  transition: clip-path var(--hc-dur) var(--hc-ease);
+}
+.hc-type:hover {
   clip-path: polygon(
     var(--hc-chamfer) 0,
     100% 0,
@@ -503,13 +429,103 @@ main.page {
     0 100%,
     0 var(--hc-chamfer)
   );
-  transition: color var(--hc-dur) var(--hc-ease), background var(--hc-dur) var(--hc-ease);
 }
-.hc-ink:hover { color: var(--hc-paper); background: var(--ink); }
+.hc-type__prompt {
+  color: var(--hc-accent);
+  font-family: var(--hc-font-sans);
+  font-weight: var(--weight-medium);
+  margin-right: 0.4em;
+  font-size: 0.92em;
+}
+.hc-type__vp {
+  position: relative;
+  display: inline-block;
+  height: 1em;
+  line-height: 1;
+}
+.hc-type__ghost {
+  display: inline-block;
+  visibility: hidden;
+  white-space: pre;
+  pointer-events: none;
+}
+.hc-type__overlay {
+  position: absolute;
+  inset: 0;
+  display: inline-flex;
+  align-items: center;
+  white-space: pre;
+}
+.hc-type__text { display: inline-block; white-space: pre; }
+.hc-type__cursor {
+  display: inline-block;
+  width: 2px;
+  height: 0.85em;
+  margin-left: 3px;
+  background: var(--ink);
+  vertical-align: -0.05em;
+  animation: hc-blink 1.05s step-end infinite;
+}
+@keyframes hc-blink {
+  0%, 50%       { opacity: 1; }
+  50.01%, 100%  { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hc-type__cursor { animation: none; }
+}
+.hc-headline {
+  font-family: var(--font-sans);
+  font-size: clamp(2.2rem, 4.4vw, 48px);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--track-tight);
+  line-height: 1.1;
+  color: var(--ink);
+}
+.hc-body {
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: var(--leading-relaxed);
+  color: var(--ink-soft);
+  margin-top: 48px;
+}
+
+/* hc-ink — tag-shaped inline word. Square at rest, chamfers on hover. */
+.hc-ink {
+  --hc-ink-tint: rgba(26, 24, 21, 0.12);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-2);
+  line-height: 1em;
+  background: var(--hc-ink-tint);
+  color: inherit;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 100% 100%, 0 100%, 0 0);
+  transition:
+    color var(--dur-base) var(--ease-default),
+    background var(--dur-base) var(--ease-default),
+    clip-path var(--dur-base) var(--ease-default);
+}
+[data-theme="onyx"] .hc-ink { --hc-ink-tint: rgba(245, 243, 238, 0.12); }
+.hc-ink:hover {
+  color: var(--paper);
+  background: var(--ink);
+  clip-path: polygon(
+    var(--chamfer-size) 0,
+    100% 0,
+    100% calc(100% - var(--chamfer-size)),
+    calc(100% - var(--chamfer-size)) 100%,
+    0 100%,
+    0 var(--chamfer-size)
+  );
+}
 .hc-ink--accent:hover { background: var(--accent); }
 
-/* ─── Projects grid (home page work section) ──────────────────────────── */
-.projects-section { margin-top: var(--space-9); }
+
+/* ─── Projects grid (home page Work section) ─────────────────────────── */
+.projects-section { margin-top: 240px; }
 .section__head {
   display: flex;
   align-items: center;
@@ -523,7 +539,7 @@ main.page {
 }
 .section__rule {
   flex: 1;
-  height: 1px;
+  height: var(--border-default);
   background: var(--rule);
 }
 .section__count {
@@ -546,20 +562,71 @@ main.page {
   flex-direction: column;
   gap: var(--space-6);
 }
+
+/* .project uses the layered chamfer pattern from design-system.css.
+   Outer = border colour, ::before inset 1px = fill colour. Both
+   chamfer together on hover so the 1px outline is preserved at every
+   chamfered corner. */
 .project {
+  position: relative;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
   padding: var(--space-4);
-  background: transparent;
-  border: var(--border-default) solid var(--rule);
   color: var(--ink);
-  transition: background var(--dur-base) var(--ease-default), border-color var(--dur-base) var(--ease-default), transform var(--dur-base) var(--ease-default);
+  background: var(--rule);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 100% 100%, 0 100%, 0 0);
+  transition:
+    background var(--dur-base) var(--ease-default),
+    clip-path  var(--dur-base) var(--ease-default),
+    opacity    var(--dur-base) var(--ease-default),
+    transform  var(--dur-base) var(--ease-default);
 }
-.project:hover {
-  background: var(--accent-soft);
-  border-color: var(--accent);
+
+/* Sibling dim — when the grid contains a hovered/focused card, dim every
+   OTHER card so the active one reads as the focal point. */
+.projects-grid:has(.project:hover) .project:not(:hover),
+.projects-grid:has(.project:focus-within) .project:not(:focus-within) {
+  opacity: 0.4;
 }
+.project::before {
+  content: "";
+  position: absolute;
+  inset: var(--border-default);
+  z-index: -1;
+  background: var(--paper);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 100% 100%, 0 100%, 0 0);
+  transition:
+    background var(--dur-base) var(--ease-default),
+    clip-path var(--dur-base) var(--ease-default);
+}
+.project:hover,
+.project:focus-visible {
+  /* Border stays --rule. Outer-layer colour unchanged on hover. */
+  clip-path: polygon(
+    var(--chamfer-size) 0,
+    100% 0,
+    100% calc(100% - var(--chamfer-size)),
+    calc(100% - var(--chamfer-size)) 100%,
+    0 100%,
+    0 var(--chamfer-size)
+  );
+}
+.project:hover::before,
+.project:focus-visible::before {
+  /* Fill shifts to the next step on the paper ladder — a quiet "lift". */
+  background: var(--paper-deep);
+  clip-path: polygon(
+    var(--chamfer-inner) 0,
+    100% 0,
+    100% calc(100% - var(--chamfer-inner)),
+    calc(100% - var(--chamfer-inner)) 100%,
+    0 100%,
+    0 var(--chamfer-inner)
+  );
+}
+
 .project__image {
   aspect-ratio: 4 / 3;
   background: var(--tile);
@@ -570,9 +637,7 @@ main.page {
 .project__image-placeholder {
   width: 100%;
   height: 100%;
-  background:
-    linear-gradient(135deg, rgba(194, 65, 12, 0.10), transparent 50%),
-    repeating-linear-gradient(45deg, var(--rule-soft) 0 1px, transparent 1px 8px);
+  background: var(--tile);
 }
 .project__head {
   display: flex;
@@ -617,29 +682,62 @@ main.page {
   flex-direction: column;
   gap: var(--space-3);
 }
+.project__metrics {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-top: var(--border-default) solid var(--rule-soft);
+  border-bottom: var(--border-default) solid var(--rule-soft);
+}
+.project__metric {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+.project__metric-value {
+  font-family: var(--font-sans);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--ink);
+  letter-spacing: var(--track-tight);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.project__metric-unit {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-regular);
+  color: var(--ink-mute);
+  margin-left: 1px;
+}
+.project__metric-label {
+  font-size: var(--text-xs);
+  color: var(--ink-mute);
+  line-height: var(--leading-normal);
+}
 .project__desc {
   font-size: var(--text-sm);
   color: var(--ink-soft);
   line-height: var(--leading-relaxed);
 }
-.project__cta {
+.project__actions {
   display: inline-flex;
-  align-items: center;
+  flex-wrap: wrap;
   gap: var(--space-2);
+}
+/* Compact buttons inside project cards — smaller padding + font than
+   the design-system default so they don't dominate the card. */
+.project__actions .btn {
+  padding: var(--space-1) var(--space-3);
   font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-  color: var(--accent);
 }
-.project__cta .arrow {
-  transition: transform var(--dur-base) var(--ease-default);
-}
-.project:hover .project__cta .arrow { transform: translateX(4px); }
 .project--coming-soon { opacity: 0.7; pointer-events: none; }
 
-/* ─── Case study page (article) ───────────────────────────────────────── */
-.case-study {
-  max-width: 760px;
-}
+
+/* ─── Case study page ────────────────────────────────────────────────── */
+.case-study { max-width: 760px; }
 .case-study__eyebrow {
   font-size: var(--text-xs);
   color: var(--ink-mute);
@@ -648,16 +746,16 @@ main.page {
   margin-bottom: var(--space-3);
 }
 .case-study__title {
-  font-family: var(--font-heading);
+  font-family: var(--font-sans);
   font-size: clamp(2.4rem, 5vw, var(--text-2xl));
-  font-weight: 500;
+  font-weight: var(--weight-medium);
   letter-spacing: var(--track-tight);
   line-height: 1.05;
   color: var(--ink);
   margin-bottom: var(--space-4);
 }
 .case-study__lede {
-  font-size: var(--text-md);
+  font-size: 14px;
   line-height: var(--leading-relaxed);
   color: var(--ink-soft);
   max-width: 56ch;
@@ -686,24 +784,68 @@ main.page {
   font-size: var(--text-sm);
   color: var(--ink);
 }
-.case-study section { margin-top: var(--space-8); }
-.case-study h2 {
-  font-family: var(--font-sans);
-  font-size: var(--text-lg);
-  font-weight: var(--weight-medium);
-  letter-spacing: var(--track-tight);
-  margin-bottom: var(--space-4);
+/* (Generic .case-study section / h2 / p rules were removed — the new
+   layout uses specific classes: .case-study__section,
+   .case-study__section-title, .case-study__paragraph.) */
+
+/* Outcomes grid (AbilityCard metric variant). */
+.case-study__outcomes { margin-top: var(--space-8); }
+.case-study__outcomes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-5);
 }
-.case-study p {
-  font-size: var(--text-md);
+@media (max-width: 1024px) {
+  .case-study__outcomes-grid { grid-template-columns: 1fr; }
+}
+
+/* Placeholder hero image — same diagonal-stripe + soft accent recipe
+   as the project card thumbnails. Swap for a real <Image /> when art
+   is ready. */
+.case-study__hero-image {
+  margin-top: var(--space-7);
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: var(--tile);
+  border: var(--border-default) solid var(--rule);
+}
+
+/* ProjectLayers (compact) sits inside the reading column. */
+.case-study__layers { margin-top: var(--space-9); }
+
+/* Generic content sections — title + paragraphs + image placeholders. */
+.case-study__section { margin-top: calc(var(--space-9) * 2); }
+.case-study__section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-family: var(--font-sans);
+  font-size: 18px;
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--track-tight);
+  line-height: var(--leading-snug);
+  color: var(--ink);
+  margin-bottom: var(--space-6);
+}
+/* Horizontal rule that starts at the end of the heading text and runs
+   to the column's right edge. */
+.case-study__section-title::after {
+  content: "";
+  flex: 1;
+  height: var(--border-default);
+  background: var(--rule);
+}
+.case-study__paragraph {
+  font-size: 14px;
   line-height: var(--leading-relaxed);
   color: var(--ink-soft);
   margin-bottom: var(--space-4);
+  max-width: 64ch;
 }
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    transition-duration: 0ms !important;
-    animation-duration: 0ms !important;
-  }
+.case-study__image {
+  margin-top: var(--space-5);
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: var(--tile);
+  border: var(--border-default) solid var(--rule);
 }

@@ -1,20 +1,6 @@
+/* Section sits inside the page reading column (.col), like the projects
+   grid above it. Just provides vertical breathing room. */
 .section {
   position: relative;
-  min-height: 100vh;
-  background: var(--paper-deep);
-  /* Extra breathing room above and below this section, on top of the
-     page-level flex gap defined in app/page.module.css. With the parent
-     gap (var(--space-9) = 64px) plus this margin, neighbours sit
-     ~128px away from the book carousel — giving the section visual
-     "weight" as a quieter, contemplative break in the page rhythm. */
-  margin: var(--space-9) 0;
-}
-
-/* Clip the carousel's track overflow on desktop only — on mobile the
-   section grows with content and the page scrolls naturally, so we
-   leave overflow visible there to avoid hiding wrapped content. */
-@media (min-width: 721px) {
-  .section {
-    overflow: hidden;
-  }
+  margin-top: 240px;
 }

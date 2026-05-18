@@ -1,0 +1,405 @@
+/*
+ * ProjectLayers.css
+ * -----------------
+ * Scoped styles for the ProjectLayers component. Uses Haz. tokens from globals.
+ * Class prefix: `pl-`
+ *
+ * Breakpoints (keep in sync with ProjectLayers.tsx):
+ *   > 1100px — wide two-column
+ *   ≤ 1100px — medium: tighter stack / copy
+ *   ≤ 800px  — stacked: one column
+ *   ≤ 480px  — extra-small stack
+ */
+
+.pl-scene {
+  position: relative;
+  height: 400vh;
+  --pl-stack-gap: 110px;
+  --pl-stack-box: 520px;
+  --pl-layer-size: 360px;
+  --pl-sticky-pad-x: var(--space-9);
+  --pl-panel-max: 560px;
+}
+
+/* Compact mode — used when ProjectLayers is rendered inside the
+   reading column (.col, ~576px wide). Locks the stacked layout
+   regardless of viewport width and shortens the scrolljack so it
+   doesn't feel disproportionate at small scale. */
+.pl-scene--compact {
+  height: 250vh;
+  --pl-stack-gap: 72px;
+  /* Explicit pixel sizes so .pl-stack stays square (percentage values
+     would resolve against the parent's width AND height, breaking the
+     1:1 ratio when the stage is auto-sized). */
+  --pl-stack-box: 280px;
+  --pl-layer-size: 220px;
+  --pl-sticky-pad-x: 0;
+  --pl-panel-max: 100%;
+}
+.pl-scene--compact .pl-sticky {
+  /* Auto-sized rows so the stage hugs the rhombus and the panel hugs
+     the copy. align-content: center floats the whole stack to the
+     vertical centre of the 100vh sticky container, with an explicit
+     80px row-gap. Grid (not flex) keeps the 1fr column track
+     definite so .pl-stack's percentage width still resolves. */
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto;
+  align-content: center;
+  row-gap: 80px;
+}
+.pl-scene--compact .pl-stage {
+  /* Override the desktop height: 100% — in compact the stage is
+     auto-sized to its rhombus contents. */
+  height: auto;
+}
+.pl-scene--compact .pl-panel {
+  min-height: 200px;
+  max-height: 46vh;
+}
+.pl-scene--compact .pl-slides {
+  min-height: 200px;
+}
+.pl-scene--compact .pl-slide[data-slide="1"],
+.pl-scene--compact .pl-slide[data-slide="2"],
+.pl-scene--compact .pl-slide[data-slide="3"] {
+  top: 0;
+  transform: none;
+}
+.pl-scene--compact .pl-text {
+  padding-left: 0;
+  text-align: center;
+  width: 100%;
+}
+.pl-scene--compact .pl-slide {
+  justify-content: center;
+}
+.pl-scene--compact .pl-slide .pl-body {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 56ch;
+}
+/* Hide the progress pips in compact mode — the section title + rhombus
+   stages already do the work of showing where you are. */
+.pl-scene--compact .pl-progress { display: none; }
+
+@media (max-width: 1100px) {
+  .pl-scene {
+    --pl-stack-gap: 92px;
+    --pl-stack-box: 440px;
+    --pl-layer-size: 300px;
+    --pl-sticky-pad-x: var(--space-7);
+    --pl-panel-max: 480px;
+  }
+}
+
+@media (max-width: 800px) {
+  .pl-scene {
+    --pl-stack-gap: 72px;
+    --pl-stack-box: min(88vw, 360px);
+    --pl-layer-size: min(62vw, 240px);
+    --pl-sticky-pad-x: var(--space-5);
+    --pl-panel-max: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .pl-scene {
+    --pl-stack-gap: 64px;
+    --pl-stack-box: min(92vw, 320px);
+    --pl-layer-size: min(58vw, 210px);
+  }
+}
+
+.pl-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  align-items: center;
+  overflow: hidden;
+  padding: 0 var(--pl-sticky-pad-x);
+}
+
+@media (max-width: 800px) {
+  .pl-sticky {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr) auto;
+    align-content: center;
+    row-gap: var(--space-4);
+    padding: 0 var(--pl-sticky-pad-x) max(var(--space-8), env(safe-area-inset-bottom, 0px));
+  }
+
+  .pl-sticky > .pl-stage {
+    min-height: 0;
+  }
+}
+
+/* ─── Rhombus stack ─────────────────────────────────────────────────────── */
+
+.pl-stage {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+.pl-stack {
+  position: relative;
+  width: var(--pl-stack-box);
+  height: var(--pl-stack-box);
+  max-width: 100%;
+}
+
+/* Base layer = the dotted "inactive" appearance (always present).
+   ::after sits on top with the solid accent fill, faded in/out via
+   opacity to indicate the active stage. Doing it this way avoids
+   transitioning background-image (which can't be smoothly animated)
+   and keeps the transform + accent crossfade on a single duration so
+   they never finish at different times. */
+.pl-layer {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--pl-layer-size);
+  height: var(--pl-layer-size);
+  max-width: 100%;
+  max-height: 100%;
+  transform-origin: center center;
+  transform: translate(-50%, -50%) rotateX(60deg) rotateZ(45deg);
+  --pl-dot-color: var(--ink);
+  --pl-dot-size: 1.6px;
+  --pl-dot-step: 14px;
+  /* Use the design-system accent tint so inactive layers stay in sync
+     with whatever the accent colour is set to. */
+  background-color: var(--accent-tint);
+  background-image: radial-gradient(
+    circle,
+    var(--pl-dot-color) var(--pl-dot-size),
+    transparent calc(var(--pl-dot-size) + 0.5px)
+  );
+  background-size: var(--pl-dot-step) var(--pl-dot-step);
+  background-position: 0 0;
+  transition: transform var(--dur-slow) var(--ease-default);
+  will-change: transform;
+}
+.pl-layer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-slow) var(--ease-default);
+}
+
+.pl-layer--top    { --pl-offset: calc(-1 * var(--pl-stack-gap)); }
+.pl-layer--middle { --pl-offset: 0px; }
+.pl-layer--bottom { --pl-offset: var(--pl-stack-gap); }
+
+/* Stage 0: all layers stacked, all solid accent (::after opacity 1). */
+.pl-scene[data-stage="0"] .pl-layer {
+  transform: translate(-50%, -50%) translateY(0) rotateX(60deg) rotateZ(45deg);
+}
+.pl-scene[data-stage="0"] .pl-layer::after { opacity: 1; }
+
+/* Stages 1-3: layers separate; only the active layer's ::after is
+   visible. The inactive layers reveal the dotted base through the
+   faded ::after. */
+.pl-scene:not([data-stage="0"]) .pl-layer {
+  transform: translate(-50%, calc(-50% + var(--pl-offset))) rotateX(60deg) rotateZ(45deg);
+}
+
+.pl-scene[data-stage="1"] .pl-layer--top::after,
+.pl-scene[data-stage="2"] .pl-layer--middle::after,
+.pl-scene[data-stage="3"] .pl-layer--bottom::after {
+  opacity: 1;
+}
+
+/* ─── Text panel ────────────────────────────────────────────────────────── */
+
+.pl-panel {
+  position: relative;
+  height: 100%;
+  max-width: var(--pl-panel-max);
+  min-width: 0;
+  width: 100%;
+}
+
+@media (max-width: 800px) {
+  .pl-panel {
+    flex: 0 0 auto;
+    max-height: 46vh;
+  }
+}
+
+@media (max-width: 480px) {
+  .pl-panel {
+    max-height: 50vh;
+  }
+}
+
+.pl-slides {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+@media (max-width: 800px) {
+  .pl-slides {
+    min-height: 160px;
+  }
+}
+
+.pl-slide {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: flex-start;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-slow) var(--ease-default) 100ms;
+}
+
+.pl-slide[data-slide="1"] {
+  top: calc(50% - var(--pl-stack-gap));
+  transform: translateY(-0.6em);
+}
+.pl-slide[data-slide="2"] {
+  top: 50%;
+  transform: translateY(-0.6em);
+}
+.pl-slide[data-slide="3"] {
+  top: calc(50% + var(--pl-stack-gap));
+  transform: translateY(-0.6em);
+}
+
+@media (max-width: 800px) {
+  /* Only one slide visible per stage; anchor copy to panel top */
+  .pl-slide[data-slide="1"],
+  .pl-slide[data-slide="2"],
+  .pl-slide[data-slide="3"] {
+    top: 0;
+    transform: none;
+  }
+}
+
+.pl-scene[data-stage="1"] .pl-slide[data-slide="1"],
+.pl-scene[data-stage="2"] .pl-slide[data-slide="2"],
+.pl-scene[data-stage="3"] .pl-slide[data-slide="3"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.pl-text {
+  padding-left: clamp(12px, 4vw, 140px);
+}
+
+@media (max-width: 1100px) {
+  .pl-text {
+    padding-left: clamp(12px, 5vw, 100px);
+  }
+}
+
+@media (max-width: 800px) {
+  .pl-text {
+    padding-left: clamp(8px, 3vw, 48px);
+  }
+}
+
+.pl-slide h3 {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: clamp(var(--text-md), 2.2vw, var(--text-lg));
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.02em;
+  line-height: var(--leading-tight);
+  color: var(--ink);
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity var(--dur-slow) var(--ease-default) 400ms,
+    transform var(--dur-slow) var(--ease-default) 400ms;
+}
+
+.pl-scene[data-stage="1"] .pl-slide[data-slide="1"] h3,
+.pl-scene[data-stage="2"] .pl-slide[data-slide="2"] h3,
+.pl-scene[data-stage="3"] .pl-slide[data-slide="3"] h3 {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.pl-slide .pl-body {
+  margin: var(--space-3) 0 0 0;
+  font-family: var(--font-sans);
+  font-size: clamp(13px, 1.6vw, var(--text-base));
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-relaxed);
+  letter-spacing: var(--track-normal);
+  color: var(--ink-82);
+  max-width: min(360px, 100%);
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity var(--dur-slow) var(--ease-default) 400ms,
+    transform var(--dur-slow) var(--ease-default) 400ms;
+}
+
+.pl-scene[data-stage="1"] .pl-slide[data-slide="1"] .pl-body,
+.pl-scene[data-stage="2"] .pl-slide[data-slide="2"] .pl-body,
+.pl-scene[data-stage="3"] .pl-slide[data-slide="3"] .pl-body {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.pl-progress {
+  position: absolute;
+  right: var(--space-7);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  z-index: 5;
+}
+
+@media (max-width: 800px) {
+  .pl-progress {
+    right: max(var(--space-4), env(safe-area-inset-right, 0px));
+  }
+}
+
+.pl-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: transparent;
+  border: var(--border-default) solid var(--ink-42);
+  transition:
+    background var(--dur-base) var(--ease-default),
+    border-color var(--dur-base) var(--ease-default),
+    transform var(--dur-base) var(--ease-default);
+}
+
+.pl-scene[data-stage="1"] .pl-dot[data-dot="1"],
+.pl-scene[data-stage="2"] .pl-dot[data-dot="2"],
+.pl-scene[data-stage="3"] .pl-dot[data-dot="3"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  transform: scale(1.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pl-layer,
+  .pl-slide,
+  .pl-slide h3,
+  .pl-slide .pl-body,
+  .pl-dot {
+    transition: none !important;
+  }
+}

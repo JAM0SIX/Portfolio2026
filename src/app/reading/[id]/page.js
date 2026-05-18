@@ -32,9 +32,18 @@ export default async function ReadingNotePage({ params }) {
           <dl><dt>Field</dt><dd>{a.field}</dd></dl>
         </div>
 
-        <section>
-          <p>{a.excerpt}</p>
-        </section>
+        {(a.sections ?? []).map((s) => (
+          <section key={s.id} id={s.id}>
+            <h2>{s.label}</h2>
+            {s.id === "excerpt" ? (
+              <p>{a.excerpt}</p>
+            ) : (
+              <p>
+                Placeholder for the {s.label.toLowerCase()} of this note.
+              </p>
+            )}
+          </section>
+        ))}
       </article>
     </main>
   );

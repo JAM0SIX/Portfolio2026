@@ -1,0 +1,274 @@
+/* ─────────────────────────────────────────────────────────────────────
+   Orbit — methodology visualisation (nested-tangent-bottom circles).
+   N circles, all touching a common bottom point. The active circle
+   becomes the brightest one in the stack and its body copy cross-
+   fades in below the diagram. Fill = lighter accent tint, stroke =
+   solid accent — flipped in dark mode (vice versa).
+   ─────────────────────────────────────────────────────────────── */
+
+.scene {
+  position: relative;
+  /* Scrolljack height — divided evenly across satellites. */
+  height: 320vh;
+  margin-top: var(--space-3);
+
+  /* Theme-aware circle colours. In paper theme the fill is the light
+     accent tint and the ring is solid accent; in onyx these swap and
+     the past-state colours switch to ink-tones so the smaller past
+     circles stay visible against the largest circle's solid accent
+     fill behind them. */
+  --circle-fill:   var(--accent-soft);
+  --circle-stroke: var(--accent);
+  --past-fill:     color-mix(in srgb, var(--circle-fill) 45%, var(--ink-mute));
+  --past-stroke:   color-mix(in srgb, var(--circle-stroke) 50%, var(--ink-mute));
+}
+[data-theme="onyx"] .scene {
+  --circle-fill:   var(--accent);
+  --circle-stroke: color-mix(in srgb, var(--accent) 50%, white);
+  /* In onyx the largest active circle has a solid accent fill that
+     would camouflage any past stroke also made of accent. Switching
+     past colours to ink-tones (paper-tone in onyx) keeps the smaller
+     past circles' outlines crisp against that fill. */
+  --past-fill:     color-mix(in srgb, var(--ink) 14%, transparent);
+  --past-stroke:   var(--ink-mute);
+}
+
+.sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.diagram {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  max-width: 480px;
+}
+
+.svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+/* Circles — base = "future" (not yet reached). The scene's
+   data-active attribute drives the active and past states via
+   attribute-matrix selectors below — same pattern the body uses.
+   fill + stroke transitions are added so the colour-mix past state
+   animates smoothly. */
+.circle {
+  fill: var(--circle-fill);
+  stroke: var(--circle-stroke);
+  stroke-width: 0.4;
+  opacity: 0.22;
+  transition:
+    opacity var(--dur-slow) var(--ease-default),
+    stroke-width var(--dur-slow) var(--ease-default),
+    fill var(--dur-slow) var(--ease-default),
+    stroke var(--dur-slow) var(--ease-default);
+}
+
+/* Ripple — a one-shot sonar pulse that fires when a stage becomes
+   active. Invisible (opacity 0) by default; the keyframe takes it
+   from full-sized + visible to enlarged + faded over ~900ms. */
+.ripple {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 0.5;
+  opacity: 0;
+  pointer-events: none;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+@keyframes ripple-pulse {
+  0% {
+    opacity: 0.35;
+    transform: scale(1);
+    stroke-width: 0.3;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.08);
+    stroke-width: 0.05;
+  }
+}
+
+/* Labels — HTML divs positioned just below each arc's bottom edge.
+   z-index 1 keeps them above the SVG circles (smaller circles' labels
+   end up visually inside larger circles' fills). */
+.label {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--track-caps);
+  text-transform: none;
+  color: var(--ink-mute);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0.4;
+  transition:
+    color var(--dur-slow) var(--ease-default),
+    opacity var(--dur-slow) var(--ease-default);
+}
+
+/* Active state — current stage, full opacity + thicker stroke. */
+.scene[data-active="0"] .circle[data-idx="0"],
+.scene[data-active="1"] .circle[data-idx="1"],
+.scene[data-active="2"] .circle[data-idx="2"],
+.scene[data-active="3"] .circle[data-idx="3"],
+.scene[data-active="4"] .circle[data-idx="4"] {
+  opacity: 1;
+  stroke-width: 0.6;
+}
+.scene[data-active="0"] .label[data-idx="0"],
+.scene[data-active="1"] .label[data-idx="1"],
+.scene[data-active="2"] .label[data-idx="2"],
+.scene[data-active="3"] .label[data-idx="3"],
+.scene[data-active="4"] .label[data-idx="4"] {
+  color: var(--ink);
+  opacity: 1;
+}
+
+/* Ripple trigger — when a stage's data-active matches, the
+   corresponding ripple plays its sonar-pulse animation once. The
+   selector match toggles each time the user scrolls into a stage,
+   so the ripple re-fires on every fresh activation. */
+.scene[data-active="0"] .ripple[data-idx="0"],
+.scene[data-active="1"] .ripple[data-idx="1"],
+.scene[data-active="2"] .ripple[data-idx="2"],
+.scene[data-active="3"] .ripple[data-idx="3"],
+.scene[data-active="4"] .ripple[data-idx="4"] {
+  animation: ripple-pulse 650ms var(--ease-out);
+}
+
+/* Past state — circles the user has already scrolled past get a
+   colour-mixed "completed" treatment: fill and stroke blend halfway
+   to --ink-mute, desaturating the accent so the rings still
+   communicate structure without competing for focus. Index <
+   data-active. */
+.scene[data-active="1"] .circle[data-idx="0"],
+.scene[data-active="2"] .circle[data-idx="0"],
+.scene[data-active="2"] .circle[data-idx="1"],
+.scene[data-active="3"] .circle[data-idx="0"],
+.scene[data-active="3"] .circle[data-idx="1"],
+.scene[data-active="3"] .circle[data-idx="2"],
+.scene[data-active="4"] .circle[data-idx="0"],
+.scene[data-active="4"] .circle[data-idx="1"],
+.scene[data-active="4"] .circle[data-idx="2"],
+.scene[data-active="4"] .circle[data-idx="3"] {
+  opacity: 0.6;
+  fill: var(--past-fill);
+  stroke: var(--past-stroke);
+}
+.scene[data-active="1"] .label[data-idx="0"],
+.scene[data-active="2"] .label[data-idx="0"],
+.scene[data-active="2"] .label[data-idx="1"],
+.scene[data-active="3"] .label[data-idx="0"],
+.scene[data-active="3"] .label[data-idx="1"],
+.scene[data-active="3"] .label[data-idx="2"],
+.scene[data-active="4"] .label[data-idx="0"],
+.scene[data-active="4"] .label[data-idx="1"],
+.scene[data-active="4"] .label[data-idx="2"],
+.scene[data-active="4"] .label[data-idx="3"] {
+  color: var(--ink-soft);
+  opacity: 0.75;
+}
+
+/* ─── Body area — three-stage cross-fade matching ProjectLayers:
+   wrapper fades opacity in/out at 100ms delay; heading + body then
+   translate up at 400ms delay together. ─── */
+
+.bodyArea {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  min-height: 180px;
+  text-align: center;
+}
+
+.bodyItem {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-slow) var(--ease-default) 100ms;
+}
+
+.bodyHeading {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 18px;
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-tight);
+  line-height: var(--leading-snug);
+  color: var(--ink);
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity var(--dur-slow) var(--ease-default) 400ms,
+    transform var(--dur-slow) var(--ease-default) 400ms;
+}
+
+.body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: var(--leading-relaxed);
+  color: var(--ink-soft);
+  max-width: 56ch;
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity var(--dur-slow) var(--ease-default) 400ms,
+    transform var(--dur-slow) var(--ease-default) 400ms;
+}
+
+.scene[data-active="0"] .bodyItem[data-idx="0"],
+.scene[data-active="1"] .bodyItem[data-idx="1"],
+.scene[data-active="2"] .bodyItem[data-idx="2"],
+.scene[data-active="3"] .bodyItem[data-idx="3"],
+.scene[data-active="4"] .bodyItem[data-idx="4"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.scene[data-active="0"] .bodyItem[data-idx="0"] .bodyHeading,
+.scene[data-active="0"] .bodyItem[data-idx="0"] .body,
+.scene[data-active="1"] .bodyItem[data-idx="1"] .bodyHeading,
+.scene[data-active="1"] .bodyItem[data-idx="1"] .body,
+.scene[data-active="2"] .bodyItem[data-idx="2"] .bodyHeading,
+.scene[data-active="2"] .bodyItem[data-idx="2"] .body,
+.scene[data-active="3"] .bodyItem[data-idx="3"] .bodyHeading,
+.scene[data-active="3"] .bodyItem[data-idx="3"] .body,
+.scene[data-active="4"] .bodyItem[data-idx="4"] .bodyHeading,
+.scene[data-active="4"] .bodyItem[data-idx="4"] .body {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .circle,
+  .label,
+  .bodyItem,
+  .bodyHeading,
+  .body {
+    transition: none !important;
+  }
+  .ripple { animation: none !important; }
+}
