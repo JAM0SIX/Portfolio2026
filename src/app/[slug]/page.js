@@ -4,6 +4,7 @@ import AbilityCard from "@/components/AbilityCard/AbilityCard";
 import ProjectLayers from "@/components/ProjectLayers/ProjectLayers";
 import Orbit from "@/components/Orbit/Orbit";
 import SidePanel from "@/components/SidePanel/SidePanel";
+import Narrative from "@/components/Narrative/Narrative";
 
 export function generateStaticParams() {
   return projects.map((p) => ({ slug: p.slug }));
@@ -74,6 +75,25 @@ export default async function CaseStudyPage({ params }) {
   if (!p) notFound();
 
   const outcomes = (p.metrics ?? []).slice(0, 3);
+
+  /* Projects that opt into the block-based narrative skip the legacy
+     hero/outcomes/sections scaffolding entirely — Narrative owns the
+     full body. The meta dl (Role / Year / Tags) is still rendered
+     above so the sidebar TOC and the page header stay consistent. */
+  if (p.narrative) {
+    return (
+      <main className="page">
+        <article className="col case-study">
+          <div className="case-study__meta">
+            <dl><dt>Role</dt><dd>{p.role}</dd></dl>
+            <dl><dt>Year</dt><dd>{p.date}</dd></dl>
+            <dl><dt>Tags</dt><dd>{p.tags.join(" · ")}</dd></dl>
+          </div>
+          <Narrative blocks={p.narrative} />
+        </article>
+      </main>
+    );
+  }
 
   return (
     <main className="page">

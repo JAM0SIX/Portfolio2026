@@ -90,19 +90,19 @@ export default function ProjectLayers({ problem, value, solution, className, com
           <div className="pl-slides">
             <article className="pl-slide" data-slide="1">
               <div className="pl-text">
-                <h3>Problem</h3>
+                <h3>{problem.title ?? "Problem"}</h3>
                 <p className="pl-body">{problem.body}</p>
               </div>
             </article>
             <article className="pl-slide" data-slide="2">
               <div className="pl-text">
-                <h3>Business value</h3>
+                <h3>{value.title ?? "Business value"}</h3>
                 <p className="pl-body">{value.body}</p>
               </div>
             </article>
             <article className="pl-slide" data-slide="3">
               <div className="pl-text">
-                <h3>Solution</h3>
+                <h3>{solution.title ?? "Solution"}</h3>
                 <p className="pl-body">{solution.body}</p>
               </div>
             </article>

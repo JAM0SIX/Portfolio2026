@@ -39,6 +39,51 @@ function useHash() {
   return hash;
 }
 
+/* Scroll-spy. Given the section ids in the page TOC, returns the id of
+   the section whose top has most recently crossed an anchor line at
+   ~25% from the top of the viewport. The result is recomputed on
+   scroll and resize. */
+function useActiveSection(sectionIds) {
+  const [activeId, setActiveId] = useState("");
+
+  useEffect(() => {
+    if (!sectionIds || sectionIds.length === 0) return;
+
+    const update = () => {
+      const anchor = window.innerHeight * 0.25;
+      let current = "";
+      for (const id of sectionIds) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        const top = el.getBoundingClientRect().top;
+        if (top - anchor <= 0) current = id;
+      }
+      setActiveId(current);
+    };
+
+    let ticking = false;
+    const onScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          update();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", update);
+    };
+  }, [sectionIds]);
+
+  return activeId;
+}
+
 function BackToIndex() {
   return (
     <Link href="/" className="sidebar-back" title="Back to index">
@@ -52,8 +97,14 @@ function BackToIndex() {
 }
 
 /* Focused sidebar shown when the user is inside a project or note.
-   Just the back link + the doc title + its TOC sections. */
+   Just the back link + the doc title + its TOC sections. The active
+   row is whichever section the user is currently reading (scroll-spy),
+   falling back to the URL hash on first paint. */
 function DocSidebar({ title, href, sections, hash }) {
+  const sectionIds = sections ? sections.map((s) => s.id) : [];
+  const spyId = useActiveSection(sectionIds);
+  const activeId = spyId || hash;
+
   return (
     <>
       <BackToIndex />
@@ -70,7 +121,7 @@ function DocSidebar({ title, href, sections, hash }) {
                   key={s.id}
                   href={`${href}#${s.id}`}
                   label={s.label}
-                  active={hash === s.id}
+                  active={activeId === s.id}
                 />
               ))}
             </div>
@@ -81,57 +132,49 @@ function DocSidebar({ title, href, sections, hash }) {
   );
 }
 
-/* Default sidebar — the full Harry.S file tree. */
+/* Default sidebar — the full file tree, flat at the top level. */
 function IndexSidebar({ pathname, projectsOpen, notesOpen, setProjectsOpen, setNotesOpen }) {
   const isHome = pathname === "/";
   return (
     <div className="tree" id="sidebar-tree">
-      <div className="folder-group open">
-        <div className="row folder">
+      <FileRow href="/" label="Home" active={isHome} />
+
+      <div className={`folder-group${projectsOpen ? " open" : ""}`}>
+        <button
+          type="button"
+          className="row folder"
+          onClick={() => setProjectsOpen((v) => !v)}
+          aria-expanded={projectsOpen}
+        >
           <Chev />
-          <span className="label">Harry.S</span>
-        </div>
+          <span className="label">Projects</span>
+        </button>
         <div className="children">
-          <FileRow href="/" label="Home" active={isHome} />
-
-          <div className={`folder-group${projectsOpen ? " open" : ""}`}>
-            <button
-              type="button"
-              className="row folder"
-              onClick={() => setProjectsOpen((v) => !v)}
-              aria-expanded={projectsOpen}
-            >
-              <Chev />
-              <span className="label">Projects</span>
-            </button>
-            <div className="children">
-              {projects.map((p) => (
-                <FileRow key={p.slug} href={`/${p.slug}`} label={p.name} active={false} />
-              ))}
-            </div>
-          </div>
-
-          <div className={`folder-group${notesOpen ? " open" : ""}`}>
-            <button
-              type="button"
-              className="row folder"
-              onClick={() => setNotesOpen((v) => !v)}
-              aria-expanded={notesOpen}
-            >
-              <Chev />
-              <span className="label">Notes</span>
-            </button>
-            <div className="children">
-              {ARTICLES.map((a) => (
-                <FileRow key={a.id} href={`/reading/${a.id}`} label={a.title} active={false} />
-              ))}
-            </div>
-          </div>
-
-          <FileRow href="/experiments" label="Experiments" active={pathname === "/experiments"} />
-          <FileRow href="/about" label="About" active={pathname === "/about"} />
+          {projects.map((p) => (
+            <FileRow key={p.slug} href={`/${p.slug}`} label={p.name} active={false} />
+          ))}
         </div>
       </div>
+
+      <div className={`folder-group${notesOpen ? " open" : ""}`}>
+        <button
+          type="button"
+          className="row folder"
+          onClick={() => setNotesOpen((v) => !v)}
+          aria-expanded={notesOpen}
+        >
+          <Chev />
+          <span className="label">Notes</span>
+        </button>
+        <div className="children">
+          {ARTICLES.map((a) => (
+            <FileRow key={a.id} href={`/reading/${a.id}`} label={a.title} active={false} />
+          ))}
+        </div>
+      </div>
+
+      <FileRow href="/experiments" label="Experiments" active={pathname === "/experiments"} />
+      <FileRow href="/about" label="About" active={pathname === "/about"} />
     </div>
   );
 }

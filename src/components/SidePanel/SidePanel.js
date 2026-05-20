@@ -60,13 +60,17 @@ export default function SidePanel({ heading, body, children, variant = "button" 
   }, [id]);
 
   const handleTrigger = () => {
-    setOpen((v) => {
-      const next = !v;
-      if (next) {
+    const next = !open;
+    setOpen(next);
+    if (next) {
+      /* Dispatch in a microtask so the resulting setOpen(false) calls
+         on other SidePanels don't run inside React's current render
+         phase (which would trigger the "Cannot update a component
+         while rendering a different component" error). */
+      queueMicrotask(() => {
         window.dispatchEvent(new CustomEvent(OPEN_EVENT, { detail: id }));
-      }
-      return next;
-    });
+      });
+    }
   };
 
   const triggerClass =

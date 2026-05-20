@@ -1,0 +1,280 @@
+/* Narrative — block-based case-study renderer.
+   Each block is a self-contained vertical band; the renderer just
+   stacks them with consistent rhythm. Section headers introduce a
+   numbered chapter; subsection headers are a quieter inline tier. */
+
+.narrative {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+}
+
+/* Hook — the opening block. Eyebrow + headline + scope paragraph. */
+.hook {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding-bottom: var(--space-6);
+}
+.hookEyebrow {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--ink-mute);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+}
+.hookHeadline {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-tight);
+  line-height: var(--leading-snug);
+  color: var(--ink);
+  text-wrap: balance;
+}
+.hookScope {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: var(--leading-relaxed);
+  color: var(--ink-soft);
+  max-width: 64ch;
+}
+
+/* Section header — numbered chapter ("02") above the section title. */
+.sectionHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin-top: var(--space-6);
+  padding-bottom: var(--space-3);
+  border-bottom: var(--border-default) solid var(--rule);
+}
+.sectionChapter {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--ink-mute);
+  letter-spacing: var(--track-caps);
+  font-variant-numeric: tabular-nums;
+}
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-tight);
+  color: var(--ink);
+}
+
+/* Subsection header — quieter inline tier inside a section. */
+.subsectionHeader {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+.subsectionMarker {
+  color: var(--ink-mute);
+  font-size: var(--text-sm);
+}
+.subsectionTitle {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  color: var(--ink);
+  letter-spacing: var(--track-tight);
+}
+
+/* Prose — paragraph stack inside a section. */
+.prose {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 64ch;
+}
+.proseParagraph {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--ink-soft);
+}
+
+/* Lede — larger, slightly more weighty than body prose. Used for the
+   goal line that sits between hook and hero image. */
+.lede {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 64ch;
+}
+.ledeParagraph {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  color: var(--ink);
+  font-weight: var(--weight-medium);
+}
+
+/* Pull-quote — a single quoted line with source. */
+.quote {
+  margin: 0;
+  padding: var(--space-4) var(--space-5);
+  border-left: 2px solid var(--accent);
+  background: var(--paper-deep);
+  max-width: 64ch;
+}
+.quoteBody {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: var(--leading-relaxed);
+  color: var(--ink);
+  font-style: italic;
+}
+.quoteSource {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--ink-mute);
+  letter-spacing: var(--track-tight);
+}
+
+/* QuoteWall — two-column rows of {quote, failure-mode label}. */
+.quoteWall {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  border-top: var(--border-default) solid var(--rule);
+}
+.quoteWallRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: baseline;
+  padding: var(--space-4) 0;
+  border-bottom: var(--border-default) solid var(--rule);
+}
+.quoteWallQuote {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--ink);
+  font-style: italic;
+}
+.quoteWallLabel {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+  letter-spacing: var(--track-tight);
+}
+@media (max-width: 600px) {
+  .quoteWallRow {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+}
+
+/* DecisionList — heading + intro prose, with named decisions
+   inline as SidePanel triggers (rendered by the consumer). Each
+   decision can optionally have an image placeholder above it. */
+.decisionList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.decisionRows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+.decisionRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* StatusList — three stacked status rows for "where the work is". */
+.statusList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  border-top: var(--border-default) solid var(--rule);
+}
+.statusRow {
+  display: grid;
+  grid-template-columns: minmax(160px, max-content) 1fr;
+  gap: var(--space-5);
+  padding: var(--space-4) 0;
+  border-bottom: var(--border-default) solid var(--rule);
+  align-items: baseline;
+}
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--ink);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  font-weight: var(--weight-semibold);
+}
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.statusBadge[data-state="designed"] .statusDot { background: var(--ink-mute); }
+.statusBadge[data-state="bought-in"] .statusDot { background: var(--accent-soft); }
+.statusBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.statusTitle {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  color: var(--ink);
+  letter-spacing: var(--track-tight);
+}
+.statusDescription {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--ink-soft);
+}
+@media (max-width: 600px) {
+  .statusRow { grid-template-columns: 1fr; gap: var(--space-2); }
+}
+
+/* Image placeholder — a chamfered slot to drop a screenshot in later. */
+.imagePlaceholder {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.imageSlot {
+  aspect-ratio: 16 / 9;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      var(--paper-deep) 0 8px,
+      transparent 8px 16px
+    ),
+    var(--paper);
+  border: var(--border-default) dashed var(--rule);
+}
+.imageCaption {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--ink-mute);
+  letter-spacing: var(--track-tight);
+}

@@ -1,0 +1,109 @@
+/* ─────────────────────────────────────────────────────────────
+   Portfolio Dial — keyframes + stage cursor.
+   Regular CSS (not module) so keyframe names stay literal and
+   are referenceable from inline `animation: ...` strings.
+   ───────────────────────────────────────────────────────────── */
+
+.dial-stage {
+  position: relative;
+  width: 100%;
+  margin-top: 0;
+  margin-bottom: 0px;
+  padding-top: 0;
+  padding-bottom: 0;
+  /* The parent <section> owns the 120vh height floor and is a flex
+     column; flex: 1 lets the dial stage absorb whatever space is
+     left under the topbar so its absolutely-positioned children
+     always have a non-zero box to render into. */
+  flex: 1 1 auto;
+}
+
+@media (min-width: 721px) {
+  .dial-stage {
+    overflow: hidden;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ctaIn {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes imgIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes accIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mobCardSlide {
+  0% {
+    opacity: 0;
+    transform: translateX(var(--card-slide-from, 28px));
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Coming soon CTA — homepage dial (desktop + mobile cards). */
+.dial-coming-soon-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font: 600 var(--text-xs) / 1 var(--font-sans);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--accent);
+  background: transparent;
+  border: none;
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+  cursor: default;
+  user-select: none;
+}

@@ -11,12 +11,16 @@ function ProjectCard({ p }) {
     >
       <div className="project__image">
         <div className="project__image-placeholder" aria-hidden="true" />
+        {p.badge && (
+          <span className="project__badge" data-status={p.badge.toLowerCase().replace(/\s+/g, "-")}>
+            {p.badge}
+          </span>
+        )}
       </div>
       <div className="project__head">
         <h3 className="project__title">{p.name}</h3>
         <span className="project__date">{p.date}</span>
       </div>
-      <p className="project__role">{p.role}</p>
       <div className="project__pills">
         {p.tags.map((t) => (
           <span key={t} className="tag"><span>{t}</span></span>
@@ -25,19 +29,6 @@ function ProjectCard({ p }) {
       <div className="project__reveal">
         <div className="project__reveal-inner">
           <div className="project__reveal-content">
-            {p.metrics?.length > 0 && (
-              <ul className="project__metrics" aria-label="Outcomes">
-                {p.metrics.map(([label, value, unit]) => (
-                  <li key={label} className="project__metric">
-                    <span className="project__metric-value">
-                      {value}
-                      {unit && <span className="project__metric-unit">{unit}</span>}
-                    </span>
-                    <span className="project__metric-label">{label}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
             <p className="project__desc">{p.blurb}</p>
             {!p.comingSoon && (
               <div className="project__actions">

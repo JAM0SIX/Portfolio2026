@@ -2,6 +2,7 @@ import { Sora } from "next/font/google";
 import Sidebar from "./components/Sidebar";
 import LocalClock from "./components/LocalClock";
 import CursorDotField from "./components/CursorDotField";
+import Footer from "@/components/Footer/Footer";
 import "./globals.css";
 
 const sora = Sora({
@@ -37,6 +38,7 @@ export default function RootLayout({ children }) {
           <div className="shell__main">
             <CursorDotField />
             {children}
+            <Footer />
           </div>
         </div>
         <LocalClock />

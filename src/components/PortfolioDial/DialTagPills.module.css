@@ -1,0 +1,63 @@
+/**
+ * Chamfered tag pills — matches HeadingItem tag row in PortfolioDial.tsx
+ * (inline styles lifted here for reuse on project detail pages).
+ */
+.root {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 7px;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+
+.root::-webkit-scrollbar {
+  display: none;
+}
+
+.pill {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  background: var(--ink-22);
+  clip-path: polygon(
+    7px 0,
+    100% 0,
+    100% calc(100% - 7px),
+    calc(100% - 7px) 100%,
+    0 100%,
+    0 7px
+  );
+  padding: 4px 11px;
+  font: 500 var(--text-sm) / 1.15 var(--font-sans);
+  letter-spacing: 0.16em;
+  color: var(--ink-62);
+  text-transform: none;
+  white-space: nowrap;
+}
+
+.pillInset {
+  position: absolute;
+  inset: 1px;
+  background: var(--paper);
+  clip-path: polygon(
+    6px 0,
+    100% 0,
+    100% calc(100% - 6px),
+    calc(100% - 6px) 100%,
+    0 100%,
+    0 6px
+  );
+  z-index: 0;
+}
+
+.pillLabel {
+  position: relative;
+  z-index: 1;
+}

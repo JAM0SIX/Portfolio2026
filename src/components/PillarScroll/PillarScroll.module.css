@@ -1,0 +1,179 @@
+/* PillarScroll — three pillars + a horizontal "membrane" band that
+   sweeps across them as the user scrolls. Same scroll-pin pattern
+   as Orbit: section is taller than the viewport, sticky inner pins
+   while scroll progress drives data-stage 0..3.
+     stage 0  no pillars visible, no membrane
+     stage 1  pillar 1 visible
+     stage 2  pillars 1-2 visible
+     stage 3  pillars 1-3 visible + membrane swept across all three */
+
+.scene {
+  position: relative;
+  height: 220vh;
+  margin: var(--space-7) 0;
+}
+
+.sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-5);
+}
+
+.eyebrow {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--ink-mute);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.stage {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  /* Extra top padding leaves room for the membrane label to sit
+     above the pillars in the gap between the membrane's top edge
+     and the start of the pillar cards. */
+  padding: var(--space-7) var(--space-3) var(--space-6);
+}
+
+/* The membrane is a full-bleed accent-tinted container that wraps
+   ALL three pillars (matching their column width and full height).
+   It sits BEHIND the pillars so they appear to live inside it; the
+   only visible surface is the strip around the pillars (top, bottom,
+   and the column gaps). Fades in once stage >= 1. */
+.membrane {
+  position: absolute;
+  inset: 0;
+  z-index: 0;                          /* sit BEHIND the pillars */
+  background: var(--paper-deep);
+  border: var(--border-default) solid var(--rule);
+  border-radius: 0;
+  opacity: 0;
+  transition: opacity 400ms var(--ease-default);
+  pointer-events: none;
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.05));
+}
+.membraneLabel {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--ink);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  font-weight: var(--weight-bold);
+  white-space: nowrap;
+}
+.scene[data-stage="3"] .membrane {
+  opacity: 1;
+}
+
+/* Pillar card — chamfered, layered fill, fades + lifts in stage-by-stage. */
+.pillar {
+  position: relative;
+  z-index: 1;                       /* paint above the membrane */
+  margin-top: 0;
+  padding: 0;
+  isolation: isolate;
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 500ms var(--ease-default),
+    transform 500ms var(--ease-out);
+
+  background: var(--rule);
+  clip-path: polygon(
+    var(--chamfer-size) 0,
+    100% 0,
+    100% calc(100% - var(--chamfer-size)),
+    calc(100% - var(--chamfer-size)) 100%,
+    0 100%,
+    0 var(--chamfer-size)
+  );
+  min-height: 220px;
+}
+.pillar::before {
+  content: "";
+  position: absolute;
+  inset: var(--border-default);
+  z-index: -1;
+  background: var(--paper-deep);
+  clip-path: polygon(
+    var(--chamfer-inner) 0,
+    100% 0,
+    100% calc(100% - var(--chamfer-inner)),
+    calc(100% - var(--chamfer-inner)) 100%,
+    0 100%,
+    0 var(--chamfer-inner)
+  );
+}
+
+.scene[data-stage="1"] .pillar[data-idx="0"],
+.scene[data-stage="2"] .pillar[data-idx="0"],
+.scene[data-stage="2"] .pillar[data-idx="1"],
+.scene[data-stage="3"] .pillar[data-idx="0"],
+.scene[data-stage="3"] .pillar[data-idx="1"],
+.scene[data-stage="3"] .pillar[data-idx="2"] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.pillarInner {
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  height: 100%;
+}
+.pillarIndex {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--ink-mute);
+  letter-spacing: var(--track-caps);
+  font-variant-numeric: tabular-nums;
+}
+.pillarTitle {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  color: var(--ink);
+  letter-spacing: var(--track-tight);
+}
+.pillarBody {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--ink-soft);
+}
+
+@media (max-width: 720px) {
+  .scene { height: auto; margin: var(--space-5) 0; }
+  .sticky { position: relative; top: auto; height: auto; }
+  .stage {
+    grid-template-columns: 1fr;
+    padding: var(--space-3) 0;
+  }
+  .membrane {
+    position: relative;
+    width: 100%;
+    opacity: 1;
+    height: 32px;
+    margin-bottom: var(--space-3);
+  }
+  .connector { display: none; }
+  .pillar {
+    margin-top: 0;
+    opacity: 1;
+    transform: none;
+  }
+}

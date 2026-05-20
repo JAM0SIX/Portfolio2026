@@ -1,0 +1,114 @@
+/* Footer — sitewide. Atmospheric image fills the band; an
+   off-centre block on the right carries the tagline and a contact
+   CTA. The image is positioned via background-image so it can
+   crop responsively without an <img> aspect lock. */
+
+.footer {
+  position: relative;
+  width: 100%;
+  margin-top: var(--space-9);
+  background: var(--ink);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background-image: url("/footer-skier.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Subtle scrim on the right half so the text always reads, even
+   over the brightest snow. Falls off to the left so the skier
+   stays clean. */
+.media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    transparent 35%,
+    rgba(0, 0, 0, 0.45) 100%
+  );
+  pointer-events: none;
+}
+
+.content {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(46%, 540px);
+  padding: var(--space-7) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+  text-align: right;
+  gap: var(--space-5);
+  color: #fff;
+  z-index: 1;
+}
+
+.tagline {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: clamp(1.25rem, 2.4vw, 2rem);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-tight);
+  line-height: var(--leading-snug);
+  text-wrap: balance;
+  color: #fff;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-5);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-tight);
+  text-decoration: none;
+  transition:
+    background var(--dur-base) var(--ease-default),
+    color var(--dur-base) var(--ease-default);
+}
+.cta:hover,
+.cta:focus-visible {
+  background: #fff;
+  color: var(--ink);
+}
+.cta svg {
+  display: block;
+  transition: transform var(--dur-base) var(--ease-out);
+}
+.cta:hover svg {
+  transform: translateX(2px);
+}
+
+@media (max-width: 720px) {
+  .media { aspect-ratio: 4 / 5; }
+  .media::after {
+    background: linear-gradient(
+      to bottom,
+      transparent 40%,
+      rgba(0, 0, 0, 0.55) 100%
+    );
+  }
+  .content {
+    top: auto;
+    left: 0;
+    width: 100%;
+    padding: var(--space-5);
+    align-items: flex-start;
+    text-align: left;
+  }
+}

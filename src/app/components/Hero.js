@@ -44,11 +44,17 @@ export default function Hero() {
 
         <p className="hc-body">
           I&apos;ve been designing AI software before the hype and even
-          co-founded an AI start-up. Now I help businesses and product teams
-          solve high risk problems with design and philosophy. Lately
-          I&apos;ve been vibe coding and shipping things of my own, have a
-          poke around the{" "}
-          <Link href="/experiments" className="link link--ink">experiments</Link>.
+          co-founded an AI start-up. I specialise in data-rich systems and
+          platforms, boosting user efficiency and productivity through
+          design and philosophy.
+        </p>
+        <p className="hc-body">
+          The smarter AI becomes, knowing what not to build with human
+          judgement matters more than ever. The best way to keep that
+          judgement sharp is being creative and to push the boundaries of
+          what a designer is capable of. Check out some of the{" "}
+          <Link href="/experiments" className="link link--ink">experiments</Link>{" "}
+          I&apos;ve made.
         </p>
       </section>
     </>
