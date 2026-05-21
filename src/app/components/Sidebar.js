@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import LogoMark from "./LogoMark";
 import { projects } from "@/lib/projects";
 import { ARTICLES } from "@/components/BookLogCarousel/articles";
+import { EXPERIMENTS } from "@/lib/experiments";
 
 function Chev() {
   return (
@@ -84,14 +85,14 @@ function useActiveSection(sectionIds) {
   return activeId;
 }
 
-function BackToIndex() {
+function BackToIndex({ to = "/", label = "Index" }) {
   return (
-    <Link href="/" className="sidebar-back" title="Back to index">
+    <Link href={to} className="sidebar-back" title={`Back to ${label}`}>
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <line x1="13" y1="8" x2="3" y2="8" />
         <polyline points="7 4 3 8 7 12" />
       </svg>
-      <span>Index</span>
+      <span>{label}</span>
     </Link>
   );
 }
@@ -100,14 +101,14 @@ function BackToIndex() {
    Just the back link + the doc title + its TOC sections. The active
    row is whichever section the user is currently reading (scroll-spy),
    falling back to the URL hash on first paint. */
-function DocSidebar({ title, href, sections, hash }) {
+function DocSidebar({ title, href, sections, hash, backTo = "/", backLabel = "Index" }) {
   const sectionIds = sections ? sections.map((s) => s.id) : [];
   const spyId = useActiveSection(sectionIds);
   const activeId = spyId || hash;
 
   return (
     <>
-      <BackToIndex />
+      <BackToIndex to={backTo} label={backLabel} />
       <div className="tree">
         <div className="folder-group open">
           <Link href={href} className="row file active doc-title" title={title}>
@@ -188,12 +189,16 @@ export default function Sidebar() {
     pathname.startsWith("/reading/")
       ? ARTICLES.find((a) => a.id === pathname.replace("/reading/", ""))
       : null;
+  const activeExperiment =
+    pathname.startsWith("/experiments/")
+      ? EXPERIMENTS.find((e) => pathname === e.href)
+      : null;
 
   const [projectsOpen, setProjectsOpen] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const inDocMode = Boolean(activeProject || activeNote);
+  const inDocMode = Boolean(activeProject || activeNote || activeExperiment);
 
   return (
     <aside className={`sidebar${mobileOpen ? " is-open" : ""}`} aria-label="Navigation">
@@ -216,12 +221,21 @@ export default function Sidebar() {
             sections={activeProject.sections}
             hash={hash}
           />
-        ) : (
+        ) : activeNote ? (
           <DocSidebar
             title={activeNote.title}
             href={`/reading/${activeNote.id}`}
             sections={activeNote.sections}
             hash={hash}
+          />
+        ) : (
+          <DocSidebar
+            title={activeExperiment.title}
+            href={activeExperiment.href}
+            sections={null}
+            hash={hash}
+            backTo="/experiments"
+            backLabel="Experiments"
           />
         )
       ) : (

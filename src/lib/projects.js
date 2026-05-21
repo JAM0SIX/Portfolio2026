@@ -594,6 +594,210 @@ const philpotpearceProjectLayers = {
   solution:{ body: "A website that felt synonymous with the studio and their beliefs — a reflection of the studio and their work." },
 };
 
+// ─── PhilpotPearce narrative (block-based case study) ─────────────────
+const philpotpearcePrincipleBodies = {
+  "Synonymous brand language": (
+    <p>
+      The brand language had to be the studio. Type, palette, pace, and
+      voice were all designed to match how the founders actually work:
+      considered, calm, restrained. Anything ornamental was the wrong
+      answer; credibility lives in restraint, not decoration.
+    </p>
+  ),
+  "Outcome centric": (
+    <p>
+      The founders wanted their work to speak for itself, so the core
+      focus of the website was to showcase what they are capable of and
+      what they have achieved. Every page was designed to put the work
+      in front of the visitor and step out of the way.
+    </p>
+  ),
+  "The golden circle": (
+    <p>
+      The IA-led menu functions as a thesis statement. A visitor reads
+      the navigation and already knows the studio prioritises philosophy
+      and craft over service-checklist selling. Why before What before
+      How: the golden circle structure carried directly into the
+      information architecture.
+    </p>
+  ),
+  "Less is more": (
+    <p>
+      Every element on the page feels as if it earns its place, which
+      allows the work to speak for itself. The system is closer to a
+      Dieter Rams pared-back instrument than a contemporary agency site,
+      and that's exactly the point.
+    </p>
+  ),
+  "Portfolio architecture": (
+    <p>
+      The site is deliberately designed to be a showcase of the studio's
+      work, not just a portfolio. It acts as both agency and design
+      house: a cultural practice whose exhibitions, objects, writing,
+      and commerce are all expressions of the same point of view.
+    </p>
+  ),
+};
+
+function PhilpotPrincipleLink({ name }) {
+  return (
+    <SidePanel variant="inline" heading={name} body={philpotpearcePrincipleBodies[name]}>
+      {name}
+    </SidePanel>
+  );
+}
+
+const philpotpearceDecisions = [
+  {
+    name: "Restraint as the brand",
+    summary: "The visual system as a statement of values, not decoration.",
+    image: { caption: "Brand system" },
+    body: [
+      "Most agencies dress up their identities. PhilpotPearce strips back. Every visual decision, every word on the site, every component had to earn its place.",
+      "The studio's value proposition is in what they don't do as much as what they do. The brand reads as a piece of evidence for that, not a slogan about it.",
+    ],
+  },
+  {
+    name: "Navigation as thesis statement",
+    summary: "The golden circle as information architecture.",
+    image: { caption: "IA as thesis" },
+    body: [
+      "Most agency sites lead with a service checklist. We led with worldview. The IA borrows from the golden circle (Why, How, What) so the navigation itself communicates how the studio thinks.",
+      "By the time the visitor reaches the work, they've already absorbed the studio's philosophy. The work doesn't have to justify itself, it just has to land.",
+    ],
+  },
+  {
+    name: "Work as the hero",
+    summary: "Project pages built to showcase, not narrate.",
+    image: { caption: "Work showcase" },
+    body: [
+      "Project pages are designed as exhibitions. Large imagery, sparing captions, no marketing scaffolding around the work. The visitor's job is to look; the studio's job is to give them something worth looking at.",
+      "This is the moment where the brand has to disappear and the work has to carry the weight.",
+    ],
+  },
+  {
+    name: "Editorial typography",
+    summary: "A single rhythm from hero to component states.",
+    image: { caption: "Type system" },
+    body: [
+      "One typographic system runs from hero through navigation through body copy through component states. There are no exceptions and no overrides. That consistency does most of the work that decoration usually has to.",
+      "The system was designed so new pages ship without new CSS exceptions, which keeps the studio's site as disciplined as its work.",
+    ],
+  },
+];
+
+const philpotpearceNarrative = [
+  // 01 · Hook
+  {
+    kind: "hook",
+    headline: "A studio that speaks for itself",
+    scope:
+      "I designed the brand identity and website for PhilpotPearce, an independent product design consultancy in London. The work covered brand strategy, visual identity, information architecture, art direction, and the web design and build. My task was to give a sharp practice a public face that matched the work, with restraint as the loudest signal.",
+  },
+  {
+    kind: "lede",
+    paragraphs: [
+      "The goal was to land the studio as a credible practice from the first visit and let the work do the talking from the second click on.",
+    ],
+  },
+  { kind: "imagePlaceholder", caption: "Hero image" },
+  {
+    kind: "outcomes",
+    items: [
+      ["Lighthouse perf.", "98", "/100"],
+      ["Pages shipped", "12", ""],
+      ["CSS exceptions", "0", ""],
+    ],
+  },
+
+  // 02 · The problem
+  { kind: "sectionHeader", chapter: "02", title: "The problem" },
+  {
+    kind: "prose",
+    paragraphs: [
+      "Two co-founders, both senior product designers, were starting a studio with the right work and the wrong shopfront. Their practice was sharp; their public presence was nothing. Without a brand and a site, they were invisible to the clients they wanted and indistinguishable from the agencies they didn't.",
+      "The market was already full of agencies talking loudly about themselves. Any new studio that joined the noise would lose. The opening had to come from somewhere quieter.",
+    ],
+  },
+  { kind: "imagePlaceholder", caption: "The problem" },
+
+  // 03 · The value
+  { kind: "sectionHeader", chapter: "03", title: "The value" },
+  { kind: "subsectionHeader", title: "For the business" },
+  {
+    kind: "prose",
+    paragraphs: [
+      "PhilpotPearce launched with a brand the founders could carry into pitches, into press, and into commercial conversations. The site became their primary acquisition channel, designed to filter for clients who valued craft and outcomes over service-list shopping.",
+    ],
+  },
+  { kind: "subsectionHeader", title: "For the visitor" },
+  {
+    kind: "prose",
+    paragraphs: [
+      "In thirty seconds, a visitor reads the studio's worldview from the navigation alone. From there it's a series of clear, restrained pages that put the work in front of them and step out of the way.",
+    ],
+  },
+  { kind: "imagePlaceholder", caption: "The value" },
+
+  // 04 · Directing the studio's voice
+  { kind: "sectionHeader", chapter: "04", title: "Directing the studio's voice" },
+  {
+    kind: "prose",
+    paragraphs: [
+      "Restraint as the brand. Most agencies dress up their identities; PhilpotPearce strips back. Every visual decision, every word on the site, every component had to earn its place. The studio's value proposition is in what they don't do as much as what they do.",
+    ],
+  },
+  { kind: "subsectionHeader", title: "Five principles" },
+  {
+    kind: "richProse",
+    paragraphs: [
+      (
+        <>
+          The work was anchored by five principles the founders and I argued
+          features in or out against:{" "}
+          <PhilpotPrincipleLink name="Synonymous brand language" />,{" "}
+          <PhilpotPrincipleLink name="Outcome centric" />,{" "}
+          <PhilpotPrincipleLink name="The golden circle" />,{" "}
+          <PhilpotPrincipleLink name="Less is more" />, and{" "}
+          <PhilpotPrincipleLink name="Portfolio architecture" />. Each came
+          from how the founders actually wanted the studio to operate, not
+          from how an agency website is supposed to look.
+        </>
+      ),
+    ],
+  },
+
+  // 05 · What I designed
+  { kind: "sectionHeader", chapter: "05", title: "What I designed" },
+  {
+    kind: "prose",
+    paragraphs: [
+      "Four design moves did the heavy lifting. Each is the moment the principles met a real decision on the page.",
+    ],
+  },
+  { kind: "decisionList", decisions: philpotpearceDecisions },
+
+  // 06 · A decision worth telling
+  { kind: "sectionHeader", chapter: "06", title: "A decision worth telling" },
+  {
+    kind: "prose",
+    paragraphs: [
+      "The founders' instinct, like most studios opening a website, was to start with Work / About / Services. I argued the studio's whole positioning would collapse if the navigation looked like every other agency's navigation, no matter how good the work behind it was.",
+      "The golden circle, Why before How before What, gave the IA a thesis. Once the founders saw the first round of pages built on that structure, the conversation moved from \"is this navigable\" to \"this is the studio.\" The IA became the brand, and the brand became the IA.",
+    ],
+  },
+  { kind: "imagePlaceholder", caption: "Navigation as thesis" },
+
+  // 07 · What I'd do differently
+  { kind: "sectionHeader", chapter: "07", title: "What I'd do differently" },
+  {
+    kind: "prose",
+    paragraphs: [
+      "I'd have shipped a writing system alongside the visual one. Restraint is a much harder discipline in copy than in design, and a couple of pages where the words drift would undo the work the type and layout do silently. Next time, a tone-of-voice spec sits inside the design system, not next to it.",
+    ],
+  },
+];
+
 const eventuringProjectLayers = {
   problem: { body: "eVenturing's previous website didn't convey their brand and created an unprofessional look for the company. Potential clients were put off; engagement and deals dropped as a result." },
   value:   { body: "As eVenturing was growing they were trying to land more reputable brands and needed a website to match." },
@@ -680,6 +884,7 @@ const gwiDecisions = [
   {
     name: "Homepage as orientation, not dashboard",
     summary: "Critical information, organised signals, ranked order of activities.",
+    image: { caption: "Homepage as orientation" },
     body: [
       "Most operator tools open into a wall of charts. I designed the homepage to surface only critical information, the signals that need a human decision today.",
       "Multiple signals from across the pillars are organised into one ranked order of activities, so the operator opens the day with a single ordered list of where their attention should go. The promise: if it isn't on this screen, it doesn't need you.",
@@ -688,6 +893,7 @@ const gwiDecisions = [
   {
     name: "Drafting backed by RAG and synthetic data",
     summary: "RAG for question and translation consistency, synthetic data for survey coverage.",
+    image: { caption: "Drafting with RAG + synthetic data" },
     body: [
       "A RAG system grounds every drafting suggestion in GWI's own question library and translation corpus, so consistency is enforced across questions and across the languages each survey ships in.",
       "Synthetic data acts as a stress test on top: the platform runs the draft against simulated respondents to identify gaps in question coverage, optimise the spread, and surface where the survey will fail before it goes out.",
@@ -696,6 +902,7 @@ const gwiDecisions = [
   {
     name: "Agent that surfaces, supports, and acts",
     summary: "Surfaces critical information, keeps the user in control, carries out the mundane.",
+    image: { caption: "Agent surface" },
     body: [
       "The agent surfaces critical information the moment it matters: a stalled quota, an unanswered approval, an error that needs eyes. The operator keeps control of every decision.",
       "It also recommends and carries out the mundane work on the user's behalf: chasing approvals, reformatting exports, queuing reminders. Trust comes from the agent's scope being visible, not assumed.",
@@ -704,6 +911,7 @@ const gwiDecisions = [
   {
     name: "Translation kept inside the tool",
     summary: "Automated first pass, human review focused only on questions that need judgement.",
+    image: { caption: "In-tool translation flow" },
     body: [
       "Survey translation was going to third parties at significant per-project cost and turnaround time. I designed an in-tool translation flow with an automated first pass and human review focused only on the questions that needed judgement.",
     ],
@@ -711,6 +919,7 @@ const gwiDecisions = [
   {
     name: "Fieldwork architecture for navigation, not monitoring",
     summary: "Wayfinding over reporting, the agent watches, the operator moves.",
+    image: { caption: "Fieldwork wayfinding" },
     body: [
       "The fieldwork surface isn't a dashboard. Operators don't need to watch, they need to get to the right project fast.",
       "I designed the IA around search, filtering, and data visualisations that act as wayfinding rather than reporting. The agent does the watching; the operator does the moving.",
@@ -991,10 +1200,8 @@ export const projects = [
       ["Pages shipped", "12", ""],
       ["CSS exceptions", "0", ""],
     ],
-    projectLayers: philpotpearceProjectLayers,
-    methodologyStages: philpotpearceMethodologyStages,
-    sections: defaultSections,
-    methodologyOrbits: defaultMethodologyOrbits,
+    narrative: philpotpearceNarrative,
+    sections: narrativeTOC(philpotpearceNarrative),
   },
   {
     slug: "soundtrends",

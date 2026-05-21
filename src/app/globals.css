@@ -772,6 +772,23 @@ main.page { position: relative; z-index: 1; }
 
 /* ─── Case study page ────────────────────────────────────────────────── */
 .case-study { max-width: 760px; }
+
+/* Experiment page header — the eyebrow / title / description block
+   that sits above each experiment's live component. Mirrors the
+   .col positioning (the home page + case-study reading column) so
+   the title/description align to the left of the main column,
+   relative to the sidebar — not centered in the viewport. */
+.experiment-header {
+  max-width: 760px;
+  width: 100%;
+  padding: 80px 56px var(--space-7) 128px;
+}
+@media (max-width: 880px) {
+  .experiment-header { padding: 56px 32px var(--space-5); }
+}
+@media (max-width: 720px) {
+  .experiment-header { padding: 48px 24px var(--space-5); }
+}
 .case-study__eyebrow {
   font-size: var(--text-xs);
   color: var(--ink-mute);

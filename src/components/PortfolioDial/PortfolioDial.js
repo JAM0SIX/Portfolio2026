@@ -689,10 +689,15 @@ export default function PortfolioDial() {
     prevActiveRef.current = activeIdx;
   }, [activeIdx]);
 
+  /* Track viewport height for vertical sizing AND the container's
+     own width (via ResizeObserver below) so the dial fits inside
+     whatever column its parent reserves for it, not the whole
+     window. */
   const [vp, setVp] = useState({ w: 0, h: 0 });
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
-    const onResize = () => setVp({ w: window.innerWidth, h: window.innerHeight });
+    const onResize = () =>
+      setVp((s) => ({ ...s, h: window.innerHeight }));
     onResize();
     setMounted(true);
     window.addEventListener("resize", onResize);
@@ -737,6 +742,23 @@ export default function PortfolioDial() {
     );
     observer.observe(el);
     return () => observer.disconnect();
+  }, []);
+
+  /* Measure the container's actual width and drive the dial's
+     sizing from that instead of window.innerWidth. Lets a parent
+     restrict the dial to a column width by wrapping it in a
+     constrained container. */
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver((entries) => {
+      const w = entries[0]?.contentRect.width;
+      if (typeof w === "number" && w > 0) {
+        setVp((s) => (s.w !== w ? { ...s, w } : s));
+      }
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
   }, []);
 
   useEffect(() => {

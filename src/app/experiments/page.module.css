@@ -1,11 +1,10 @@
-/* Experiments index — a list of standalone experiment entries.
-   Each entry is a chamfered card with a small tag, a title, and a
-   short description. Hovering changes the tinted inner fill the
-   same way project cards do, so it reads as part of the system. */
+/* Experiments index — list of preview cards, each linking to its
+   standalone experiment page. Two-column grid inside the card:
+   thumbnail on the left, copy on the right. */
 
 .list {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column;
   gap: var(--space-4);
   margin-top: var(--space-6);
   list-style: none;
@@ -15,7 +14,6 @@
 .entry {
   position: relative;
   display: block;
-  padding: var(--space-5) var(--space-6);
   background: var(--rule);
   isolation: isolate;
   color: inherit;
@@ -48,6 +46,42 @@
 .entry:hover::before,
 .entry:focus-visible::before {
   background: var(--paper-deep);
+}
+
+.entryGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 200px) 1fr;
+  gap: var(--space-5);
+  align-items: start;
+  padding: var(--space-5) var(--space-6);
+}
+@media (max-width: 700px) {
+  .entryGrid { grid-template-columns: 1fr; }
+}
+
+.thumb {
+  width: 100%;
+  aspect-ratio: 5 / 3;
+  background: var(--paper-deep);
+  border: var(--border-default) solid var(--rule);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.entry:hover .thumb { background: var(--paper); }
+
+.thumbSvg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.entryBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
 }
 
 .entryHead {
@@ -88,7 +122,7 @@
 }
 
 .entryDesc {
-  margin: var(--space-3) 0 0;
+  margin: 0;
   font-family: var(--font-sans);
   font-size: var(--text-sm);
   line-height: var(--leading-relaxed);
@@ -97,20 +131,15 @@
 }
 
 .entryArrow {
-  margin-top: var(--space-3);
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
+  margin-top: var(--space-2);
   font-family: var(--font-sans);
   font-size: var(--text-xs);
   font-weight: var(--weight-semibold);
   color: var(--accent);
   letter-spacing: var(--track-tight);
 }
-.entry:hover .entryArrow svg {
-  transform: translateX(3px);
-}
-.entryArrow svg {
-  display: block;
-  transition: transform var(--dur-base) var(--ease-out);
-}
+.entryArrow svg { transition: transform .2s ease; }
+.entry:hover .entryArrow svg { transform: translateX(3px); }
