@@ -89,7 +89,7 @@ export default async function CaseStudyPage({ params }) {
             <dl><dt>Year</dt><dd>{p.date}</dd></dl>
             <dl><dt>Tags</dt><dd>{p.tags.join(" · ")}</dd></dl>
           </div>
-          <Narrative blocks={p.narrative} />
+          <Narrative blocks={p.narrative} tokens={p.tokens} />
         </article>
       </main>
     );

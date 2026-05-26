@@ -35,6 +35,42 @@ function slugify(s) {
     .replace(/^-|-$/g, "");
 }
 
+/* renderText — token-aware text expansion.
+   ----------------------------------------
+   Paragraphs sourced from markdown frontmatter are plain strings,
+   but some case studies need inline interactive elements (a name
+   that opens a SidePanel with the principle body). YAML can't
+   carry JSX, so the markdown uses a token form like
+   `{{principle:Landscape of Data}}` and the renderer swaps it for
+   the corresponding component at render time.
+
+   `tokens` is shaped { [type]: { [name]: ReactNode } }. Currently
+   only the `principle` type is used; new types can be added by
+   the case-study data without touching this helper. */
+const TOKEN_RE = /(\{\{[a-z]+:[^}]+\}\})/g;
+const TOKEN_PARSE = /^\{\{([a-z]+):(.+)\}\}$/;
+
+function renderText(text, tokens) {
+  if (typeof text !== "string" || !tokens) return text;
+  const parts = text.split(TOKEN_RE);
+  if (parts.length === 1) return text;
+  let touched = false;
+  const out = parts.map((part, i) => {
+    const m = part.match(TOKEN_PARSE);
+    if (!m) return part;
+    const [, type, name] = m;
+    const body = tokens?.[type]?.[name];
+    if (!body) return part;
+    touched = true;
+    return (
+      <SidePanel key={i} variant="inline" heading={name} body={body}>
+        {name}
+      </SidePanel>
+    );
+  });
+  return touched ? out : text;
+}
+
 function Hook({ eyebrow, headline, scope }) {
   return (
     <header className={styles.hook}>
@@ -65,12 +101,24 @@ function SubsectionHeader({ title }) {
   );
 }
 
-function Prose({ paragraphs }) {
+function Prose({ paragraphs, tokens }) {
+  /* Paragraphs that contain tokens get rendered with a <div>
+     wrapper instead of <p>, because the inline SidePanel renders
+     an <aside> that is portaled to the body on client mount but
+     still SSR'd inline. <p> can't legally contain block-level
+     descendants → hydration mismatch. <div> avoids it. */
   return (
     <div className={styles.prose}>
-      {paragraphs.map((p, i) => (
-        <p key={i} className={styles.proseParagraph}>{p}</p>
-      ))}
+      {paragraphs.map((p, i) => {
+        const rendered = renderText(p, tokens);
+        const isExpanded = Array.isArray(rendered);
+        const Tag = isExpanded ? "div" : "p";
+        return (
+          <Tag key={i} className={styles.proseParagraph}>
+            {isExpanded ? rendered : p}
+          </Tag>
+        );
+      })}
     </div>
   );
 }
@@ -243,14 +291,19 @@ const RENDERERS = {
   ),
 };
 
-export default function Narrative({ blocks = [] }) {
+export default function Narrative({ blocks = [], tokens }) {
   return (
     <div className={styles.narrative}>
       {blocks.map((block, i) => {
         const Renderer = RENDERERS[block.kind];
         if (!Renderer) return null;
         const { kind, ...props } = block;
-        return <Renderer key={i} {...props} />;
+        /* Only forward `tokens` to renderers that accept it. The
+           ones that take paragraph text (Prose, Lede, RichProse)
+           use it; others ignore the extra prop harmlessly via
+           rest-spread, but passing it everywhere also keeps the
+           door open for new token-aware blocks. */
+        return <Renderer key={i} tokens={tokens} {...props} />;
       })}
     </div>
   );

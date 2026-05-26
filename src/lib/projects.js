@@ -1,63 +1,22 @@
 import SidePanel from "@/components/SidePanel/SidePanel";
 import { narrativeTOC } from "@/components/Narrative/Narrative";
+import { loadProjectMarkdown } from "./loadProjectMarkdown";
+
+/* GWI is sourced from /content/projects/gwi.md — proof-of-concept
+   for the markdown CMS. The .md file's YAML frontmatter holds the
+   metadata + the full narrative block array. Other projects still
+   live inline in this file because they include JSX components
+   (inline SidePanel triggers) that aren't expressible in YAML yet. */
+const gwiFromMarkdown = loadProjectMarkdown("gwi");
+const philpotpearceFromMarkdown = loadProjectMarkdown("philpotpearce");
 
 // ─── Methodology stage presets (one set per project) ──────────────────
 // Each project's case study renders a radial Methodology diagram. The
 // stages are short interactive nodes around a circle; clicking one
 // opens its body in the side panel.
 
-const gwiMethodologyStages = [
-  {
-    id: "discover",
-    label: "Strategy",
-    title: "Framing the problem",
-    body:
-      "I was willing to change the fundamentals of our internal processes based on the potential risks I identified. I was able to establish a foundation based on evidence that pointed the way for the design approach that matched our users' mental models. This required an expert level of user comprehension and problem solving, until I was able to formulate a north star that key stakeholders could get behind.",
-    metaLabel: "Primary insight",
-    metaBody: "Calm defaults beat feature density for adoption.",
-    href: "#",
-  },
-  {
-    id: "define",
-    label: "Philosophy",
-    title: "Orientation, surfacing data and actioning",
-    body:
-      "The tool I designed operated more like a cockpit than a traditional dashboard — built for users maintaining constant awareness across multiple workflows, from drafting surveys and managing translations to monitoring quotas in fieldwork and beyond. The design ensured that users could quickly orient themselves, assess a range of critical information, and stay focused without becoming overwhelmed.",
-    metaLabel: "Design north star",
-    metaBody: "Same encodings, same interactions, depth on demand.",
-    href: "#",
-  },
-  {
-    id: "prototype",
-    label: "Data",
-    title: "Code-based sandbox",
-    body:
-      "AI coding tools such as Claude Code and Cursor were integral to my prototyping workflow. Leveraging these tools, I was able to design, build, and present interactive prototypes to the product team within short windows. This enabled us to rapidly evaluate architecture, flows, and features in a real sandbox environment. While still considered prototypes, these coded designs helped ground stakeholders and communicate the purpose and value of our solutions far more effectively than traditional mockups.",
-    metaLabel: "Validation focus",
-    metaBody: "Could a new analyst reach a defensible read in one sitting?",
-    href: "#",
-  },
-  {
-    id: "ship",
-    label: "Agents",
-    title: "Automate task triage and action assignment",
-    body:
-      "Designing systems and pipelines is increasingly central for designers—understanding information flow and knowing how and when to surface it are now core skills. For agent-driven experiences, this is even more critical. I approached the agent not as a typical chat interface, but as a 'lieutenant' that proactively lowered the cost of taking action below the cost of manual investigation.",
-    metaLabel: "Rollout strategy",
-    metaBody: "Cohort flags plus weekly readouts on task success.",
-    href: "#",
-  },
-  {
-    id: "iterate",
-    label: "Business",
-    title: "Success metrics and ROI",
-    body:
-      "Collaborated with PMs and data science to connect user feedback and behavioral insights to key business metrics—ensuring that refinements to ranking, copy, and alerting balanced real user needs with measurable business impact.",
-    metaLabel: "Iteration loop",
-    metaBody: "Fortnightly design spikes on top friction themes.",
-    href: "#",
-  },
-];
+/* (gwiMethodologyStages removed — GWI now sources from
+   /content/projects/gwi.md and the narrative drives the page.) */
 
 const lexisnexisMethodologyStages = [
   {
@@ -281,11 +240,8 @@ const draftMethodologyStages = [
 
 
 // ─── Project layers presets (Problem / Value / Solution) ──────────────
-const gwiProjectLayers = {
-  problem: { body: "GWI's internal tool for collecting data was significantly out of date, compounded by years of technical and design debt meant our process to gain our data — the essence of what we sell — was syphoning money to 3rd parties to keep us ticking over." },
-  value:   { body: "My goal was to reinvent our internal processes through a combination of efficiency, communication and cost savings." },
-  solution:{ body: "Making the transfer of information efficient. Automate monotonous tasks. Give users the capability to deliver greater outputs." },
-};
+/* (gwiProjectLayers removed — GWI now sources from
+   /content/projects/gwi.md.) */
 
 const lexisnexisProjectLayers = {
   problem: { body: "Consultants in M&A, strategy and advisory are judged on the quality of their evidence. Generic AI tools sound confident, but fall apart in a partner review. There's no way to trace where the answer came from, or how much of it to trust." },
@@ -588,13 +544,14 @@ const nexisNarrative = [
   },
 ];
 
-const philpotpearceProjectLayers = {
-  problem: { body: "An ambitious product design agency just starting out, trying to establish their brand and reach their target audience." },
-  value:   { body: "With a clear vision for the future of the studio, the two co-founders were looking to scale and establish themselves as a leading London-based studio." },
-  solution:{ body: "A website that felt synonymous with the studio and their beliefs — a reflection of the studio and their work." },
-};
+/* (philpotpearceProjectLayers removed — unused dead code.) */
 
-// ─── PhilpotPearce narrative (block-based case study) ─────────────────
+// ─── PhilpotPearce principle bodies (token registry) ──────────────────
+/* These stay in JS (not markdown) because the principle bodies are
+   JSX with semantic <p> wrappers. The narrative in
+   /content/projects/philpotpearce.md references each principle via
+   a `{{principle:Name}}` token; Narrative looks the body up here at
+   render time. */
 const philpotpearcePrincipleBodies = {
   "Synonymous brand language": (
     <p>
@@ -639,164 +596,10 @@ const philpotpearcePrincipleBodies = {
   ),
 };
 
-function PhilpotPrincipleLink({ name }) {
-  return (
-    <SidePanel variant="inline" heading={name} body={philpotpearcePrincipleBodies[name]}>
-      {name}
-    </SidePanel>
-  );
-}
+/* (PhilpotPrincipleLink removed — Narrative now resolves
+   {{principle:Name}} tokens against the tokens.principle map
+   passed via the project record.) */
 
-const philpotpearceDecisions = [
-  {
-    name: "Restraint as the brand",
-    summary: "The visual system as a statement of values, not decoration.",
-    image: { caption: "Brand system" },
-    body: [
-      "Most agencies dress up their identities. PhilpotPearce strips back. Every visual decision, every word on the site, every component had to earn its place.",
-      "The studio's value proposition is in what they don't do as much as what they do. The brand reads as a piece of evidence for that, not a slogan about it.",
-    ],
-  },
-  {
-    name: "Navigation as thesis statement",
-    summary: "The golden circle as information architecture.",
-    image: { caption: "IA as thesis" },
-    body: [
-      "Most agency sites lead with a service checklist. We led with worldview. The IA borrows from the golden circle (Why, How, What) so the navigation itself communicates how the studio thinks.",
-      "By the time the visitor reaches the work, they've already absorbed the studio's philosophy. The work doesn't have to justify itself, it just has to land.",
-    ],
-  },
-  {
-    name: "Work as the hero",
-    summary: "Project pages built to showcase, not narrate.",
-    image: { caption: "Work showcase" },
-    body: [
-      "Project pages are designed as exhibitions. Large imagery, sparing captions, no marketing scaffolding around the work. The visitor's job is to look; the studio's job is to give them something worth looking at.",
-      "This is the moment where the brand has to disappear and the work has to carry the weight.",
-    ],
-  },
-  {
-    name: "Editorial typography",
-    summary: "A single rhythm from hero to component states.",
-    image: { caption: "Type system" },
-    body: [
-      "One typographic system runs from hero through navigation through body copy through component states. There are no exceptions and no overrides. That consistency does most of the work that decoration usually has to.",
-      "The system was designed so new pages ship without new CSS exceptions, which keeps the studio's site as disciplined as its work.",
-    ],
-  },
-];
-
-const philpotpearceNarrative = [
-  // 01 · Hook
-  {
-    kind: "hook",
-    headline: "A studio that speaks for itself",
-    scope:
-      "I designed the brand identity and website for PhilpotPearce, an independent product design consultancy in London. The work covered brand strategy, visual identity, information architecture, art direction, and the web design and build. My task was to give a sharp practice a public face that matched the work, with restraint as the loudest signal.",
-  },
-  {
-    kind: "lede",
-    paragraphs: [
-      "The goal was to land the studio as a credible practice from the first visit and let the work do the talking from the second click on.",
-    ],
-  },
-  { kind: "imagePlaceholder", caption: "Hero image" },
-  {
-    kind: "outcomes",
-    items: [
-      ["Lighthouse perf.", "98", "/100"],
-      ["Pages shipped", "12", ""],
-      ["CSS exceptions", "0", ""],
-    ],
-  },
-
-  // 02 · The problem
-  { kind: "sectionHeader", chapter: "02", title: "The problem" },
-  {
-    kind: "prose",
-    paragraphs: [
-      "Two co-founders, both senior product designers, were starting a studio with the right work and the wrong shopfront. Their practice was sharp; their public presence was nothing. Without a brand and a site, they were invisible to the clients they wanted and indistinguishable from the agencies they didn't.",
-      "The market was already full of agencies talking loudly about themselves. Any new studio that joined the noise would lose. The opening had to come from somewhere quieter.",
-    ],
-  },
-  { kind: "imagePlaceholder", caption: "The problem" },
-
-  // 03 · The value
-  { kind: "sectionHeader", chapter: "03", title: "The value" },
-  { kind: "subsectionHeader", title: "For the business" },
-  {
-    kind: "prose",
-    paragraphs: [
-      "PhilpotPearce launched with a brand the founders could carry into pitches, into press, and into commercial conversations. The site became their primary acquisition channel, designed to filter for clients who valued craft and outcomes over service-list shopping.",
-    ],
-  },
-  { kind: "subsectionHeader", title: "For the visitor" },
-  {
-    kind: "prose",
-    paragraphs: [
-      "In thirty seconds, a visitor reads the studio's worldview from the navigation alone. From there it's a series of clear, restrained pages that put the work in front of them and step out of the way.",
-    ],
-  },
-  { kind: "imagePlaceholder", caption: "The value" },
-
-  // 04 · Directing the studio's voice
-  { kind: "sectionHeader", chapter: "04", title: "Directing the studio's voice" },
-  {
-    kind: "prose",
-    paragraphs: [
-      "Restraint as the brand. Most agencies dress up their identities; PhilpotPearce strips back. Every visual decision, every word on the site, every component had to earn its place. The studio's value proposition is in what they don't do as much as what they do.",
-    ],
-  },
-  { kind: "subsectionHeader", title: "Five principles" },
-  {
-    kind: "richProse",
-    paragraphs: [
-      (
-        <>
-          The work was anchored by five principles the founders and I argued
-          features in or out against:{" "}
-          <PhilpotPrincipleLink name="Synonymous brand language" />,{" "}
-          <PhilpotPrincipleLink name="Outcome centric" />,{" "}
-          <PhilpotPrincipleLink name="The golden circle" />,{" "}
-          <PhilpotPrincipleLink name="Less is more" />, and{" "}
-          <PhilpotPrincipleLink name="Portfolio architecture" />. Each came
-          from how the founders actually wanted the studio to operate, not
-          from how an agency website is supposed to look.
-        </>
-      ),
-    ],
-  },
-
-  // 05 · What I designed
-  { kind: "sectionHeader", chapter: "05", title: "What I designed" },
-  {
-    kind: "prose",
-    paragraphs: [
-      "Four design moves did the heavy lifting. Each is the moment the principles met a real decision on the page.",
-    ],
-  },
-  { kind: "decisionList", decisions: philpotpearceDecisions },
-
-  // 06 · A decision worth telling
-  { kind: "sectionHeader", chapter: "06", title: "A decision worth telling" },
-  {
-    kind: "prose",
-    paragraphs: [
-      "The founders' instinct, like most studios opening a website, was to start with Work / About / Services. I argued the studio's whole positioning would collapse if the navigation looked like every other agency's navigation, no matter how good the work behind it was.",
-      "The golden circle, Why before How before What, gave the IA a thesis. Once the founders saw the first round of pages built on that structure, the conversation moved from \"is this navigable\" to \"this is the studio.\" The IA became the brand, and the brand became the IA.",
-    ],
-  },
-  { kind: "imagePlaceholder", caption: "Navigation as thesis" },
-
-  // 07 · What I'd do differently
-  { kind: "sectionHeader", chapter: "07", title: "What I'd do differently" },
-  {
-    kind: "prose",
-    paragraphs: [
-      "I'd have shipped a writing system alongside the visual one. Restraint is a much harder discipline in copy than in design, and a couple of pages where the words drift would undo the work the type and layout do silently. Next time, a tone-of-voice spec sits inside the design system, not next to it.",
-    ],
-  },
-];
 
 const eventuringProjectLayers = {
   problem: { body: "eVenturing's previous website didn't convey their brand and created an unprofessional look for the company. Potential clients were put off; engagement and deals dropped as a result." },
@@ -856,316 +659,20 @@ const defaultMethodologyOrbits = [
 ];
 
 
-// ─── GWI narrative (block-based case study) ───────────────────────────
-const gwiFailureModes = [
-  {
-    quote: "Everything lives in a different place",
-    label: "Seams: context lives between tools, not in them",
-  },
-  {
-    quote: "Everything is manual right now… there is no automation at all",
-    label: "Labour: humans doing what systems should",
-  },
-  {
-    quote: "Tonnage can be finicky… an extra space and it fails… error messages aren't very helpful",
-    label: "Brittleness: high-cost failures from low-stakes inputs",
-  },
-  {
-    quote: "Quotas are not connected to each other… one could block the whole fieldwork without noticing",
-    label: "Silent failure: no shared state, no shared awareness",
-  },
-  {
-    quote: "No clean way to have a contract addendum… it's a hacky system… makes the audit significantly harder",
-    label: "Business risk: workarounds compound into audit liability",
-  },
-];
+/* (gwiFailureModes, gwiDecisions, gwiPillars, and gwiNarrative removed
+   — GWI's narrative now lives in /content/projects/gwi.md and is
+   loaded via loadProjectMarkdown at the top of this file.) */
 
-const gwiDecisions = [
-  {
-    name: "Homepage as orientation, not dashboard",
-    summary: "Critical information, organised signals, ranked order of activities.",
-    image: { caption: "Homepage as orientation" },
-    body: [
-      "Most operator tools open into a wall of charts. I designed the homepage to surface only critical information, the signals that need a human decision today.",
-      "Multiple signals from across the pillars are organised into one ranked order of activities, so the operator opens the day with a single ordered list of where their attention should go. The promise: if it isn't on this screen, it doesn't need you.",
-    ],
-  },
-  {
-    name: "Drafting backed by RAG and synthetic data",
-    summary: "RAG for question and translation consistency, synthetic data for survey coverage.",
-    image: { caption: "Drafting with RAG + synthetic data" },
-    body: [
-      "A RAG system grounds every drafting suggestion in GWI's own question library and translation corpus, so consistency is enforced across questions and across the languages each survey ships in.",
-      "Synthetic data acts as a stress test on top: the platform runs the draft against simulated respondents to identify gaps in question coverage, optimise the spread, and surface where the survey will fail before it goes out.",
-    ],
-  },
-  {
-    name: "Agent that surfaces, supports, and acts",
-    summary: "Surfaces critical information, keeps the user in control, carries out the mundane.",
-    image: { caption: "Agent surface" },
-    body: [
-      "The agent surfaces critical information the moment it matters: a stalled quota, an unanswered approval, an error that needs eyes. The operator keeps control of every decision.",
-      "It also recommends and carries out the mundane work on the user's behalf: chasing approvals, reformatting exports, queuing reminders. Trust comes from the agent's scope being visible, not assumed.",
-    ],
-  },
-  {
-    name: "Translation kept inside the tool",
-    summary: "Automated first pass, human review focused only on questions that need judgement.",
-    image: { caption: "In-tool translation flow" },
-    body: [
-      "Survey translation was going to third parties at significant per-project cost and turnaround time. I designed an in-tool translation flow with an automated first pass and human review focused only on the questions that needed judgement.",
-    ],
-  },
-  {
-    name: "Fieldwork architecture for navigation, not monitoring",
-    summary: "Wayfinding over reporting, the agent watches, the operator moves.",
-    image: { caption: "Fieldwork wayfinding" },
-    body: [
-      "The fieldwork surface isn't a dashboard. Operators don't need to watch, they need to get to the right project fast.",
-      "I designed the IA around search, filtering, and data visualisations that act as wayfinding rather than reporting. The agent does the watching; the operator does the moving.",
-    ],
-  },
-];
-
-const gwiPillars = [
-  {
-    title: "Project Hub",
-    body: "Holds the world: every project, survey, wave, and fieldwork state in one canonical place. Replaces the spread of Confluence pages, spreadsheets, and Salesforce records that operators currently re-type into each other.",
-  },
-  {
-    title: "Drafting workflow",
-    body: "Changes the world: where surveys are authored, translated, and approved. The agent sits on the same canvas as the draft so authorship and AI suggestions stay legible.",
-  },
-  {
-    title: "Fieldwork",
-    body: "Runs the world: in-field monitoring, quota management, and respondent-facing survey delivery. Built for navigation and intervention, not passive dashboards.",
-  },
-];
-
-const gwiNarrative = [
-  // 01 · Hook
-  {
-    kind: "hook",
-    headline: "Agentic data system",
-    scope:
-      "I owned the end-to-end design of GWI's internal data system, from interviews and synthesis through strategy, architecture, and engineering handoff. The system runs the research and data pipeline that produces the insights GWI sells to clients like FIFA, Meta, Amazon, and Omnicom.",
-  },
-  {
-    kind: "lede",
-    paragraphs: [
-      "The goal was to make the data process radically more efficient and save the business significant money: collect larger quantities of data, faster and at lower cost, giving researchers the ability to do more with less.",
-    ],
-  },
-  { kind: "imagePlaceholder", caption: "Hero image" },
-  {
-    kind: "outcomes",
-    items: [
-      ["Saved per year", "£750,000", ""],
-      ["Fewer clicks to insights", "6", "x"],
-      ["Increase in researcher capacity", "40", "%"],
-    ],
-  },
-
-  // 02 · The problem
-  { kind: "sectionHeader", chapter: "02", title: "The problem" },
-  {
-    kind: "prose",
-    paragraphs: [
-      "Research operators at GWI worked across seven systems to run a single project: Qualtrics, Jira, Confluence, Slack, spreadsheets, Salesforce, and an internal data tool. Each tool worked. The connective tissue between them didn't.",
-      "The cost wasn't any single tool. It was the re-typing of context at every handover, institutional knowledge being blocked from moving downstream, and the silent failure modes hiding between systems that nobody owned.",
-    ],
-  },
-  {
-    kind: "quote",
-    body: "There's so many platforms and so many steps and so many different things to remember… the fact that everything lives in a different place is really frustrating.",
-    source: "Research operator, GWI",
-  },
-  {
-    kind: "prose",
-    paragraphs: [
-      "The question I carried out of every interview was the same: how do we do more with less?",
-    ],
-  },
-  { kind: "subsectionHeader", title: "What I actually saw" },
-  { kind: "imagePlaceholder", caption: "Quote wall screenshot" },
-  {
-    kind: "prose",
-    paragraphs: [
-      "I ran interviews with research operators across project setup, fieldwork, and delivery. Quotes clustered into five distinct failure modes.",
-    ],
-  },
-  { kind: "quoteWall", items: gwiFailureModes },
-  {
-    kind: "prose",
-    paragraphs: [
-      "I paired these with a data stream map of the full project lifecycle, surfacing the business risks and inefficiencies that no individual operator could see because each one only lived inside their slice of the process. The same problem kept appearing under different names: the operator was the integration layer.",
-    ],
-  },
-
-  // 03 · The value
-  { kind: "sectionHeader", chapter: "03", title: "The value" },
-  { kind: "subsectionHeader", title: "For the business" },
-  {
-    kind: "prose",
-    paragraphs: [
-      "The headline outcome is £750,000 a year reclaimed from the stack of third-party tools the platform replaces. The first surface alone ended GWI's reliance on Qualtrics, and the architecture is sequenced so every following surface chips further away at outside spend.",
-    ],
-  },
-  { kind: "subsectionHeader", title: "For the researcher" },
-  {
-    kind: "prose",
-    paragraphs: [
-      "At the keyboard, the change is the one that's easiest to feel: one working surface instead of seven, 6x fewer clicks to reach an insight, and 40% more capacity to do the analysis they were actually hired to do.",
-    ],
-  },
-  { kind: "imagePlaceholder", caption: "The value" },
-
-  // 04 · The strategic move
-  { kind: "sectionHeader", chapter: "04", title: "The strategic move" },
-  {
-    kind: "prose",
-    paragraphs: [
-      "If the operator is the integration layer, the platform isn't fixing anything by adding a better tool. It's fixing things by becoming the integration layer itself.",
-      "That meant one canonical record underneath everything: every project, survey, wave, and fieldwork status lives in a single place that every other system reads from and writes to. Not a new tool in the stack. A replacement for the stack's seams.",
-      "Three pillars sit on top of the shared state: a Project Hub that holds the world, a Drafting workflow that changes it, and Fieldwork that runs it. An agent layer sits across all three, not a fourth pillar, but the membrane that gives the platform continuous context from project creation to data delivery.",
-    ],
-  },
-  {
-    kind: "pillarScroll",
-    eyebrow: "The architecture",
-    pillars: gwiPillars,
-    membrane: { label: "Agent layer · cross-cutting context" },
-  },
-  { kind: "subsectionHeader", title: "How I got there" },
-  { kind: "imagePlaceholder", caption: "JTBD ecosystem mapping" },
-  {
-    kind: "prose",
-    paragraphs: [
-      "I mapped the operator journey across the six stages of a research project, then ran a JTBD synthesis to extract the jobs the platform needed to do, not the features it needed to have. The outputs clustered into the three pillars and the cross-cutting agent layer.",
-      "One JTBD insight shaped the architecture more than any other: operators don't move through the workflow linearly. They jump into the process at different stages and rarely start at the beginning and end at the end in one session. That meant the platform had to design entry points for every single job, not a single happy path.",
-      "I also chose to build on, not replace. GWI had existing platform foundations (NDP) doing useful work in survey generation and fieldwork monitoring. The new architecture extends them rather than starting from zero.",
-    ],
-  },
-
-  // 05 · What I designed
-  { kind: "sectionHeader", chapter: "05", title: "What I designed" },
-  {
-    kind: "prose",
-    paragraphs: [
-      "The interesting work wasn't deciding what the pillars were. It was deciding where the operator's attention should go inside each one.",
-    ],
-  },
-  {
-    kind: "decisionList",
-    decisions: gwiDecisions,
-    closer:
-      "The common thread: every decision is about where to put the human's attention. The platform doesn't ask the operator to look at more, it asks them to look at less, more precisely.",
-  },
-  { kind: "subsectionHeader", title: "The agent as connective tissue" },
-  { kind: "imagePlaceholder", caption: "Screen of agent surface" },
-  {
-    kind: "prose",
-    paragraphs: [
-      "The agent isn't a fourth pillar, it's the membrane. One agent with continuous context across the Hub, drafting, and fieldwork. It carries what it learned during drafting into fieldwork monitoring, and what it sees in fieldwork into the Hub's status model.",
-      "Its authority is bounded by reversibility times confidence. Cheap and certain, it acts and notifies. Expensive or uncertain, it escalates. The user trusts the agent because its scope is visible, not assumed.",
-    ],
-  },
-  { kind: "subsectionHeader", title: "Inside each pillar" },
-  { kind: "imagePlaceholder", caption: "Project Hub" },
-  {
-    kind: "prose",
-    paragraphs: [
-      "The canonical state of every research project. Status, owners, waves, fieldwork health, and risks all live here and feed everything downstream. Replaces the spread of Confluence pages, Salesforce records, and ad-hoc spreadsheets the team used to reconcile by hand.",
-    ],
-  },
-  { kind: "imagePlaceholder", caption: "Drafting" },
-  {
-    kind: "prose",
-    paragraphs: [
-      "Survey authoring with the agent on the same canvas as the draft. Every change the agent makes is attributable line by line, and every suggestion shows the source it pulled from. Translation runs in-tool with human review only where judgement is needed.",
-    ],
-  },
-  { kind: "imagePlaceholder", caption: "Fieldwork" },
-  {
-    kind: "prose",
-    paragraphs: [
-      "In-field monitoring, quota management, and respondent delivery built for navigation rather than passive watching. The IA is search-first, with visualisations that act as wayfinding so an operator can move from alert to intervention in seconds.",
-    ],
-  },
-
-  // 06 · A decision worth telling
-  { kind: "sectionHeader", chapter: "06", title: "A decision worth telling" },
-  {
-    kind: "prose",
-    paragraphs: [
-      "Leadership initially wanted to extend the legacy tool. I argued the legacy tool was a symptom of the stack problem, not a foundation to build on.",
-      "The evidence backed it up. The existing tool was a Frankenstein of features layered on year after year, most of them unmanaged, undocumented, and patched into corners of the code nobody on the current team had touched. That accumulation, on its own, was a significant reason the business needed this transformation: every new requirement had to fight the weight of the old one.",
-      "I made the case with a working prototype rather than a deck. Using an AI sandbox, I built a rough version of the agent membrane operating across mock project, draft, and fieldwork states. The point wasn't the UI, it was getting leadership to submerge themselves in the flow and architecture before they could start picking at the surface. By the time the conversation came back to interface, the foundation question was already settled.",
-    ],
-  },
-  { kind: "imagePlaceholder", caption: "Sandbox prototype" },
-
-  // 07 · Where the work is
-  { kind: "sectionHeader", chapter: "07", title: "Where the work is" },
-  {
-    kind: "prose",
-    paragraphs: [
-      "The thesis is the deliverable. The architecture is the bet. The build is sequenced, and it's underway.",
-    ],
-  },
-  {
-    kind: "statusList",
-    items: [
-      {
-        state: "Live",
-        title: "Respondent-facing survey question UI",
-        description:
-          "The surface that ends GWI's reliance on Qualtrics. The fastest path to cutting third-party spend, and the first proof that the platform can replace the stack one surface at a time.",
-      },
-      {
-        state: "Designed",
-        title: "Project Hub, Drafting workflow, Fieldwork architecture",
-        description:
-          "IA, key flows, and the design system foundations are in place. Engineering is building against them now.",
-      },
-      {
-        state: "Bought-in",
-        title: "The thesis as shared language",
-        description:
-          "I wrote the platform's value proposition document, the framing the business now uses to talk about itself, and it was adopted across leadership. The Director of Product accepted the concept; my architecture and site map confirmed the new-foundation proposal during the build-approach discussion. I'm now kick-starting the engineering process against the work.",
-      },
-    ],
-  },
-
-  // 08 · What I'd do differently
-  { kind: "sectionHeader", chapter: "08", title: "What I'd do differently" },
-  {
-    kind: "prose",
-    paragraphs: [
-      "I'd have challenged the existing ways of working earlier. Some operators are so embedded in the current process they can't see a simpler one exists until you show them, and the longer the legacy ways are the baseline, the harder it is to argue for new foundations. The sandbox prototype eventually moved leadership; I should have built it sooner and shown it wider.",
-    ],
-  },
-];
 
 // ─── Projects ─────────────────────────────────────────────────────────
 export const projects = [
   {
-    slug: "gwi",
-    name: "GWI",
-    initial: "G",
-    date: "2025-ongoing",
-    role: "Senior Product Designer · Internal data system",
-    tags: ["Agents", "Data", "Efficiency"],
-    blurb:
-      "GWI's internal data system. Redesigned to make the research process radically more efficient and save the business significant money, so researchers can do more with less.",
-    badge: "New",
-    metrics: [
-      ["Saved per year", "£750,000", ""],
-      ["Fewer clicks to insights", "6", "x"],
-      ["Increase in researcher capacity", "40", "%"],
-    ],
-    narrative: gwiNarrative,
-    sections: narrativeTOC(gwiNarrative),
+    /* GWI sourced from /content/projects/gwi.md. The .md file's
+       frontmatter spreads in: slug, name, initial, date, role,
+       tags, blurb, badge, metrics, narrative. The sections array
+       is derived from the narrative's sectionHeader blocks. */
+    ...gwiFromMarkdown,
+    sections: narrativeTOC(gwiFromMarkdown.narrative),
   },
   {
     slug: "lexisnexis",
@@ -1186,22 +693,13 @@ export const projects = [
     sections: narrativeTOC(nexisNarrative),
   },
   {
-    slug: "philpotpearce",
-    name: "PhilpotPearce",
-    initial: "P",
-    date: "2024",
-    role: "Brand identity & website · Independent consultancy",
-    tags: ["Identity", "Web", "Brand"],
-    blurb: "Visual identity and web presence for a creative consultancy — balancing editorial craft with a clear, confident voice.",
-    badge: "Shipped",
-    liveUrl: "#",
-    metrics: [
-      ["Lighthouse perf.", "98", "/100"],
-      ["Pages shipped", "12", ""],
-      ["CSS exceptions", "0", ""],
-    ],
-    narrative: philpotpearceNarrative,
-    sections: narrativeTOC(philpotpearceNarrative),
+    /* PhilpotPearce sourced from /content/projects/philpotpearce.md.
+       The principle bodies stay in JS as the token registry because
+       they're JSX; the narrative references them via
+       `{{principle:Name}}` tokens that Narrative resolves at render. */
+    ...philpotpearceFromMarkdown,
+    sections: narrativeTOC(philpotpearceFromMarkdown.narrative),
+    tokens: { principle: philpotpearcePrincipleBodies },
   },
   {
     slug: "soundtrends",
