@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import LogoMark from "./LogoMark";
+import SidebarComet from "./SidebarComet";
 import { projects } from "@/lib/projects";
 import { ARTICLES } from "@/components/BookLogCarousel/articles";
 import { EXPERIMENTS } from "@/lib/experiments";
@@ -117,14 +118,16 @@ function DocSidebar({ title, href, sections, hash, backTo = "/", backLabel = "In
           </Link>
           {sections && sections.length > 0 && (
             <div className="children">
-              {sections.map((s) => (
-                <FileRow
-                  key={s.id}
-                  href={`${href}#${s.id}`}
-                  label={s.label}
-                  active={activeId === s.id}
-                />
-              ))}
+              <div className="children-list">
+                {sections.map((s) => (
+                  <FileRow
+                    key={s.id}
+                    href={`${href}#${s.id}`}
+                    label={s.label}
+                    active={activeId === s.id}
+                  />
+                ))}
+              </div>
             </div>
           )}
         </div>
@@ -150,10 +153,16 @@ function IndexSidebar({ pathname, projectsOpen, notesOpen, setProjectsOpen, setN
           <Chev />
           <span className="label">Projects</span>
         </button>
+        {/* .children is the grid container (grid-template-rows transitions
+            from 0fr to 1fr); .children-list is the single grid row whose
+            intrinsic height gets interpolated. Smooth content-aware
+            collapse without the max-height jank. */}
         <div className="children">
-          {projects.map((p) => (
-            <FileRow key={p.slug} href={`/${p.slug}`} label={p.name} active={false} />
-          ))}
+          <div className="children-list">
+            {projects.map((p) => (
+              <FileRow key={p.slug} href={`/${p.slug}`} label={p.name} active={false} />
+            ))}
+          </div>
         </div>
       </div>
 
@@ -165,12 +174,14 @@ function IndexSidebar({ pathname, projectsOpen, notesOpen, setProjectsOpen, setN
           aria-expanded={notesOpen}
         >
           <Chev />
-          <span className="label">Notes</span>
+          <span className="label">Writing</span>
         </button>
         <div className="children">
-          {ARTICLES.map((a) => (
-            <FileRow key={a.id} href={`/reading/${a.id}`} label={a.title} active={false} />
-          ))}
+          <div className="children-list">
+            {ARTICLES.map((a) => (
+              <FileRow key={a.id} href={`/reading/${a.id}`} label={a.title} active={false} />
+            ))}
+          </div>
         </div>
       </div>
 
@@ -202,6 +213,11 @@ export default function Sidebar() {
 
   return (
     <aside className={`sidebar${mobileOpen ? " is-open" : ""}`} aria-label="Navigation">
+      {/* SidebarComet draws the SVG perimeter comet behind the
+          panel content. sidebar-inner sits above it (z-index) and
+          handles scrolling. */}
+      <SidebarComet />
+      <div className="sidebar-inner">
       <div className="sidebar-header">
         <LogoMark />
         <button
@@ -247,6 +263,7 @@ export default function Sidebar() {
           setNotesOpen={setNotesOpen}
         />
       )}
+      </div>
     </aside>
   );
 }

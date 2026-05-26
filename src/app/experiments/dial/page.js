@@ -1,5 +1,6 @@
 import PortfolioDial from "@/components/PortfolioDial/PortfolioDial";
 import { getExperiment } from "@/lib/experiments";
+import ExperimentHeader from "../ExperimentHeader";
 
 const exp = getExperiment("dial");
 
@@ -11,11 +12,7 @@ export const metadata = {
 export default function DialExperimentPage() {
   return (
     <main className="page">
-      <header className="experiment-header">
-        <div className="case-study__eyebrow">{exp.tag}</div>
-        <h1 className="case-study__title">{exp.title}</h1>
-        <p className="case-study__lede">{exp.description}</p>
-      </header>
+      <ExperimentHeader exp={exp} />
       {/* The dial measures its own container width and sizes itself
           to fit, so wrapping it constrains the whole composition
           inside a column rather than spanning the viewport. */}

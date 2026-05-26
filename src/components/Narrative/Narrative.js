@@ -25,6 +25,7 @@ import Orbit from "@/components/Orbit/Orbit";
 import ProjectLayers from "@/components/ProjectLayers/ProjectLayers";
 import SidePanel from "@/components/SidePanel/SidePanel";
 import PillarScroll from "@/components/PillarScroll/PillarScroll";
+import ScrambleText from "@/components/ScrambleText/ScrambleText";
 import styles from "./Narrative.module.css";
 
 function slugify(s) {
@@ -38,7 +39,9 @@ function Hook({ eyebrow, headline, scope }) {
   return (
     <header className={styles.hook}>
       {eyebrow && <span className={styles.hookEyebrow}>{eyebrow}</span>}
-      <h1 className={styles.hookHeadline}>{headline}</h1>
+      <h1 className={styles.hookHeadline}>
+        <ScrambleText text={headline} as="text" />
+      </h1>
       {scope && <p className={styles.hookScope}>{scope}</p>}
     </header>
   );

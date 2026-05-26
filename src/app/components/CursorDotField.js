@@ -11,6 +11,7 @@
    from that reference — tweak in CFG. */
 
 import { useEffect, useRef } from "react";
+import { getCursorMode, subscribeCursorMode } from "@/lib/cursorMode";
 
 const CFG = {
   spacing: 32,         // dot grid pitch in px
@@ -121,6 +122,13 @@ export default function CursorDotField() {
     let dots = [];
     let isVisible = true;
     let raf = 0;
+    /* Render mode — "dot" | "plus" | "off". Subscribed to the shared
+       cursor-mode store; CursorToggle in the side panel writes to it. */
+    let mode = getCursorMode();
+    const unsubMode = subscribeCursorMode((next) => {
+      mode = next;
+      if (mode === "off" && ctx) ctx.clearRect(0, 0, W, H);
+    });
 
     function rebuildDots() {
       dots = [];
@@ -169,6 +177,9 @@ export default function CursorDotField() {
     function frame() {
       raf = requestAnimationFrame(frame);
       if (!isVisible) return;
+      /* When the field is off, skip everything — the canvas was
+         cleared once on the mode change and stays empty. */
+      if (mode === "off") return;
 
       const now = performance.now();
       const idleFor = now - lastInputAt;
@@ -231,12 +242,29 @@ export default function CursorDotField() {
         const cg = cOld[1] + (cNew[1] - cOld[1]) * themeT;
         const cb = cOld[2] + (cNew[2] - cOld[2]) * themeT;
         const radius = baseR * (1 + (growth - 1) * strength);
-
-        ctx.beginPath();
-        ctx.fillStyle =
+        const color =
           "rgba(" + (cr | 0) + "," + (cg | 0) + "," + (cb | 0) + "," + total.toFixed(3) + ")";
-        ctx.arc(px, py, radius, 0, Math.PI * 2);
-        ctx.fill();
+
+        if (mode === "plus") {
+          /* "+" glyph — two crossed line segments. Arm length scales
+             with proximity strength; stroke width stays thin for a
+             technical/grid feel. */
+          const arm = baseR * 2.6 * (1 + (growth - 1) * strength);
+          ctx.lineWidth = 0.7;
+          ctx.lineCap = "round";
+          ctx.strokeStyle = color;
+          ctx.beginPath();
+          ctx.moveTo(px - arm, py);
+          ctx.lineTo(px + arm, py);
+          ctx.moveTo(px, py - arm);
+          ctx.lineTo(px, py + arm);
+          ctx.stroke();
+        } else {
+          ctx.beginPath();
+          ctx.fillStyle = color;
+          ctx.arc(px, py, radius, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
     }
 
@@ -283,6 +311,7 @@ export default function CursorDotField() {
       ro.disconnect();
       io.disconnect();
       themeObs.disconnect();
+      unsubMode();
       window.removeEventListener("mousemove", onMM);
       window.removeEventListener("touchmove", onTM);
       document.removeEventListener("mouseleave", onLeave);

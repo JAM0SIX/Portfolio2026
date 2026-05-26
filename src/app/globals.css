@@ -12,10 +12,24 @@
 
 
 /* ─── Layout shell ───────────────────────────────────────────────────── */
+/* The whole page sits inside an 18px-padded box so the side panel and
+   main column both float inside a designed enclosure. Sidebar column +
+   the gap between columns + the right margin all derive from --shell-
+   gutter so we can tune them in one place. */
+:root {
+  --shell-gutter: 18px;
+}
+@media (max-width: 720px) {
+  :root { --shell-gutter: 12px; }
+}
+
 .shell {
   display: grid;
   grid-template-columns: 220px 1fr;
+  column-gap: var(--shell-gutter);
+  padding: var(--shell-gutter);
   min-height: 100vh;
+  box-sizing: border-box;
 }
 @media (max-width: 880px) {
   .shell { grid-template-columns: 1fr; }
@@ -53,16 +67,17 @@ main.page {
 }
 .dot-field {
   position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 220px;        /* matches .shell sidebar column width */
+  top: var(--shell-gutter);
+  right: var(--shell-gutter);
+  bottom: var(--shell-gutter);
+  /* sidebar width + gutter on each side of it */
+  left: calc(220px + var(--shell-gutter) * 2);
   pointer-events: none;
   z-index: 0;
   opacity: 0.55;
 }
 @media (max-width: 880px) {
-  .dot-field { left: 0; }   /* sidebar stacks above main on mobile */
+  .dot-field { left: var(--shell-gutter); }
 }
 .dot-field canvas {
   display: block;
@@ -72,21 +87,64 @@ main.page {
 main.page { position: relative; z-index: 1; }
 
 
-/* ─── Sidebar ────────────────────────────────────────────────────────── */
+/* ─── Sidebar (floating side panel) ──────────────────────────────────── */
+/* Sits inside the .shell padded enclosure with a matching gutter to the
+   main column. Sticky so it stays glued to the top while the main
+   column scrolls. Height matches the visible viewport minus the
+   top/bottom shell gutters.
+
+   Comet border animation:
+   .sidebar carries a static 1px rule for its resting border. ::before
+   is a fixed-length horizontal bar with a head→tail accent gradient
+   that follows the panel's rectangular perimeter via offset-path. The
+   bar's anchor sits at its bright head, so the gradient genuinely
+   trails behind the leading edge. Linear timing gives constant speed,
+   so the comet doesn't speed up on shorter edges. */
 .sidebar {
   position: sticky;
-  top: 0;
+  top: var(--shell-gutter);
   align-self: start;
-  height: 100vh;
+  height: calc(100vh - var(--shell-gutter) * 2);
   background: var(--paper-deep);
-  border-right: var(--border-default) solid var(--rule);
-  box-shadow:
-    inset -5px 0 0 0 var(--rule-soft),
-    inset -4px 0 0 0 var(--paper-deep);
-  padding: var(--space-4) var(--space-3) var(--space-6);
   font-size: var(--text-base);
   user-select: none;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid var(--rule);
+}
+
+/* Inner scroll wrapper. We can't put overflow: auto on .sidebar
+   itself because the comet conic-gradient needs overflow: hidden
+   so it doesn't bleed outside the panel. The inner wrapper holds
+   the scrollable content and sits above the comet via z-index. */
+.sidebar-inner {
+  position: relative;
+  z-index: 2;
+  height: 100%;
   overflow-y: auto;
+  padding: var(--space-4) var(--space-3) var(--space-6);
+  display: flex;
+  flex-direction: column;
+}
+
+/* The comet itself is rendered by the SidebarComet SVG component
+   inside the sidebar (see /app/components/SidebarComet.js). It draws
+   stacked <rect> strokes around the perimeter with offset
+   stroke-dashoffset values, creating a fixed-length head followed by
+   a fading trail that travels the rectangle at constant speed. */
+.sidebar-comet-svg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  /* Soft glow so the head reads as light, not just paint. */
+  filter:
+    drop-shadow(0 0 4px color-mix(in srgb, var(--accent) 30%, transparent))
+    drop-shadow(0 0 8px color-mix(in srgb, var(--accent) 12%, transparent));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-comet-svg animate { display: none; }
 }
 .sidebar-header {
   display: flex;
@@ -192,7 +250,18 @@ main.page { position: relative; z-index: 1; }
   align-items: center;
   gap: var(--space-2);
   height: var(--row-h);
+  /* width:100% + box-sizing so buttons (folder rows) and anchors
+     (file rows) both stretch to the same right edge — keeps hover
+     state widths identical across every menu row. */
+  width: 100%;
+  box-sizing: border-box;
   padding: 0 var(--space-2);
+  /* Reset any user-agent button styling so folder rows match the
+     anchor rows visually. */
+  background: none;
+  border: 0;
+  font: inherit;
+  text-align: left;
   color: var(--ink-soft);
   cursor: pointer;
   transition: background .12s ease, color .12s ease;
@@ -226,15 +295,28 @@ main.page { position: relative; z-index: 1; }
 .tree .row.folder:hover .chev { color: var(--ink); }
 .folder-group.open > .row.folder .chev { transform: rotate(90deg); }
 .tree .row.file .chev { visibility: hidden; }
+/* Folder children — grid-template-rows trick.
+   Collapsed: rows = 0fr (the inner list contributes zero height).
+   Open: rows = 1fr (interpolates up to the list's intrinsic size).
+   This is content-aware: short lists open quickly, long ones open in
+   the same duration but the curve fits their actual height. No
+   max-height jank. */
 .children {
   position: relative;
   margin-left: 11px;
   padding-left: 4px;
-  overflow: hidden;
-  max-height: 0;
-  transition: max-height .25s ease;
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows .35s cubic-bezier(0.32, 0.72, 0.32, 1);
 }
-.folder-group.open > .children { max-height: 1000px; }
+.folder-group.open > .children { grid-template-rows: 1fr; }
+.children-list {
+  overflow: hidden;
+  min-width: 0;
+  /* Lets the row collapse to 0 height while still respecting its
+     parent's grid-template-rows constraint. */
+  min-height: 0;
+}
 /* Vertical indent guide removed — kept as commented reference.
    .children::before {
      content: "";
@@ -270,11 +352,13 @@ main.page { position: relative; z-index: 1; }
 @media (max-width: 880px) {
   .sidebar {
     position: relative;
+    top: auto;
     height: auto;
-    border-right: 0;
-    border-bottom: var(--border-default) solid var(--rule);
+    overflow: visible;
+  }
+  .sidebar-inner {
+    overflow: visible;
     padding: var(--space-3) var(--space-4);
-    box-shadow: none;
   }
   .sidebar-header { margin-bottom: 0; padding-bottom: var(--space-3); }
   .sidebar-header__slot { display: inline-flex; }
@@ -284,10 +368,13 @@ main.page { position: relative; z-index: 1; }
 
 
 /* ─── Local clock module (bottom-left; hosts theme toggle on desktop) ── */
+/* Positioned to align with the sidebar's inner padding so the "updated"
+   copy and the theme-toggle dial sit on the same x as the logo and
+   menu rows. Bottom offset matches the sidebar's inner bottom padding. */
 .local-clock {
   position: fixed;
-  left: 20px;
-  bottom: 24px;
+  left: calc(var(--shell-gutter) + var(--space-3));
+  bottom: calc(var(--shell-gutter) + var(--space-6));
   z-index: 900;
   display: flex;
   flex-direction: column;
@@ -330,7 +417,11 @@ main.page { position: relative; z-index: 1; }
   font-weight: var(--weight-medium);
 }
 @media (max-width: 720px) {
-  .local-clock { left: 16px; bottom: 16px; }
+  /* Mobile: smaller shell-gutter (12px), match sidebar inner padding. */
+  .local-clock {
+    left: calc(var(--shell-gutter) + var(--space-3));
+    bottom: calc(var(--shell-gutter) + var(--space-4));
+  }
 }
 
 

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import ScrambleText from "@/components/ScrambleText/ScrambleText";
 
 export default function Hero() {
   const [time, setTime] = useState("");
@@ -39,7 +40,11 @@ export default function Hero() {
 
       <section className="hc-root" id="profile">
         <h1 className="hc-headline">
-          I believe the future belongs to designers who can build.
+          <ScrambleText
+            text="I believe the future belongs to designers who can build."
+            stagger={18}
+            as="text"
+          />
         </h1>
 
         <p className="hc-body">
