@@ -195,6 +195,46 @@ function SoundsThumbnail() {
   );
 }
 
+function CometThumbnail() {
+  /* Static SVG hint at the comet: a rectangle frame with a bright
+     leading dot and a fading trail trailing back along the top
+     edge. No animation in the thumbnail — keeps the hub page calm
+     and reserves the motion for the experiment itself. */
+  const TRAIL = Array.from({ length: 14 }, (_, i) => {
+    const t = i / 14;
+    const fade = Math.pow(t, 1.4);
+    return {
+      x: +(150 - i * 8).toFixed(2),
+      r: +(2.6 - 2.2 * fade).toFixed(3),
+      opacity: +(1 - fade).toFixed(3),
+    };
+  });
+  return (
+    <svg viewBox="0 0 200 120" className={styles.thumbSvg}>
+      <rect
+        x="20"
+        y="20"
+        width="160"
+        height="80"
+        fill="none"
+        stroke="var(--ink-mute)"
+        strokeWidth="0.8"
+        opacity="0.6"
+      />
+      {TRAIL.map((p, i) => (
+        <circle
+          key={i}
+          cx={p.x}
+          cy={20}
+          r={p.r}
+          fill="var(--accent)"
+          opacity={p.opacity}
+        />
+      ))}
+    </svg>
+  );
+}
+
 /* Pair each experiment's metadata with its visual thumbnail. The
    metadata comes from /lib/experiments.js (shared with the Sidebar
    + each experiment's page), the thumbnails are only used here. */
@@ -205,6 +245,7 @@ const THUMBNAILS = {
   notebook: NotebookThumbnail,
   dial: DialThumbnail,
   sounds: SoundsThumbnail,
+  comet: CometThumbnail,
 };
 const EXPERIMENTS = EXPERIMENT_META.map((e) => ({
   ...e,

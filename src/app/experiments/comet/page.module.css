@@ -1,0 +1,63 @@
+.grid {
+  margin-top: 32px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+}
+
+.cell {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* The host must establish a containing block so the absolutely-
+   positioned <svg> from Comet sizes to it. Background gives the
+   comet something to draw against; the subtle inset rim makes the
+   border-tracing read clearly even before the comet completes a
+   lap. */
+.host {
+  position: relative;
+  width: 100%;
+  background: var(--paper-deep);
+  border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+}
+
+.caption {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.captionLabel {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.captionNote {
+  color: var(--ink-mute);
+  font-feature-settings: "tnum" 1;
+}
+
+.notes {
+  margin-top: 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 60ch;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.notesTitle {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin: 0 0 4px;
+}

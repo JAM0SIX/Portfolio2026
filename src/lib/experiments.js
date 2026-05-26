@@ -58,6 +58,15 @@ export const EXPERIMENTS = [
     description:
       "Six tactile hover sounds synthesised live in the browser — soft ticks, warm blips, a bell pluck, a modem chirp, a relay click, and a low saw tail.",
   },
+  {
+    slug: "comet",
+    href: "/experiments/comet",
+    tag: "Motion",
+    title: "Border comet",
+    meta: "React · SVG",
+    description:
+      "A bright head with a tapered trail tracing the perimeter of a box at constant speed. Stacked SVG rect strokes, ResizeObserver-fit, no corner stretch. Originally lived on the side panel; lifted out so any container can host it.",
+  },
 ];
 
 export function getExperiment(slug) {
