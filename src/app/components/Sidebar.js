@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import LogoMark from "./LogoMark";
-import SidebarComet from "./SidebarComet";
 import { projects } from "@/lib/projects";
 import { ARTICLES } from "@/components/BookLogCarousel/articles";
 import { EXPERIMENTS } from "@/lib/experiments";
@@ -213,10 +212,6 @@ export default function Sidebar() {
 
   return (
     <aside className={`sidebar${mobileOpen ? " is-open" : ""}`} aria-label="Navigation">
-      {/* SidebarComet draws the SVG perimeter comet behind the
-          panel content. sidebar-inner sits above it (z-index) and
-          handles scrolling. */}
-      <SidebarComet />
       <div className="sidebar-inner">
       <div className="sidebar-header">
         <LogoMark />
