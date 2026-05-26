@@ -26,9 +26,11 @@ const DEFAULT_POOL =
 
 export default function ScrambleText({
   text,
+  /* `duration` is each slot's hold time before it settles to its
+     real character. With the one-glyph-per-slot model this also
+     determines how long the random glyph is visible. */
   duration = 700,
   stagger = 28,
-  cycleMs = 55,
   pool = DEFAULT_POOL,
   className,
   /* Optional render override — by default ScrambleText paints into
@@ -38,38 +40,40 @@ export default function ScrambleText({
   as = "span",
 }) {
   /* Initial state matches the target text so SSR markup equals the
-     first client render — no hydration mismatch. The scramble kicks
-     off in useEffect, replacing the state with cycling characters. */
+     first client render — no hydration mismatch. */
   const [chars, setChars] = useState(() => text.split(""));
 
   useEffect(() => {
     const target = text.split("");
-    const startedAt = performance.now();
-    const totalMs = target.length * stagger + duration + 100;
-    let intervalId;
 
-    function tick() {
-      const now = performance.now() - startedAt;
-      setChars(
-        target.map((tc, i) => {
-          /* Preserve whitespace and punctuation that doesn't read as
-             a glyph — scrambling those produces noise without helping
-             the reveal land. */
-          if (/\s/.test(tc)) return tc;
-          const settleAt = i * stagger + duration;
-          if (now >= settleAt) return tc;
-          return pool[Math.floor(Math.random() * pool.length)];
-        }),
-      );
-      if (now > totalMs) clearInterval(intervalId);
-    }
+    /* Pick ONE random glyph per slot up-front, then schedule per-
+       slot settle timers. Each slot shows exactly one random glyph
+       before locking onto its real character, so the total visible
+       glyph rotation is roughly equal to the length of the heading
+       (rather than length × cycles). Reads as deliberate, not
+       frantic. */
+    const initialScrambled = target.map((tc) => {
+      if (/\s/.test(tc)) return tc;
+      return pool[Math.floor(Math.random() * pool.length)];
+    });
+    setChars(initialScrambled);
 
-    /* Run once immediately so the scramble starts on this frame
-       rather than waiting cycleMs ms. */
-    tick();
-    intervalId = setInterval(tick, cycleMs);
-    return () => clearInterval(intervalId);
-  }, [text, duration, stagger, cycleMs, pool]);
+    const timers = target.map((tc, i) => {
+      if (/\s/.test(tc)) return null;
+      const settleAt = i * stagger + duration;
+      return setTimeout(() => {
+        setChars((prev) => {
+          const next = prev.slice();
+          next[i] = tc;
+          return next;
+        });
+      }, settleAt);
+    });
+
+    return () => {
+      timers.forEach((t) => t && clearTimeout(t));
+    };
+  }, [text, duration, stagger, pool]);
 
   if (as === "text") {
     /* Caller renders its own wrapper; we just supply the spans. */

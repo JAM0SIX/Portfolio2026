@@ -1,6 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+/* ThemeToggle — draggable sliding switch in a bevelled plate.
+   --------------------------------------------------------------
+   Sun + moon icons sit above a horizontal track with a draggable
+   knob. The knob can be:
+     (a) dragged across the track with a pointer — it snaps to
+         whichever side it's closer to on release;
+     (b) clicked directly on either icon — the knob springs to
+         that side.
+   Spring animation handled by Motion; drag handled by Motion's
+   pointer-event drag. */
+
+import { useEffect, useRef, useState } from "react";
+import { motion } from "motion/react";
 
 const THEME_KEY = "harrys-theme";
 
@@ -21,9 +33,8 @@ function SunIcon() {
 }
 
 export default function ThemeToggle() {
-  // Default to paper. The inline boot script in layout.js already applied the
-  // stored theme to <html> before hydration, so this state syncs on mount.
   const [theme, setTheme] = useState("paper");
+  const trackRef = useRef(null);
 
   useEffect(() => {
     const t = document.documentElement.dataset.theme || "paper";
@@ -31,10 +42,8 @@ export default function ThemeToggle() {
   }, []);
 
   function apply(next) {
+    if (next === theme) return;
     const root = document.documentElement;
-    // Add the transient class so the long, soft theme-fade kicks in.
-    // Cleared after the transition window so it doesn't interfere with
-    // normal hover/interaction transitions.
     root.classList.add("is-theme-changing");
     root.dataset.theme = next;
     window.setTimeout(() => root.classList.remove("is-theme-changing"), 750);
@@ -43,25 +52,55 @@ export default function ThemeToggle() {
   }
 
   return (
-    <div className="theme-toggle" role="group" aria-label="Theme">
-      <button
-        type="button"
-        className={`tt-btn${theme === "onyx" ? " is-active" : ""}`}
-        aria-label="Use dark theme"
-        aria-pressed={theme === "onyx"}
-        onClick={() => apply("onyx")}
-      >
-        <MoonIcon />
-      </button>
-      <button
-        type="button"
-        className={`tt-btn${theme === "paper" ? " is-active" : ""}`}
-        aria-label="Use light theme"
-        aria-pressed={theme === "paper"}
-        onClick={() => apply("paper")}
-      >
-        <SunIcon />
-      </button>
+    <div className="skeuo-theme" role="group" aria-label="Theme">
+      <div className="skeuo-theme-icons">
+        <button
+          type="button"
+          className={`skeuo-theme-icon${theme === "paper" ? " is-active" : ""}`}
+          aria-label="Use light theme"
+          aria-pressed={theme === "paper"}
+          onClick={() => apply("paper")}
+        >
+          <SunIcon />
+        </button>
+        <button
+          type="button"
+          className={`skeuo-theme-icon${theme === "onyx" ? " is-active" : ""}`}
+          aria-label="Use dark theme"
+          aria-pressed={theme === "onyx"}
+          onClick={() => apply("onyx")}
+        >
+          <MoonIcon />
+        </button>
+      </div>
+      <div ref={trackRef} className="skeuo-theme-track">
+        <motion.div
+          className="skeuo-theme-knob"
+          drag="x"
+          dragConstraints={trackRef}
+          dragElastic={0}
+          dragMomentum={false}
+          /* `x: "0%"` puts the knob at the left edge; `x: "100%"`
+             translates by the knob's own width — since the knob
+             is 50% of the track wide, that lands it on the right
+             half. */
+          /* initial={false} prevents the entrance animation. On
+             first render `theme` defaults to "paper"; if the real
+             theme (read in useEffect) is "onyx", we'd otherwise
+             see the knob slide from left to right and visibly
+             pass through the middle on page load. */
+          initial={false}
+          animate={{ x: theme === "paper" ? "0%" : "100%" }}
+          transition={{ type: "spring", stiffness: 500, damping: 35 }}
+          onDragEnd={(_, info) => {
+            if (!trackRef.current) return;
+            const rect = trackRef.current.getBoundingClientRect();
+            const midpoint = rect.left + rect.width / 2;
+            apply(info.point.x > midpoint ? "onyx" : "paper");
+          }}
+          aria-hidden="true"
+        />
+      </div>
     </div>
   );
 }

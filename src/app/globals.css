@@ -127,25 +127,9 @@ main.page { position: relative; z-index: 1; }
   flex-direction: column;
 }
 
-/* The comet itself is rendered by the SidebarComet SVG component
-   inside the sidebar (see /app/components/SidebarComet.js). It draws
-   stacked <rect> strokes around the perimeter with offset
-   stroke-dashoffset values, creating a fixed-length head followed by
-   a fading trail that travels the rectangle at constant speed. */
-.sidebar-comet-svg {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  /* Soft glow so the head reads as light, not just paint. */
-  filter:
-    drop-shadow(0 0 4px color-mix(in srgb, var(--accent) 30%, transparent))
-    drop-shadow(0 0 8px color-mix(in srgb, var(--accent) 12%, transparent));
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .sidebar-comet-svg animate { display: none; }
-}
+/* (Comet UI removed on the skeuo-toggles branch. SidebarComet
+   component file is preserved at /app/components/SidebarComet.js
+   in case it's re-enabled later.) */
 .sidebar-header {
   display: flex;
   align-items: center;
@@ -221,8 +205,11 @@ main.page { position: relative; z-index: 1; }
 }
 .sidebar-back:hover,
 .sidebar-back:focus-visible {
-  background: var(--accent-tint);
-  color: var(--accent);
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
+  color: var(--ink);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--toggle-knob-bevel) 35%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--toggle-knob-shadow) 30%, transparent);
 }
 .sidebar-back:focus-visible {
   outline: var(--border-emphasis) solid var(--accent);
@@ -237,12 +224,13 @@ main.page { position: relative; z-index: 1; }
 
 /* In doc-mode the project/note title sits at the top of the tree, no
    chevron-space indent — it's the root of this view, not a nested file. */
+/* Doc-title — same rules as any other row. The active treatment
+   from .tree .row.active wins for the "always active" doc-title
+   on project / note / experiment pages, so the heading sits in the
+   same pressed-in well as any other selected row. */
 .tree .row.file.doc-title {
-  color: var(--ink);
   font-weight: var(--weight-semibold);
-  background: transparent;
 }
-.tree .row.file.doc-title:hover { background: var(--accent-tint); color: var(--accent); }
 
 .tree { display: flex; flex-direction: column; }
 .tree .row {
@@ -250,25 +238,43 @@ main.page { position: relative; z-index: 1; }
   align-items: center;
   gap: var(--space-2);
   height: var(--row-h);
-  /* width:100% + box-sizing so buttons (folder rows) and anchors
-     (file rows) both stretch to the same right edge — keeps hover
-     state widths identical across every menu row. */
   width: 100%;
   box-sizing: border-box;
   padding: 0 var(--space-2);
-  /* Reset any user-agent button styling so folder rows match the
-     anchor rows visually. */
-  background: none;
+  /* Reset user-agent button styling so folder rows match anchors. */
+  background: transparent;
   border: 0;
   font: inherit;
   text-align: left;
   color: var(--ink-soft);
   cursor: pointer;
-  transition: background .12s ease, color .12s ease;
+  /* Skeuomorphic key treatment (skeuo-toggles branch): resting state
+     stays flat so the menu still reads as a list. Hover lifts each
+     row like a physical key with a face gradient + 1px top highlight.
+     Active state inverts into a bright "pressed-on" key with the
+     accent rim glow that matches the cursor-pad's active key. */
+  box-shadow: inset 0 0 0 0 transparent;
+  transition:
+    background .14s ease,
+    color .14s ease,
+    box-shadow .14s ease,
+    transform .14s ease;
 }
-.tree .row:hover { background: var(--accent-tint); color: var(--accent); }
-.tree .row:hover .chev { color: var(--accent); }
-.tree .row:focus-visible { outline: var(--border-emphasis) solid var(--accent); outline-offset: -1px; }
+.tree .row:hover {
+  /* Raised — same shadow direction language as the cursor pad,
+     dialled down (~40% intensity) so the menu stays a list at
+     rest and only whispers the lift. */
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
+  color: var(--ink);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--toggle-knob-bevel) 35%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--toggle-knob-shadow) 30%, transparent);
+}
+.tree .row:hover .chev { color: var(--ink); }
+.tree .row:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
 .tree .row .label {
   flex: 1;
   min-width: 0;
@@ -277,13 +283,18 @@ main.page { position: relative; z-index: 1; }
   text-overflow: ellipsis;
 }
 .tree .row.active {
-  /* Match the resting text colour of the neighbouring rows so the
-     active state reads through weight + tinted background, not via a
-     colour shift. */
-  color: var(--ink-soft);
+  /* Pressed — same shadow direction language as the cursor pad's
+     active key, dialled down. Background stays a subtle tint of
+     the panel rather than a full inverted gradient, so the row
+     reads as a small well in the menu instead of a key. */
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+  color: var(--ink);
   font-weight: var(--weight-semibold);
-  background: var(--accent-soft);
+  box-shadow:
+    inset 0 1px 2px color-mix(in srgb, var(--toggle-knob-shadow) 50%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--toggle-knob-bevel) 45%, transparent);
 }
+.tree .row.active .chev { color: var(--ink); }
 .tree .chev {
   width: 12px; height: 12px;
   flex: 0 0 12px;
@@ -368,9 +379,8 @@ main.page { position: relative; z-index: 1; }
 
 
 /* ─── Local clock module (bottom-left; hosts theme toggle on desktop) ── */
-/* Positioned to align with the sidebar's inner padding so the "updated"
-   copy and the theme-toggle dial sit on the same x as the logo and
-   menu rows. Bottom offset matches the sidebar's inner bottom padding. */
+/* Positioned to align with the sidebar's inner padding so every child
+   sits on the same x as the logo and menu rows. */
 .local-clock {
   position: fixed;
   left: calc(var(--shell-gutter) + var(--space-3));
@@ -384,32 +394,255 @@ main.page { position: relative; z-index: 1; }
   color: var(--ink);
   user-select: none;
 }
-.theme-toggle {
+/* Force every direct child (cursor toggle, theme toggle, meta block)
+   flush to the container's left edge. Belt-and-braces in case any
+   child has its own auto margins. */
+.local-clock > * {
+  align-self: flex-start;
+  margin-left: 0;
+  margin-right: 0;
+}
+/* ─── Skeuomorphic toggles — theme-aware tokens ────────────────────── */
+/* SKEUO EXPERIMENT (skeuo-toggles branch). One set of variables for
+   each theme so the toggle plates, tracks, knobs and keys swap
+   palettes when the user switches paper/onyx. Light-mode renders as
+   polished light plastic; dark-mode as a brushed dark device. */
+:root {
+  /* Plate */
+  --toggle-plate-from:  #ececea;
+  --toggle-plate-to:    #c6c6c2;
+  --toggle-plate-border: rgba(0, 0, 0, 0.32);
+  --toggle-plate-light: rgba(255, 255, 255, 0.65);
+  --toggle-plate-dark:  rgba(0, 0, 0, 0.18);
+
+  /* Track (recessed channel) */
+  --toggle-track-from:  #b8b8b3;
+  --toggle-track-to:    #d4d4cf;
+  --toggle-track-inset: rgba(0, 0, 0, 0.4);
+
+  /* Knob — same face gradient & rim as the cursor keys so a raised
+     knob and a raised key are visually identical. Inner shadow
+     intensities are tuned for light mode (kept low so the toggles
+     read as subtle, not aggressive). */
+  --toggle-knob-from:   #f5f5f1;
+  --toggle-knob-to:     #d6d6d0;
+  --toggle-knob-bevel:  rgba(255, 255, 255, 0.55);
+  --toggle-knob-shadow: rgba(0, 0, 0, 0.18);
+  --toggle-knob-rim:    rgba(0, 0, 0, 0.22);
+
+  /* Icons */
+  --toggle-icon:         rgba(0, 0, 0, 0.45);
+  --toggle-icon-hover:   rgba(0, 0, 0, 0.78);
+  --toggle-icon-active:  rgba(0, 0, 0, 0.95);
+  --toggle-tick:         rgba(0, 0, 0, 0.18);
+
+  /* Cursor-pad keys share the same face gradient + rim as the
+     theme knob (aliased for clarity). */
+  --key-from:    var(--toggle-knob-from);
+  --key-to:      var(--toggle-knob-to);
+  --key-border:  var(--toggle-knob-rim);
+  --key-icon:        rgba(0, 0, 0, 0.55);
+  --key-icon-active: rgba(0, 0, 0, 0.95);
+}
+
+[data-theme="onyx"] {
+  --toggle-plate-from:  #2c2c2e;
+  --toggle-plate-to:    #16161a;
+  --toggle-plate-border: rgba(0, 0, 0, 0.6);
+  --toggle-plate-light: rgba(255, 255, 255, 0.08);
+  --toggle-plate-dark:  rgba(0, 0, 0, 0.55);
+
+  --toggle-track-from:  #0c0c0e;
+  --toggle-track-to:    #1a1a1c;
+  --toggle-track-inset: rgba(0, 0, 0, 0.75);
+
+  /* Knob — slightly muted face so the dark-mode knob doesn't
+     bleach against the panel. Same values as the cursor keys. */
+  --toggle-knob-from:   #38383a;
+  --toggle-knob-to:     #1c1c1e;
+  --toggle-knob-bevel:  rgba(255, 255, 255, 0.22);
+  --toggle-knob-shadow: rgba(0, 0, 0, 0.65);
+  --toggle-knob-rim:    rgba(0, 0, 0, 0.55);
+
+  --toggle-icon:         rgba(255, 255, 255, 0.42);
+  --toggle-icon-hover:   rgba(255, 255, 255, 0.78);
+  --toggle-icon-active:  rgba(255, 255, 255, 0.95);
+  --toggle-tick:         rgba(255, 255, 255, 0.18);
+
+  --key-from:    var(--toggle-knob-from);
+  --key-to:      var(--toggle-knob-to);
+  --key-border:  var(--toggle-knob-rim);
+  --key-icon:        rgba(255, 255, 255, 0.55);
+  --key-icon-active: rgba(255, 255, 255, 0.95);
+}
+
+
+/* ─── Skeuomorphic theme switch — draggable knob ───────────────────── */
+.skeuo-theme {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 0 4px;     /* no horizontal padding so track flushes left */
+  width: 120px;
+  margin-bottom: var(--space-1);
+  border-radius: 0;
+  background: transparent;
+}
+.skeuo-theme-icons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  position: relative;
+}
+.skeuo-theme-icon {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 2px 0;
+  cursor: pointer;
+  color: var(--toggle-icon);
+  display: flex;
+  justify-content: center;
+  position: relative;
+  transition: color .14s ease;
+}
+.skeuo-theme-icon:hover { color: var(--toggle-icon-hover); }
+.skeuo-theme-icon.is-active { color: var(--toggle-icon-active); }
+.skeuo-theme-icon svg { width: 14px; height: 14px; display: block; }
+.skeuo-theme-icon::after {
+  /* Tick from each icon down to the track. */
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 4px;
+  background: var(--toggle-tick);
+}
+.skeuo-theme-icon:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.skeuo-theme-track {
+  position: relative;
+  height: 24px;
+  border-radius: 0;
+  /* Lighter recessed-channel surface — same gradient as the
+     active cursor key so the two pressed states share the exact
+     same material. */
+  background: linear-gradient(180deg, var(--key-to) 0%, var(--key-from) 100%);
+  box-shadow:
+    inset 0 0 0 1px var(--toggle-knob-rim),
+    inset 0 2px 3px var(--toggle-knob-shadow),
+    inset 0 -1px 0 var(--toggle-knob-bevel);
+  overflow: hidden;
+}
+.skeuo-theme-knob {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 2px;
+  width: calc(50% - 2px);
+  border-radius: 0;
+  background: linear-gradient(180deg, var(--toggle-knob-from) 0%, var(--toggle-knob-to) 100%);
+  /* Same "raised" shadow stack as an inactive cursor key. */
+  box-shadow:
+    inset 0 0 0 1px var(--toggle-knob-rim),
+    inset 0 1px 0 var(--toggle-knob-bevel),
+    inset 0 -1px 1px var(--toggle-knob-shadow),
+    0 1px 2px var(--toggle-knob-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.skeuo-theme-knob:active { cursor: grabbing; }
+.skeuo-theme-knob::after {
+  content: "";
+  width: 2px;
+  height: 10px;
+  background: var(--accent);
+  box-shadow: 0 0 4px color-mix(in srgb, var(--accent) 65%, transparent);
+}
+
+
+/* ─── Skeuomorphic cursor key-pad — strong active/inactive contrast ── */
+.skeuo-keypad {
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  padding: 2px;
-  border: var(--border-default) solid var(--rule);
-  background: var(--paper);
+  padding: 4px 0;         /* no horizontal padding so keys flush left */
   margin-bottom: var(--space-1);
-}
-.tt-btn {
-  appearance: none;
-  border: 0;
+  border-radius: 0;
   background: transparent;
-  color: var(--ink-faint);
-  width: 28px;
+}
+.skeuo-key {
+  appearance: none;
+  cursor: pointer;
+  width: 32px;
   height: 28px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: color var(--dur-base) var(--ease-default), background-color var(--dur-base) var(--ease-default);
+  border-radius: 0;
+  border: 0;
+  color: var(--key-icon);
+  background: linear-gradient(180deg, var(--key-from) 0%, var(--key-to) 100%);
+  /* Raised — same exact shadow stack as the theme knob: rim
+     outline + top bevel + bottom inset shadow + soft drop. */
+  box-shadow:
+    inset 0 0 0 1px var(--key-border),
+    inset 0 1px 0 var(--toggle-knob-bevel),
+    inset 0 -1px 1px var(--toggle-knob-shadow),
+    0 1px 2px var(--toggle-knob-shadow);
+  transition:
+    background .14s ease,
+    color .14s ease,
+    box-shadow .14s ease,
+    transform .14s ease;
 }
-.tt-btn svg { width: 14px; height: 14px; display: block; }
-.tt-btn:hover { color: var(--ink); }
-.tt-btn.is-active { color: var(--accent); background: var(--accent-soft); }
-.tt-btn:focus-visible { outline: var(--border-emphasis) solid var(--accent); outline-offset: 2px; }
+.skeuo-key:hover {
+  color: var(--toggle-icon-hover);
+}
+.skeuo-key.is-active {
+  /* Pressed — identical material to the theme track: same lighter
+     recessed-channel gradient + same shadow stack. */
+  background: linear-gradient(180deg, var(--key-to) 0%, var(--key-from) 100%);
+  color: var(--key-icon-active);
+  box-shadow:
+    inset 0 0 0 1px var(--key-border),
+    inset 0 2px 3px var(--toggle-knob-shadow),
+    inset 0 -1px 0 var(--toggle-knob-bevel);
+  transform: translateY(1px);
+}
+.skeuo-key:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.skeuo-key svg { width: 14px; height: 14px; display: block; }
+
+
+/* Side panel skeuomorphic bevel + soft drop-shadow. Light touch so
+   the panel reads as a piece of moulded plastic floating above the
+   page, not flat against it. */
+.sidebar {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.08),
+    0 3px 10px rgba(0, 0, 0, 0.10),
+    0 1px 2px rgba(0, 0, 0, 0.06);
+}
+/* Dark mode: drop the inset top highlight (which otherwise reads as
+   a bright line) so all four borders match the resting --rule. */
+[data-theme="onyx"] .sidebar {
+  box-shadow:
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3),
+    0 3px 10px rgba(0, 0, 0, 0.4),
+    0 1px 2px rgba(0, 0, 0, 0.25);
+}
 
 .local-clock .updated {
   color: var(--ink-mute);
