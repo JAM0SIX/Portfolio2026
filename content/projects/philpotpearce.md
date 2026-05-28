@@ -3,44 +3,30 @@ slug: philpotpearce
 name: PhilpotPearce
 initial: P
 date: "2024"
-role: "Brand identity & website · Independent consultancy"
+role: "Brand identity & website"
 tags:
-  - Identity
-  - Web
   - Brand
+  - Web design
 blurb: >
   Visual identity and web presence for a creative consultancy — balancing
   editorial craft with a clear, confident voice.
 badge: Shipped
 liveUrl: "#"
-metrics:
-  - ["Lighthouse perf.", "98", "/100"]
-  - ["Pages shipped", "12", ""]
-  - ["CSS exceptions", "0", ""]
 narrative:
   # 01 · Hook
   - kind: hook
     headline: A studio that speaks for itself
+    company:
+      name: PhilpotPearce
+    clients:
+      - name: PhilpotPearce
     scope: >
-      I designed the brand identity and website for PhilpotPearce, an
-      independent product design consultancy in London. The work covered
-      brand strategy, visual identity, information architecture, art
-      direction, and the web design and build. My task was to give a
-      sharp practice a public face that matched the work, with restraint
-      as the loudest signal.
-  - kind: lede
-    paragraphs:
-      - >
-        The goal was to land the studio as a credible practice from the
-        first visit and let the work do the talking from the second
-        click on.
-  - kind: imagePlaceholder
-    caption: Hero image
-  - kind: outcomes
-    items:
-      - ["Lighthouse perf.", "98", "/100"]
-      - ["Pages shipped", "12", ""]
-      - ["CSS exceptions", "0", ""]
+      I designed in collaboration with the founders, guiding them through
+      how users will flow through their space, how visual hierarchy can
+      effectively communicate their message and of course the web design
+      and build.
+    heroImage:
+      caption: Hero image
 
   # 02 · The problem
   - kind: sectionHeader
@@ -49,74 +35,15 @@ narrative:
   - kind: prose
     paragraphs:
       - >
-        Two co-founders, both senior product designers, were starting a
-        studio with the right work and the wrong shopfront. Their
-        practice was sharp; their public presence was nothing. Without a
-        brand and a site, they were invisible to the clients they
-        wanted and indistinguishable from the agencies they didn't.
-      - >
-        The market was already full of agencies talking loudly about
-        themselves. Any new studio that joined the noise would lose.
-        The opening had to come from somewhere quieter.
+        The founders had recently started their own studio. They didn't
+        know how to successfully pull off a build that could match their
+        identity. They needed a way to stand out from all the noise.
   - kind: imagePlaceholder
     caption: The problem
 
-  # 03 · The value
+  # 03 · What I designed
   - kind: sectionHeader
     chapter: "03"
-    title: The value
-  - kind: subsectionHeader
-    title: For the business
-  - kind: prose
-    paragraphs:
-      - >
-        PhilpotPearce launched with a brand the founders could carry
-        into pitches, into press, and into commercial conversations.
-        The site became their primary acquisition channel, designed to
-        filter for clients who valued craft and outcomes over
-        service-list shopping.
-  - kind: subsectionHeader
-    title: For the visitor
-  - kind: prose
-    paragraphs:
-      - >
-        In thirty seconds, a visitor reads the studio's worldview from
-        the navigation alone. From there it's a series of clear,
-        restrained pages that put the work in front of them and step
-        out of the way.
-  - kind: imagePlaceholder
-    caption: The value
-
-  # 04 · Directing the studio's voice
-  - kind: sectionHeader
-    chapter: "04"
-    title: Directing the studio's voice
-  - kind: prose
-    paragraphs:
-      - >
-        Restraint as the brand. Most agencies dress up their
-        identities; PhilpotPearce strips back. Every visual decision,
-        every word on the site, every component had to earn its place.
-        The studio's value proposition is in what they don't do as much
-        as what they do.
-  - kind: subsectionHeader
-    title: Five principles
-  - kind: prose
-    paragraphs:
-      - >
-        The work was anchored by five principles the founders and I
-        argued features in or out against:
-        {{principle:Synonymous brand language}},
-        {{principle:Outcome centric}},
-        {{principle:The golden circle}},
-        {{principle:Less is more}}, and
-        {{principle:Portfolio architecture}}.
-        Each came from how the founders actually wanted the studio to
-        operate, not from how an agency website is supposed to look.
-
-  # 05 · What I designed
-  - kind: sectionHeader
-    chapter: "05"
     title: What I designed
   - kind: prose
     paragraphs:
@@ -179,40 +106,6 @@ narrative:
             The system was designed so new pages ship without new CSS
             exceptions, which keeps the studio's site as disciplined as
             its work.
-
-  # 06 · A decision worth telling
-  - kind: sectionHeader
-    chapter: "06"
-    title: A decision worth telling
-  - kind: prose
-    paragraphs:
-      - >
-        The founders' instinct, like most studios opening a website,
-        was to start with Work / About / Services. I argued the
-        studio's whole positioning would collapse if the navigation
-        looked like every other agency's navigation, no matter how
-        good the work behind it was.
-      - >
-        The golden circle, Why before How before What, gave the IA a
-        thesis. Once the founders saw the first round of pages built
-        on that structure, the conversation moved from "is this
-        navigable" to "this is the studio." The IA became the brand,
-        and the brand became the IA.
-  - kind: imagePlaceholder
-    caption: Navigation as thesis
-
-  # 07 · What I'd do differently
-  - kind: sectionHeader
-    chapter: "07"
-    title: What I'd do differently
-  - kind: prose
-    paragraphs:
-      - >
-        I'd have shipped a writing system alongside the visual one.
-        Restraint is a much harder discipline in copy than in design,
-        and a couple of pages where the words drift would undo the
-        work the type and layout do silently. Next time, a tone-of-voice
-        spec sits inside the design system, not next to it.
 ---
 
 # PhilpotPearce

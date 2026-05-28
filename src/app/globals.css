@@ -31,6 +31,25 @@
   min-height: 100vh;
   box-sizing: border-box;
 }
+/* Embedded preview mode — used when an experiment route is iframed
+   into the /experiments index. Strips the sidebar/footer/clock/cursor
+   chrome so the preview shows only the experiment itself, and lets
+   the main column fill the frame. */
+[data-embed="1"] .sidebar,
+[data-embed="1"] .footer,
+[data-embed="1"] .local-clock,
+[data-embed="1"] .dot-field,
+[data-embed="1"] .cursor-dot-field,
+[data-embed="1"] .experiment-header,
+[data-embed="1"] .case-study__eyebrow,
+[data-embed="1"] .case-study__title,
+[data-embed="1"] .case-study__lede { display: none !important; }
+[data-embed="1"] .shell {
+  grid-template-columns: 1fr;
+  padding: 0;
+  column-gap: 0;
+}
+[data-embed="1"] .col { padding: 0; max-width: none; }
 @media (max-width: 880px) {
   .shell { grid-template-columns: 1fr; }
 }
@@ -78,6 +97,15 @@ main.page {
 }
 @media (max-width: 880px) {
   .dot-field { left: var(--shell-gutter); }
+}
+/* On mobile the cursor-field interaction (and its keypad
+   toggle) doesn't make sense — no precise pointer to react to,
+   and the toggle UI eats valuable header space. Hide both. */
+@media (max-width: 720px) {
+  .dot-field,
+  .skeuo-keypad {
+    display: none !important;
+  }
 }
 .dot-field canvas {
   display: block;
@@ -371,8 +399,31 @@ main.page { position: relative; z-index: 1; }
     overflow: visible;
     padding: var(--space-3) var(--space-4);
   }
-  .sidebar-header { margin-bottom: 0; padding-bottom: var(--space-3); }
-  .sidebar-header__slot { display: inline-flex; }
+  .sidebar-header {
+    margin-bottom: 0;
+    padding-bottom: var(--space-3);
+    position: relative;
+  }
+  /* The "slot" button is invisible but positioned over the H logo
+     mark so that tapping the H dot-matrix opens the menu drawer.
+     The LogoMark link sits beneath; the slot button captures the
+     click first via z-index, dispatches setMobileOpen, and
+     preventDefault is unnecessary because the button isn't inside
+     the Link. */
+  .sidebar-header__slot {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    /* Covers the LogoMark's 28-px wide square plus a generous
+       tap target. */
+    width: 56px;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    z-index: 5;
+  }
   .sidebar .tree { display: none; padding-top: var(--space-3); }
   .sidebar.is-open .tree { display: flex; }
 }
@@ -401,6 +452,26 @@ main.page { position: relative; z-index: 1; }
   align-self: flex-start;
   margin-left: 0;
   margin-right: 0;
+}
+/* On mobile, the LocalClock (theme toggle + location/time) lifts
+   up to the top-right of the page so it sits in the header area
+   alongside the H logo. Layout flips from column to row, with
+   compact spacing for the small viewport. */
+@media (max-width: 880px) {
+  .local-clock {
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-4);
+    bottom: auto;
+    left: auto;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-3);
+    z-index: 10;
+  }
+  .local-clock > * {
+    align-self: center;
+  }
 }
 /* ─── Skeuomorphic toggles — theme-aware tokens ────────────────────── */
 /* SKEUO EXPERIMENT (skeuo-toggles branch). One set of variables for
@@ -1302,9 +1373,7 @@ main.page { position: relative; z-index: 1; }
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-5) var(--space-7);
-  margin: var(--space-7) 0;
-  padding: 0 0 var(--space-7);
-  border-bottom: var(--border-default) solid var(--rule);
+  margin: var(--space-7) 0 var(--space-4);
 }
 .case-study__meta dl {
   display: flex;
@@ -1314,8 +1383,7 @@ main.page { position: relative; z-index: 1; }
 .case-study__meta dt {
   font-size: var(--text-xs);
   color: var(--ink-mute);
-  letter-spacing: var(--track-caps);
-  text-transform: uppercase;
+  letter-spacing: var(--track-tight);
 }
 .case-study__meta dd {
   font-size: var(--text-sm);

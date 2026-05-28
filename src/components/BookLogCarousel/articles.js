@@ -136,31 +136,6 @@ export const ARTICLES = [
     ],
     sections: defaultSections,
   },
-  {
-    id: "006",
-    num: "006",
-    title: "Notes on Quitting a Book",
-    subtitle: "The 80-page rule, and the right to walk away",
-    author: "Beatrix Hand",
-    issue: "VOL.07 / ISSUE 02",
-    date: "2026.02.14",
-    readtime: "07 MIN",
-    section: "FIELD NOTES",
-    excerpt:
-      "There is no virtue in finishing a book that does not earn it. Eighty pages is a fair audition. If by then it has not pulled you in — by voice, by argument, by the thinness of a single line — close it gently and put it back. Your time is the only library you cannot replace.",
-    cover: { hue: 260, chroma: 0.025, lightness: 0.42 },
-    coords: "52.52 N / 13.40 E",
-    field: "FN_14",
-    revision: "R.02",
-    paper: "ash",
-    decorations: [
-      { type: "mug-ring", variant: "c", style: { bottom: "30%", right: "12%" }, rotate: 12 },
-      { type: "doodle", shape: "heart", style: { bottom: "44%", left: "32%" }, rotate: -10 },
-      { type: "paper-out", side: "right", style: { top: "26%", height: "30%" }, rotate: 2 },
-      { type: "paper-out", side: "bottom", style: { left: "38%", width: "28%" }, rotate: -3 },
-    ],
-    sections: defaultSections,
-  },
 ];
 
 export function getArticleById(id) {

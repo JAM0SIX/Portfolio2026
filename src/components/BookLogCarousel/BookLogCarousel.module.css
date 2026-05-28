@@ -41,11 +41,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--ink-mute);
-  transition: color var(--dur-base) var(--ease-default);
-}
-.link:hover .matrixWrap,
-.link:focus-visible .matrixWrap {
+  /* Full ink at rest — dots read as a solid mark rather than a
+     faded one. Hover keeps the same colour (no further darkening
+     to do); the only hover signal is the row background tint
+     applied to .link. */
   color: var(--ink);
 }
 .matrix {
@@ -58,7 +57,19 @@
    later frames have passed, so moving patterns naturally leave
    a soft trail without any per-dot trail logic in JS. */
 .matrix circle {
+  /* Default — slow fade-out so trails behind moving patterns
+     stay visible over several frames. */
   transition: opacity 660ms ease-out;
+}
+/* Asymmetric transition: lit cells brighten quickly so single-
+   frame visibility still reaches near-full opacity. The selector
+   matches the inline `opacity: 1` that React writes for "on"
+   cells; "off" cells (style="opacity: 0.15") fall through to
+   the default slow transition and continue to fade gracefully.
+   Note the space after the colon — React serialises inline
+   style props with spaces. */
+.matrix circle[style*="opacity: 1;"] {
+  transition: opacity 180ms ease-out;
 }
 
 /* Body column — title row + optional subtitle stacked beneath. */

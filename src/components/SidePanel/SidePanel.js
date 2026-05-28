@@ -90,6 +90,11 @@ export default function SidePanel({ heading, body, children, variant = "button" 
   const id = useId();
   const [open, setOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
+  /* Mounted flag — flips true once we're in the browser. Used to
+     gate the createPortal call so SSR doesn't crash on the
+     undefined `document`. */
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
   const panelRef = useRef(null);
   /* The in-flight Animation object (if any). Cancelled before
      starting a new one so we never have two running on the same
@@ -115,6 +120,18 @@ export default function SidePanel({ heading, body, children, variant = "button" 
     mq.addEventListener("change", update);
     return () => mq.removeEventListener("change", update);
   }, []);
+
+  /* Esc closes the open panel — gives keyboard users a quick
+     dismiss without reaching for the close-X button, and makes
+     the panel behave like a proper popup overlay. */
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
 
   /* Drive the animation whenever `open` flips. */
   useEffect(() => {
@@ -233,6 +250,14 @@ export default function SidePanel({ heading, body, children, variant = "button" 
   const panel = (
     <div
       className={`${styles.shadowWrap}${open ? " " + styles.isOpen : ""}`}
+      /* Tap on the wrapper itself (not on the inner panel) dismisses
+         on mobile — `e.target === e.currentTarget` ensures we only
+         close when the user taps the backdrop, not when the click
+         bubbles up from inside the panel. Desktop is unaffected
+         because the wrapper has no visible backdrop area to click. */
+      onClick={(e) => {
+        if (e.target === e.currentTarget) setOpen(false);
+      }}
     >
       <aside
         ref={panelRef}
@@ -275,7 +300,12 @@ export default function SidePanel({ heading, body, children, variant = "button" 
         {children}
       </button>
 
-      {isDesktop ? createPortal(panel, document.body) : panel}
+      {/* Portal to body once mounted — desktop renders the
+          floating drawer; mobile (≤720 px) styles the wrapper as a
+          backdrop and the panel as a bottom-sheet (see
+          SidePanel.module.css). Gated on `mounted` so SSR doesn't
+          touch the undefined `document`. */}
+      {mounted && createPortal(panel, document.body)}
     </>
   );
 }

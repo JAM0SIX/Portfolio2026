@@ -41,7 +41,11 @@
   flex-direction: column;
   align-items: stretch;
   text-align: left;
-  padding: var(--space-5);
+  /* Asymmetric padding — extra vertical breathing room above and
+     below the quote / meta so the body content sits more
+     comfortably away from the card edges. Horizontal padding
+     stays at space-5. */
+  padding: var(--space-7) var(--space-5);
   background: var(--paper-deep);
   border: 1px solid var(--rule);
   color: inherit;
@@ -102,7 +106,7 @@
   background: var(--paper-deep);
   border: 1px solid var(--rule);
   border-bottom: 0;
-  margin-bottom: -1px;
+  margin-bottom: -2px;
   overflow: hidden;
   /* Tab is the click target — pointer cursor, normal font, no
      default button chrome (handled by the styles above). */

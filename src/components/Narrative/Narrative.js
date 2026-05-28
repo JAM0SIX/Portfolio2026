@@ -93,7 +93,7 @@ function renderText(text, tokens) {
   return touched ? out : text;
 }
 
-function Hook({ eyebrow, headline, scope, heroImage }) {
+function Hook({ eyebrow, headline, scope, heroImage, company, clients }) {
   /* `scope` is either a single string (legacy — one paragraph) or
      an array of strings (each rendered as its own <p>). Lets a
      case study lead with a brief "what is this tool" sentence,
@@ -107,6 +107,32 @@ function Hook({ eyebrow, headline, scope, heroImage }) {
   const scopeParas = Array.isArray(scope) ? scope : scope ? [scope] : [];
   return (
     <header className={styles.hook}>
+      {clients?.length > 0 && (
+        <div className={styles.clientRow} aria-label="Clients">
+          {clients.map((c) => (
+            <span key={c.name} className={styles.clientChip}>
+              {c.logo ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img src={c.logo} alt={c.name} className={styles.clientLogo} />
+              ) : (
+                <span className={styles.clientMark} aria-hidden="true" />
+              )}
+              <span className={styles.clientName}>{c.name}</span>
+            </span>
+          ))}
+        </div>
+      )}
+      {company && (
+        <div className={styles.companyLine}>
+          {company.logo ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img src={company.logo} alt="" className={styles.companyLogo} />
+          ) : (
+            <span className={styles.companyMark} aria-hidden="true" />
+          )}
+          <span className={styles.companyName}>{company.name}</span>
+        </div>
+      )}
       {eyebrow && <span className={styles.hookEyebrow}>{eyebrow}</span>}
       <h1 className={styles.hookHeadline}>
         <ScrambleText text={headline} as="text" />

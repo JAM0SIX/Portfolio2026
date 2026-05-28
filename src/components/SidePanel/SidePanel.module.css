@@ -217,47 +217,71 @@
 .body p:last-child { margin-bottom: 0; }
 
 
-/* ─── Mobile: inline accordion ───
-   On narrow viewports the panel switches from a floating drawer to
-   an inline accordion under the trigger. The shadow wrapper
-   disappears (display: contents) so the inner .panel can flow
-   inline beneath its trigger button. The chamfer + drop-shadow
-   are dropped here for a quieter inline look. */
+/* ─── Mobile: popup overlay (bottom sheet) ───
+   On narrow viewports the panel switches from a floating right
+   drawer to a bottom-sheet popup. The shadowWrap becomes a
+   full-viewport backdrop with a semi-transparent dark tint; the
+   panel slides up from the bottom of the screen. Tapping the
+   backdrop (or pressing Esc / the close X) dismisses. */
 @media (max-width: 720px) {
   .shadowWrap {
-    /* `display: contents` removes the wrapper's own box but keeps
-       its children in the layout — the .panel lays out as if it
-       were a direct child of the trigger's parent. filter, position
-       and pointer-events all become moot because the box is gone. */
-    display: contents;
+    /* Backdrop fills the viewport. Default state is fully
+       transparent + pointer-events none so it doesn't block taps
+       to the page underneath when the panel is closed. */
+    position: fixed;
+    inset: 0;
+    width: auto;
+    height: auto;
+    max-width: none;
+    background: rgba(0, 0, 0, 0);
+    pointer-events: none;
+    z-index: 1000;
+    filter: none;
+    transition: background 220ms ease-out;
+  }
+  .shadowWrap.isOpen {
+    background: rgba(0, 0, 0, 0.45);
+    pointer-events: auto;
   }
   .panel {
-    position: relative;
-    inset: auto;
-    top: auto;
-    right: auto;
-    bottom: auto;
-    width: 100%;
-    max-width: 100%;
+    /* Bottom sheet. Pinned to the bottom edge of the viewport,
+       slides up via translateY(100%) → 0 on open. */
+    position: absolute;
+    inset: auto 0 0 0;
+    width: auto;
+    max-width: none;
     background: var(--paper-deep);
+    border: var(--border-default) solid var(--rule);
+    border-bottom: 0;
     isolation: auto;
     clip-path: none;
     filter: none;
-    transform: none;
     opacity: 1;
+    transform: translateY(100%);
+    transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
     pointer-events: auto;
-    margin-top: var(--space-3);
-    border: var(--border-default) solid var(--rule);
-
-    display: grid;
-    grid-template-rows: 0fr;
-    transition: grid-template-rows 320ms var(--ease-out);
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .panel.isOpen {
+    transform: translateY(0);
   }
   .panel::before { display: none; }
-  .panel.isOpen { grid-template-rows: 1fr; }
   .shell {
     height: auto;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+  /* Body content scrolls inside the sheet if it overflows the
+     80vh limit, while the head (with the X button) stays pinned. */
+  .body {
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
   }
 }
 

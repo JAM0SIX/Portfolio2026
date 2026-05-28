@@ -169,9 +169,11 @@ function IndexSidebar({ pathname, projectsOpen, notesOpen, setProjectsOpen, setN
             collapse without the max-height jank. */}
         <div className="children">
           <div className="children-list">
-            {projects.map((p) => (
-              <FileRow key={p.slug} href={`/${p.slug}`} label={p.name} active={false} />
-            ))}
+            {projects
+              .filter((p) => !p.excludeFromMenu)
+              .map((p) => (
+                <FileRow key={p.slug} href={`/${p.slug}`} label={p.name} active={false} />
+              ))}
           </div>
         </div>
       </div>

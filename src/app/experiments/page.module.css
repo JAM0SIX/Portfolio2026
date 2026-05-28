@@ -49,25 +49,33 @@
 }
 
 .entryGrid {
-  display: grid;
-  grid-template-columns: minmax(0, 200px) 1fr;
-  gap: var(--space-5);
-  align-items: start;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
   padding: var(--space-5) var(--space-6);
-}
-@media (max-width: 700px) {
-  .entryGrid { grid-template-columns: 1fr; }
 }
 
 .thumb {
+  position: relative;
   width: 100%;
   aspect-ratio: 5 / 3;
   background: var(--paper-deep);
-  border: var(--border-default) solid var(--rule);
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  /* Establish a size container so the inner iframe can scale
+     to the thumb width with a CSS-only calc — no JS observer
+     needed and no flash of un-scaled content during hydration. */
+  container-type: inline-size;
+}
+
+/* Static preview image — pre-captured screenshot of the
+   experiment at 1200x720. next/image with `fill` makes it
+   cover the holder. */
+.previewImage {
+  object-fit: cover;
+  object-position: top left;
 }
 .entry:hover .thumb { background: var(--paper); }
 
@@ -86,9 +94,9 @@
 
 .entryHead {
   display: flex;
-  align-items: baseline;
-  gap: var(--space-3);
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
 }
 
 .entryTag {
@@ -118,7 +126,6 @@
   font-family: var(--font-sans);
   font-size: var(--text-xs);
   color: var(--ink-mute);
-  margin-left: auto;
 }
 
 .entryDesc {

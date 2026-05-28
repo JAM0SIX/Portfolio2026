@@ -22,19 +22,26 @@ const STACK_OFFSET = 16;
    legible even when the cards stack tightly. */
 const TAB_HEIGHT = 36;
 
-/* Animation timing for tab clicks. */
-const PULL_DURATION = 620;
-const SHIFT_DURATION = 480;
-const PULL_EASING = "cubic-bezier(0.34, 1.5, 0.64, 1)";  // overshoot
-const SHIFT_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";    // ease-out
+/* Animation timing for tab clicks.
+   Slower + smoother than the previous overshoot keyframe so the
+   motion reads as someone carefully picking a folder up, holding
+   it briefly, and placing it down — not a spring-loaded snap. */
+const PULL_DURATION = 1000;
+const SHIFT_DURATION = 720;
+/* Ease-in-out with a deliberate hold at the apex: the curve
+   accelerates gently out of rest, holds the middle, then settles
+   into place without overshoot. */
+const PULL_EASING = "cubic-bezier(0.45, 0.05, 0.25, 1.0)";
+const SHIFT_EASING = "cubic-bezier(0.4, 0.0, 0.2, 1.0)";
 
 /* Pull-out keyframe parameters. The selected card lifts forward
-   (translateZ) and down (translateY) at the apex, with a slight
-   forward rotation to suggest a physical fold-over, before
-   settling at the front (translateY 0, translateZ 0). */
-const PULL_LIFT_Y = 32;
-const PULL_LIFT_Z = 72;
-const PULL_TILT = -10; // deg around X axis
+   (translateZ) and down (translateY) at the apex with a slight
+   forward rotation, then settles at the front. Lift values are
+   gentler than the previous version so the motion feels measured
+   rather than thrown. */
+const PULL_LIFT_Y = 22;
+const PULL_LIFT_Z = 56;
+const PULL_TILT = -7; // deg around X axis
 
 export default function ReferencesSection() {
   const total = references.length;
@@ -81,14 +88,21 @@ export default function ReferencesSection() {
               transform: `translate3d(0, ${fromY}px, 0) rotateX(0deg)`,
               offset: 0,
             },
-            /* Lift forward (translateZ) and drop down past the
-               stack (translateY beyond the stack baseline) with a
-               small forward tilt. Reads as a physical "pull". */
+            /* Lift forward (translateZ) and tilt — like the
+               folder is being picked up out of the stack. */
             {
               transform: `translate3d(0, ${PULL_LIFT_Y}px, ${PULL_LIFT_Z}px) rotateX(${PULL_TILT}deg)`,
-              offset: 0.45,
+              offset: 0.35,
             },
-            /* Settle at the front. */
+            /* Hold the lifted position briefly. Same transform as
+               offset 0.35 — the duplicate keyframe creates a
+               visible pause where the folder hovers, mid-air,
+               before being lowered into place. */
+            {
+              transform: `translate3d(0, ${PULL_LIFT_Y}px, ${PULL_LIFT_Z}px) rotateX(${PULL_TILT}deg)`,
+              offset: 0.55,
+            },
+            /* Carefully lower into the front position. */
             {
               transform: "translate3d(0, 0px, 0) rotateX(0deg)",
               offset: 1,

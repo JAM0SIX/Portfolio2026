@@ -32,20 +32,20 @@ function f(s) {
    (each frame is a 5×5 grid expressed as 25 zeroes and ones).
    The component cycles through frames at a steady interval. */
 const ANIMATIONS = [
-  // 0 — Pulse: cross expands and contracts through a 10-frame
-  // breathe cycle. Tightened from 12 frames by dropping the
-  // "empty" pause; the loop is now one continuous in/out.
+  // 0 — Rising X: a 5-row "X" shape travels up one row per
+  // frame and exits the top of the grid; another X enters from
+  // the bottom on the next cycle. Xs are spaced exactly 5 rows
+  // apart (the grid height + 0 gap) so the flow is seamless —
+  // as one X's row 4 leaves the top, the next X's row 0 is
+  // exactly entering at the bottom. The animation is naturally
+  // a 5-frame cycle: a 6th frame would just be frame 0 again.
+  // 5 frames × 150 ms = 750 ms per full pass.
   [
-    f("00000 00000 00100 00000 00000"),  // single
-    f("00000 00100 01110 00100 00000"),  // small +
-    f("00100 00100 11111 00100 00100"),  // plus
-    f("01110 01110 11111 01110 01110"),  // thick +
-    f("01110 11111 11111 11111 01110"),  // round square
-    f("11111 11111 11111 11111 11111"),  // full
-    f("01110 11111 11111 11111 01110"),  // round square
-    f("01110 01110 11111 01110 01110"),  // thick +
-    f("00100 00100 11111 00100 00100"),  // plus
-    f("00000 00100 01110 00100 00000"),  // small +
+    f("10001 01010 00100 01010 10001"),
+    f("01010 00100 01010 10001 10001"),
+    f("00100 01010 10001 10001 01010"),
+    f("01010 10001 10001 01010 00100"),
+    f("10001 10001 01010 00100 01010"),
   ],
   // 1 — Diagonal sweep: a full diagonal line travels across the
   // grid one cell at a time. 9 frames of motion + 1 rest = 10.
@@ -61,55 +61,72 @@ const ANIMATIONS = [
     f("00000 00000 00000 00000 00001"),
     f("00000 00000 00000 00000 00000"),
   ],
-  // 2 — Horizontal scan: a single row travels top to bottom and
-  // back to top in one continuous round trip. 10 frames, no
-  // rest — the bottom row holds for 2 consecutive frames to act
-  // as the turnaround point.
+  // 2 — Staggered wave: one dot per column, each oscillating
+  // vertically at the same 10-frame period but with a phase
+  // offset of π/4 between adjacent columns. The result is a
+  // travelling wave — neighbouring columns reach their peak
+  // (top) and trough (bottom) at slightly different times, so
+  // the dots trace a sinusoidal curve that ripples across the
+  // grid rather than all bobbing in unison.
+  //   row[c] = round(2 + 2 · sin(frame · 2π/10 + c · π/4))
   [
-    f("11111 00000 00000 00000 00000"),  // row 0
-    f("00000 11111 00000 00000 00000"),  // row 1
-    f("00000 00000 11111 00000 00000"),  // row 2
-    f("00000 00000 00000 11111 00000"),  // row 3
-    f("00000 00000 00000 00000 11111"),  // row 4 (turnaround)
-    f("00000 00000 00000 00000 11111"),  // row 4 (hold)
-    f("00000 00000 00000 11111 00000"),  // row 3
-    f("00000 00000 11111 00000 00000"),  // row 2
-    f("00000 11111 00000 00000 00000"),  // row 1
-    f("11111 00000 00000 00000 00000"),  // row 0
+    f("00000 00000 10001 01010 00100"),  // V shape, peak at bottom
+    f("00000 00001 00010 10000 01100"),
+    f("00001 00010 00100 00000 11000"),
+    f("00011 00100 00000 01000 10000"),
+    f("00110 00001 01000 10000 00000"),
+    f("00100 01010 10001 00000 00000"),  // V shape, peak at top
+    f("01100 10000 00010 00001 00000"),
+    f("11000 00000 00100 00010 00001"),
+    f("10000 01000 00000 00100 00011"),
+    f("00000 10000 01000 00001 00110"),
   ],
-  // 3 — Cluster: a 2×2 block travels CW around the perimeter of
-  // the grid. 10 frames — drops the two horizontal-edge middles
-  // so the orbit completes a touch quicker but still hits every
-  // corner.
+  // 3 — Droplet ripple: a wave expands outward from the centre
+  // through three discrete rings — centre dot → inner 3×3 ring
+  // → outer 5×5 perimeter ring — then rests before the next
+  // drop. Each ring is held for 3 frames so the CSS opacity
+  // transition (~660 ms) has time to bring it close to full
+  // brightness before the next ring takes over. The previous
+  // ring continues fading via the transition as the new one
+  // lights up, producing the soft expanding-wave trail.
   [
-    f("11000 11000 00000 00000 00000"),  // TL
-    f("01100 01100 00000 00000 00000"),
-    f("00011 00011 00000 00000 00000"),  // TR (skip 2,0)
-    f("00000 00011 00011 00000 00000"),
-    f("00000 00000 00011 00011 00000"),
-    f("00000 00000 00000 00011 00011"),  // BR
-    f("00000 00000 00000 00110 00110"),
-    f("00000 00000 00000 11000 11000"),  // BL (skip 2,3)
-    f("00000 00000 11000 11000 00000"),
-    f("00000 11000 11000 00000 00000"),
+    f("00000 00000 00100 00000 00000"),  // 0: centre
+    f("00000 00000 00100 00000 00000"),  // 1: centre (hold)
+    f("00000 00000 00100 00000 00000"),  // 2: centre (hold)
+    f("00000 01110 01010 01110 00000"),  // 3: inner ring
+    f("00000 01110 01010 01110 00000"),  // 4: inner ring (hold)
+    f("00000 01110 01010 01110 00000"),  // 5: inner ring (hold)
+    f("11111 10001 10001 10001 11111"),  // 6: outer ring
+    f("11111 10001 10001 10001 11111"),  // 7: outer ring (hold)
+    f("11111 10001 10001 10001 11111"),  // 8: outer ring (hold)
+    f("00000 00000 00000 00000 00000"),  // 9: rest (ripple fades)
   ],
-  // 4 — Perimeter spinner: a single dot orbits the outer ring in
-  // 10 evenly-spaced steps (≈ 1.6 cells apart). The step sizes
-  // are not perfectly uniform — most are 1 cell, a few are 2 —
-  // but the long opacity transition blurs the cadence into a
-  // continuous-feeling rotation.
-  [
-    f("10000 00000 00000 00000 00000"),  // (0,0)
-    f("00100 00000 00000 00000 00000"),  // (2,0)
-    f("00010 00000 00000 00000 00000"),  // (3,0)
-    f("00000 00001 00000 00000 00000"),  // (4,1)
-    f("00000 00000 00001 00000 00000"),  // (4,2)
-    f("00000 00000 00000 00000 00001"),  // (4,4)
-    f("00000 00000 00000 00000 00100"),  // (2,4)
-    f("00000 00000 00000 00000 01000"),  // (1,4)
-    f("00000 00000 00000 10000 00000"),  // (0,3)
-    f("00000 00000 10000 00000 00000"),  // (0,2)
-  ],
+  // 4 — Snake: a 3-segment serpent winds up and down each column
+  // — down col 0, up col 1, down col 2, up col 3, down col 4 —
+  // covering all 25 cells over a 25-frame cycle. The 3 explicitly
+  // lit cells (head + 2 body segments) appear at full opacity;
+  // further behind, the cells fade out smoothly via the long
+  // CSS opacity transition, so the visible body extends past the
+  // 3 explicit segments as a soft trailing tail.
+  (() => {
+    const path = [
+      [0, 0], [0, 1], [0, 2], [0, 3], [0, 4],
+      [1, 4], [1, 3], [1, 2], [1, 1], [1, 0],
+      [2, 0], [2, 1], [2, 2], [2, 3], [2, 4],
+      [3, 4], [3, 3], [3, 2], [3, 1], [3, 0],
+      [4, 0], [4, 1], [4, 2], [4, 3], [4, 4],
+    ];
+    const BODY = 3;
+    return path.map((_, i) => {
+      const cells = new Array(25).fill(0);
+      for (let b = 0; b < BODY; b++) {
+        const idx = (i - b + path.length) % path.length;
+        const [c, r] = path[idx];
+        cells[r * 5 + c] = 1;
+      }
+      return cells;
+    });
+  })(),
 ];
 
 /* Frame duration is intentionally short and the CSS opacity
@@ -135,7 +152,11 @@ function DotMatrix({ animation = 0, startFrame = 0, size = 5, cell = 6, dot = 2 
     return () => clearInterval(id);
   }, [frames.length]);
 
-  const current = frames[frameIdx];
+  /* Guard against a stale frameIdx that's out-of-range for the
+     current frames array — can happen briefly during dev HMR
+     when an animation's frame count shrinks, or on the first
+     render after a prop change before the effect resets state. */
+  const current = frames[frameIdx % frames.length] || frames[0];
   const px = size * cell;
   const dots = [];
   for (let r = 0; r < size; r++) {

@@ -45,6 +45,13 @@ narrative:
   # 01 · Hook
   - kind: hook
     headline: Agentic data system
+    company:
+      name: GWI
+    clients:
+      - name: Meta
+      - name: Amazon
+      - name: Omnicom
+      - name: Chelsea FC
     scope:
       - >
         An agentic platform that takes the mundane work off

@@ -367,18 +367,18 @@ const nexisNarrative = [
   {
     kind: "hook",
     headline: "Signals within the noise",
+    company: { name: "LexisNexis" },
+    clients: [
+      { name: "KPMG" },
+      { name: "EY" },
+      { name: "Deloitte" },
+    ],
     scope: [
       "Nexis+AI is a conversational research tool that identifies the nuanced signals from the noise. Through specialised intent detection, contextually aware responses leveraged on user attributes and innovative navigation techniques, users gain an elevated experience that EY, KPMG and more use.",
       "I led product design for Nexis+AI, an AI research platform built for consultants at firms like KPMG and EY. The work covered product strategy, interaction design, design systems, research, and art direction. My task was to surface the signals that matter from inside an overwhelming amount of news, filings, and reports, so consultants can move faster and decide better.",
     ],
+    heroImage: { caption: "Hero image" },
   },
-  {
-    kind: "lede",
-    paragraphs: [
-      "The goal was to turn an overwhelming volume of news, filings, and reports into the few signals consultants actually need, surfaced fast and traceable back to a real source.",
-    ],
-  },
-  { kind: "imagePlaceholder", caption: "Hero image" },
   {
     kind: "outcomes",
     items: [
@@ -710,10 +710,13 @@ export const projects = [
     initial: "S",
     date: "Coming soon",
     role: "Music intelligence platform",
-    tags: ["Data", "Music", "Web"],
+    tags: ["Data", "Music", "Web design"],
     blurb: "A music intelligence platform — turning streaming data into clear, useful signals for artists, labels, and curators.",
     badge: "Coming soon",
     comingSoon: true,
+    /* Visual-only on the home grid — hidden from the sidebar
+       menu because the case-study page isn't ready yet. */
+    excludeFromMenu: true,
     metrics: [],
     projectLayers: soundtrendsProjectLayers,
     methodologyStages: draftMethodologyStages,

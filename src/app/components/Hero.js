@@ -1,17 +1,42 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import ScrambleText from "@/components/ScrambleText/ScrambleText";
 
 const LAST_UPDATED = "May 16, 2026";
 
 export default function Hero() {
+  const [time, setTime] = useState("");
+  useEffect(() => {
+    const tick = () => {
+      setTime(
+        new Intl.DateTimeFormat("en-GB", {
+          timeZone: "Europe/London",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        }).format(new Date()),
+      );
+    };
+    tick();
+    const id = setInterval(tick, 30_000);
+    return () => clearInterval(id);
+  }, []);
+
   return (
     <>
       <div className="hero-identity">
         <span className="avatar" aria-hidden="true" />
         <span className="name">Harry Spawforth</span>
         <div className="id-meta">
+          <span className="id-location">
+            <span className="dot" aria-hidden="true" />
+            <span>London</span>
+          </span>
+          <span className="id-sep" aria-hidden="true">,</span>
+          <span className="id-time">{time || "--:--"}</span>
+          <span className="id-sep" aria-hidden="true">·</span>
           <span className="updated">Updated {LAST_UPDATED}</span>
         </div>
       </div>
