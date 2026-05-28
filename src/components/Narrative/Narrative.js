@@ -20,12 +20,15 @@
      imagePlaceholder  { caption? }
 */
 
+import { Fragment } from "react";
 import AbilityCard from "@/components/AbilityCard/AbilityCard";
 import Orbit from "@/components/Orbit/Orbit";
 import ProjectLayers from "@/components/ProjectLayers/ProjectLayers";
+import PhilosophyVisuals from "@/components/PhilosophyVisuals/PhilosophyVisuals";
 import SidePanel from "@/components/SidePanel/SidePanel";
 import PillarScroll from "@/components/PillarScroll/PillarScroll";
 import ScrambleText from "@/components/ScrambleText/ScrambleText";
+import QuoteWall from "./QuoteWall";
 import styles from "./Narrative.module.css";
 
 function slugify(s) {
@@ -44,14 +47,18 @@ function slugify(s) {
    `{{principle:Landscape of Data}}` and the renderer swaps it for
    the corresponding component at render time.
 
+   Built-in inline tags (don't need a token map):
+     {{strong:text}}  →  <strong>text</strong>
+     {{em:text}}      →  <em>text</em>
+
    `tokens` is shaped { [type]: { [name]: ReactNode } }. Currently
-   only the `principle` type is used; new types can be added by
-   the case-study data without touching this helper. */
+   only the `principle` type is used by consumers; new types can
+   be added by the case-study data without touching this helper. */
 const TOKEN_RE = /(\{\{[a-z]+:[^}]+\}\})/g;
 const TOKEN_PARSE = /^\{\{([a-z]+):(.+)\}\}$/;
 
 function renderText(text, tokens) {
-  if (typeof text !== "string" || !tokens) return text;
+  if (typeof text !== "string") return text;
   const parts = text.split(TOKEN_RE);
   if (parts.length === 1) return text;
   let touched = false;
@@ -59,6 +66,21 @@ function renderText(text, tokens) {
     const m = part.match(TOKEN_PARSE);
     if (!m) return part;
     const [, type, name] = m;
+
+    /* Built-in inline tags — render without consulting the tokens
+       map. Lets prose hint at emphasis without dragging the whole
+       token machinery in for a simple <strong>. */
+    if (type === "strong") {
+      touched = true;
+      return <strong key={i}>{name}</strong>;
+    }
+    if (type === "em") {
+      touched = true;
+      return <em key={i}>{name}</em>;
+    }
+
+    /* Caller-defined tokens (currently used for SidePanel
+       triggers). Falls through if no map was passed. */
     const body = tokens?.[type]?.[name];
     if (!body) return part;
     touched = true;
@@ -71,24 +93,54 @@ function renderText(text, tokens) {
   return touched ? out : text;
 }
 
-function Hook({ eyebrow, headline, scope }) {
+function Hook({ eyebrow, headline, scope, heroImage }) {
+  /* `scope` is either a single string (legacy — one paragraph) or
+     an array of strings (each rendered as its own <p>). Lets a
+     case study lead with a brief "what is this tool" sentence,
+     then follow with a "what I did" paragraph.
+
+     `heroImage`, if provided, renders an imagePlaceholder-style
+     <figure> *between* the first and subsequent scope paragraphs.
+     Useful when the lead sentence should hand off to the visual
+     before the longer descriptor — the visual lands as part of
+     the introduction rather than as a separate block underneath. */
+  const scopeParas = Array.isArray(scope) ? scope : scope ? [scope] : [];
   return (
     <header className={styles.hook}>
       {eyebrow && <span className={styles.hookEyebrow}>{eyebrow}</span>}
       <h1 className={styles.hookHeadline}>
         <ScrambleText text={headline} as="text" />
       </h1>
-      {scope && <p className={styles.hookScope}>{scope}</p>}
+      {scopeParas.map((p, i) => (
+        <Fragment key={i}>
+          <p className={styles.hookScope}>{p}</p>
+          {/* After the first scope paragraph, drop in the hero
+              image if the case study passed one. */}
+          {i === 0 && heroImage && (
+            <figure className={styles.imagePlaceholder}>
+              <div className={styles.imageSlot} aria-hidden="true" />
+              {heroImage.caption && (
+                <figcaption className={styles.imageCaption}>
+                  {heroImage.caption}
+                </figcaption>
+              )}
+            </figure>
+          )}
+        </Fragment>
+      ))}
     </header>
   );
 }
 
-function SectionHeader({ chapter, title }) {
+function SectionHeader({ chapter, title, subtitle }) {
   const id = slugify(title);
   return (
     <header id={id} className={styles.sectionHeader}>
       {chapter && <span className={styles.sectionChapter}>{chapter}</span>}
       <h2 className={styles.sectionTitle}>{title}</h2>
+      {subtitle && (
+        <p className={styles.sectionSubtitle}>{subtitle}</p>
+      )}
     </header>
   );
 }
@@ -157,18 +209,8 @@ function Quote({ body, source }) {
   );
 }
 
-function QuoteWall({ items }) {
-  return (
-    <ul className={styles.quoteWall}>
-      {items.map((it, i) => (
-        <li key={i} className={styles.quoteWallRow}>
-          <span className={styles.quoteWallQuote}>&ldquo;{it.quote}&rdquo;</span>
-          <span className={styles.quoteWallLabel}>{it.label}</span>
-        </li>
-      ))}
-    </ul>
-  );
-}
+/* QuoteWall lives in its own client component because it uses an
+   IntersectionObserver to stagger the row flip-in. See ./QuoteWall.js. */
 
 /* DecisionList — renders an intro paragraph that names each decision
    inline as a SidePanel trigger. The full body of each decision lives
@@ -253,6 +295,21 @@ function ImagePlaceholder({ caption }) {
   );
 }
 
+/* OutcomeNote — small qualitative-win callout that sits beside a
+   prose answer. Used in the Experience section under each Q&A to
+   tip the head to the *user* outcome (no numbers, just the
+   qualitative shift). Uses the same accent-rule + tint vocabulary
+   as the Lede so it reads as a "this is a deliberate aside,"
+   smaller and quieter so it doesn't outweigh the prose itself. */
+function OutcomeNote({ text, label = "User outcome" }) {
+  return (
+    <aside className={styles.outcomeNote} aria-label={label}>
+      <span className={styles.outcomeNoteLabel}>{label}</span>
+      <p className={styles.outcomeNoteText}>{text}</p>
+    </aside>
+  );
+}
+
 function Outcomes({ items = [] }) {
   return (
     <section className="case-study__outcomes" aria-label="Outcomes">
@@ -283,12 +340,31 @@ const RENDERERS = {
   decisionList: DecisionList,
   statusList: StatusList,
   imagePlaceholder: ImagePlaceholder,
+  outcomeNote: OutcomeNote,
   pillarScroll: PillarScroll,
   outcomes: Outcomes,
   orbit: ({ satellites }) => <Orbit satellites={satellites} />,
   layers: ({ problem, value, solution }) => (
     <ProjectLayers compact problem={problem} value={value} solution={solution} />
   ),
+  /* philosophyLayers — the layered rhombus stack repurposed for the
+     philosophy section. Takes 3 pillars + an optional `membrane`
+     (the 4th, wrapping layer). Each pillar/membrane can carry a
+     `deepBody` which becomes the SidePanel content behind a "Read
+     more" link in its slide. */
+  philosophyLayers: ({ pillars = [], membrane }) => (
+    <ProjectLayers
+      problem={pillars[0]}
+      value={pillars[1]}
+      solution={pillars[2]}
+      membrane={membrane}
+    />
+  ),
+  /* philosophyVisuals — bespoke canvas scenes (one per principle)
+     paired with copy in an alternating layout. Used in Nexis+AI to
+     replace the layered-cuboid metaphor with something closer to
+     how each principle actually behaves in the product. */
+  philosophyVisuals: ({ items }) => <PhilosophyVisuals items={items} />,
 };
 
 export default function Narrative({ blocks = [], tokens }) {
@@ -310,12 +386,18 @@ export default function Narrative({ blocks = [], tokens }) {
 }
 
 /* Helper: extract the chapters from a narrative for use in the
-   sidebar TOC. Returns [{ id, label }]. */
+   sidebar TOC. Returns [{ id, label }].
+
+   The label is just the section title — chapter numbers are
+   intentionally omitted from the menu so the sidebar reads as a
+   plain list of section names. The chapter number still shows in
+   the page's section headers themselves (rendered by SectionHeader),
+   but it would feel duplicated to repeat it in the menu. */
 export function narrativeTOC(blocks = []) {
   return blocks
     .filter((b) => b.kind === "sectionHeader")
     .map((b) => ({
       id: slugify(b.title),
-      label: b.chapter ? `${b.chapter} · ${b.title}` : b.title,
+      label: b.title,
     }));
 }

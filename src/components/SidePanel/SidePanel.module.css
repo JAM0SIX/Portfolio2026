@@ -29,42 +29,85 @@
 }
 
 /* Floating drawer — fixed but offset from every edge so it reads as
-   a panel hovering in space, not pinned to the screen. Uses the
-   design-system layered chamfer pattern (outer element = border
-   colour, ::before inset 1px = fill colour) so the 8px chamfered
-   corners keep their 1px border instead of being clipped off. */
-.panel {
+   a panel hovering in space, not pinned to the screen.
+
+   Spacing matches the left .sidebar: a uniform `--shell-gutter` (18 px
+   desktop, 12 px mobile) on top, right, and bottom. The panel reads as
+   the right-side counterpart to the file-tree rail.
+
+   Three interlocked techniques carry the look:
+   1. Outer wrapper (.shadowWrap) carries the drop-shadow but has no
+      clip-path. CSS applies `filter` BEFORE `clip-path`, so if the
+      shadow lived on the clipped element it would get cut off at the
+      chamfer polygon along with the element itself — no shadow would
+      render outside the panel's silhouette. Lifting the filter to an
+      unclipped parent lets the shadow cast freely.
+   2. Layered chamfer (.panel outer = border colour, ::before inset
+      1 px = tinted fill) so the 8 px chamfered corners keep their
+      1 px border instead of getting clipped off by the polygon.
+   3. Inset bevel on .panel::before, the inner face — top highlight
+      + bottom edge shadow. Mirrors the left .sidebar's inset shadow
+      pair so both panels read as the same moulded plastic surface. */
+.shadowWrap {
   position: fixed;
-  top: var(--space-8);
-  right: var(--space-6);
-  bottom: var(--space-8);
+  top: var(--shell-gutter);
+  right: var(--shell-gutter);
+  bottom: var(--shell-gutter);
   width: 360px;
-  max-width: calc(100vw - var(--space-6) * 2);
+  max-width: calc(100vw - var(--shell-gutter) * 2);
   z-index: 1000;
+  pointer-events: none;
   isolation: isolate;
 
+  /* Stacked drop-shadows — identical offsets, blur and alphas to
+     the left .sidebar's outer shadow pair (see globals.css). Both
+     panels float at the same apparent altitude with the same
+     light direction. The filter operates on the wrapper's child
+     paint (the inner .panel with its chamfer clip-path already
+     applied), so the shadow is of the chamfered silhouette and
+     renders outward freely — no clip-path on this element to
+     truncate it. */
+  filter:
+    drop-shadow(0 3px 10px rgba(0, 0, 0, 0.10))
+    drop-shadow(0 1px 2px rgba(0, 0, 0, 0.06));
+}
+.shadowWrap.isOpen {
+  pointer-events: auto;
+}
+
+.panel {
+  position: absolute;
+  inset: 0;
+
   background: var(--rule);                       /* outer = border colour */
+
+  /* Initial closed state — the panel is clipped to a tiny "dot"
+     shape at its centre, with zero opacity. The content stays at
+     full size; the border (clip-path) does all the reveal work,
+     so opening doesn't squish what's inside.
+
+     Animation is driven from JS via the Web Animations API in
+     SidePanel.js because (a) we need to interpolate through three
+     polygon stages (dot → line → chamfered rectangle), (b) we
+     need a true reverse for close, and (c) we need to skip the
+     animation entirely when one trigger swaps to another while a
+     panel is open. CSS transitions and keyframes can't do all
+     three together; WAAPI can.
+
+     The clip-path written here is the *resting closed* state. The
+     opening animation writes inline style via fill: 'forwards', so
+     once it runs the inline style overrides this. Before the user
+     has ever interacted, this rule keeps the panel invisible. */
   clip-path: polygon(
-    var(--chamfer-size) 0,
-    100% 0,
-    100% calc(100% - var(--chamfer-size)),
-    calc(100% - var(--chamfer-size)) 100%,
-    0 100%,
-    0 var(--chamfer-size)
+    calc(50% - 3px) calc(50% - 2px),
+    calc(50% + 3px) calc(50% - 2px),
+    calc(50% + 3px) calc(50% + 2px),
+    calc(50% + 3px) calc(50% + 2px),
+    calc(50% - 3px) calc(50% + 2px),
+    calc(50% - 3px) calc(50% - 2px)
   );
-
-  /* drop-shadow (not box-shadow) so the shadow respects the
-     chamfered clip-path silhouette rather than being clipped. */
-  filter: drop-shadow(0 12px 32px rgba(0, 0, 0, 0.10));
-
-  /* Closed: slide off the right edge (with the right-offset added
-     so it disappears fully) and fade out. */
-  transform: translateX(calc(100% + var(--space-6)));
   opacity: 0;
-  pointer-events: none;
-  transition:
-    transform 280ms var(--ease-out),
-    opacity   200ms var(--ease-default);
+  /* No CSS transition — JS animation owns the reveal. */
 }
 
 .panel::before {
@@ -81,11 +124,38 @@
     0 100%,
     0 var(--chamfer-inner)
   );
+  /* Inset bevel highlight + bottom-edge shadow. Lives on ::before
+     (not .panel) because the inner layer's chamfer-inner clip is
+     wide enough to render thin inset shadows; .panel's outer
+     clip-path would otherwise eat them. Mirrors the left
+     .sidebar's inset bevel so both panels read as the same
+     moulded-plastic material. */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.08);
 }
 
+/* Dark mode: drop the bright top highlight (which would read as a
+   washed-out line against the dark face) and deepen the drops so the
+   panel still lifts cleanly off the page background. Matches the
+   left .sidebar's onyx override. */
+[data-theme="onyx"] .shadowWrap {
+  /* Same drop-shadow recipe as the left .sidebar's onyx override —
+     deeper alphas because the lighter values vanish against the
+     dark page background. */
+  filter:
+    drop-shadow(0 3px 10px rgba(0, 0, 0, 0.4))
+    drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
+}
+[data-theme="onyx"] .panel::before {
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* `.isOpen` no longer needs to set transform / opacity / pointer-events —
+   JS (SidePanel.js) writes those via the Web Animations API with
+   fill: 'forwards'. The class is kept as a hook for the data-attribute
+   used by switch-detection in the component. */
 .panel.isOpen {
-  transform: translateX(0);
-  opacity: 1;
   pointer-events: auto;
 }
 
@@ -149,11 +219,21 @@
 
 /* ─── Mobile: inline accordion ───
    On narrow viewports the panel switches from a floating drawer to
-   an inline accordion under the trigger. The chamfer + drop-shadow
+   an inline accordion under the trigger. The shadow wrapper
+   disappears (display: contents) so the inner .panel can flow
+   inline beneath its trigger button. The chamfer + drop-shadow
    are dropped here for a quieter inline look. */
 @media (max-width: 720px) {
+  .shadowWrap {
+    /* `display: contents` removes the wrapper's own box but keeps
+       its children in the layout — the .panel lays out as if it
+       were a direct child of the trigger's parent. filter, position
+       and pointer-events all become moot because the box is gone. */
+    display: contents;
+  }
   .panel {
     position: relative;
+    inset: auto;
     top: auto;
     right: auto;
     bottom: auto;

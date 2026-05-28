@@ -34,4 +34,12 @@ export const references = [
     quote:
       "Honest under pressure and generous with credit — the kind of designer engineering teams genuinely want to partner with.",
   },
+  {
+    name: "Saoirse Hanlon",
+    role: "Director of Product",
+    company: "Hanlon & Wells",
+    year: "2022",
+    quote:
+      "Reads the room before reaching for the cursor. The work that came back was sharper than the brief we sent in.",
+  },
 ];

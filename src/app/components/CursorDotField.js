@@ -122,12 +122,42 @@ export default function CursorDotField() {
     let dots = [];
     let isVisible = true;
     let raf = 0;
-    /* Render mode — "dot" | "plus" | "off". Subscribed to the shared
-       cursor-mode store; CursorToggle in the side panel writes to it. */
+    /* Render mode — "dot" | "plus" | "tick" | "off". Subscribed to
+       the shared cursor-mode store; CursorToggle in the side panel
+       writes to it. */
     let mode = getCursorMode();
+    /* Preview wave — when the user picks a new symbol, a circular
+       ripple emanates from the bottom-left corner of the canvas
+       and expands outward to the top-right. Each cell briefly
+       peaks as the wave's radius matches its distance from the
+       bottom-left, so the field reveals the new symbol as a
+       directional gesture with a *curved* leading edge rather than
+       a straight line. Skipped when switching TO "off" — turning
+       the field off shouldn't flash on the way out.
+
+       PREVIEW_DUR: total time for the wave to expand from
+       radius 0 (at BL) to radius = diagonal length (just past TR).
+       2000 ms reads as deliberate without dragging.
+       WAVE_HALF_WIDTH: thickness of the wave ring in normalised
+       radius units (0 at BL, 1 at TR). A wider ring lights more
+       cells at once; narrower reads as a sharper arc.
+       ~0.28 keeps the band visible without losing the curve. */
+    let previewStartAt = 0;
+    const PREVIEW_DUR = 2000;
+    const WAVE_HALF_WIDTH = 0.28;
     const unsubMode = subscribeCursorMode((next) => {
+      const wasOff = mode === "off";
       mode = next;
-      if (mode === "off" && ctx) ctx.clearRect(0, 0, W, H);
+      if (mode === "off" && ctx) {
+        ctx.clearRect(0, 0, W, H);
+        return;
+      }
+      /* Flash whenever the symbol changes — including switching back
+         on from off, since that's also a moment the user wants to
+         see what they picked. */
+      previewStartAt = performance.now();
+      /* Defensive: if we were stuck off, force a redraw next frame. */
+      if (wasOff) lastInputAt = performance.now();
     });
 
     function rebuildDots() {
@@ -218,6 +248,37 @@ export default function CursorDotField() {
       const R = CFG.radius, R2 = R * R;
       const fall = CFG.falloff, growth = CFG.growth, baseR = CFG.dotSize;
 
+      /* Preview wave — a circular ripple expanding from the bottom-
+         left corner whenever the user picks a new symbol. Each cell
+         peaks briefly as the ripple's radius matches its distance
+         from BL, so the visible "lit-up" arc curves across the
+         canvas rather than reading as a straight line. While the
+         per-cell boost is > 0 we floor that cell's strength to at
+         least that value, so the cell shows the active glyph at
+         full size for the moment it's lit.
+
+         Two values drive it:
+         - WAVE_HALF_WIDTH: ring thickness in normalised-radius
+           units (0 at BL, 1 at TR — the diagonal length).
+         - waveFront: the radius of the leading-edge of the ring,
+           extended past [0,1] so the wave fully enters and exits
+           the canvas (every corner still gets a clean peak). */
+      const previewElapsed = now - previewStartAt;
+      const previewActive =
+        previewStartAt > 0 && previewElapsed < PREVIEW_DUR;
+      let waveFront = -2; // out-of-range default — no boost
+      if (previewActive) {
+        const previewT = previewElapsed / PREVIEW_DUR;
+        waveFront =
+          previewT * (1 + 2 * WAVE_HALF_WIDTH) - WAVE_HALF_WIDTH;
+      }
+      /* Inverse diagonal length — used to normalise each cell's
+         distance from BL into a 0..1 progress value. Computed once
+         per frame so the per-cell loop only does the distance
+         calculation, not the costlier sqrt + divide. */
+      const invMaxDist =
+        W > 0 && H > 0 ? 1 / Math.sqrt(W * W + H * H) : 0;
+
       for (let n = 0; n < dots.length; n++) {
         const d = dots[n];
         const px = d.x + d.jx;
@@ -231,6 +292,28 @@ export default function CursorDotField() {
           const dist = Math.sqrt(dist2);
           strength = 1 - dist / R;
           strength = Math.pow(strength, fall);
+        }
+        /* Wave preview boost — radial ripple from the bottom-left
+           corner. Cell's normalised radial distance from BL is 0
+           at the corner itself and 1 at the top-right corner
+           (px and (H - py) measure horizontal and vertical
+           displacement from BL; the Pythagorean distance is then
+           normalised by the diagonal length). The cell peaks
+           while its radius is within WAVE_HALF_WIDTH of the wave
+           front, so the lit band is a curved arc rather than a
+           straight line. */
+        if (previewActive) {
+          const wx = px;            // x distance from left edge
+          const wy = H - py;         // y distance from bottom edge
+          const cellProg =
+            Math.sqrt(wx * wx + wy * wy) * invMaxDist;
+          const distFromFront = Math.abs(cellProg - waveFront);
+          if (distFromFront < WAVE_HALF_WIDTH) {
+            const fade = 1 - distFromFront / WAVE_HALF_WIDTH;
+            /* smoothstep so the peak is rounded, not pointy. */
+            const previewBoost = fade * fade * (3 - 2 * fade);
+            if (previewBoost > strength) strength = previewBoost;
+          }
         }
 
         const baseline = 0.05;
@@ -258,6 +341,48 @@ export default function CursorDotField() {
           ctx.lineTo(px + arm, py);
           ctx.moveTo(px, py - arm);
           ctx.lineTo(px, py + arm);
+          ctx.stroke();
+        } else if (mode === "tick") {
+          /* Tick mark — short diagonal line that orients itself
+             toward the cursor. When the cursor is far, each tick
+             leans at its baseline angle (per-cell `phase` jitter
+             around `/`), so the field reads as paper grain. Under
+             the cursor's influence the tick rotates onto the radial
+             axis — both endpoints land on the line that passes
+             through the cursor, so every tick visibly points at it.
+
+             Implementation: lerp the (cos, sin) vectors of the
+             baseline and the radial unit vector, then renormalise.
+             No atan2 round-trip in the hot loop. */
+          const baseAngle = -Math.PI / 4 + (d.phase - Math.PI) * 0.05;
+          const baseCos = Math.cos(baseAngle);
+          const baseSin = Math.sin(baseAngle);
+          let ux = baseCos, uy = baseSin;
+          if (strength > 0) {
+            /* Unit vector from the tick toward the cursor. Because
+               dx = px − mx (tick − cursor), the toward-cursor
+               direction is (−dx, −dy) / dist. The sign on the line
+               itself doesn't matter (a segment is symmetric), but
+               using the toward-cursor vector keeps the math obvious. */
+            const invDist = 1 / Math.sqrt(dist2 || 1);
+            const rx = -dx * invDist;
+            const ry = -dy * invDist;
+            const w = strength;
+            ux = baseCos * (1 - w) + rx * w;
+            uy = baseSin * (1 - w) + ry * w;
+            /* Normalise so the visible length stays uniform whatever
+               the blend between the two unit vectors. */
+            const norm = Math.hypot(ux, uy) || 1;
+            ux /= norm;
+            uy /= norm;
+          }
+          const len = baseR * 3.0 * (1 + (growth - 1) * strength);
+          ctx.lineWidth = 0.7;
+          ctx.lineCap = "round";
+          ctx.strokeStyle = color;
+          ctx.beginPath();
+          ctx.moveTo(px - ux * len, py - uy * len);
+          ctx.lineTo(px + ux * len, py + uy * len);
           ctx.stroke();
         } else {
           ctx.beginPath();

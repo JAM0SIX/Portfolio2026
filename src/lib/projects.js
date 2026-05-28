@@ -366,9 +366,11 @@ const nexisNarrative = [
   // 01 · Hook
   {
     kind: "hook",
-    headline: "Signal in the noise",
-    scope:
+    headline: "Signals within the noise",
+    scope: [
+      "Nexis+AI is a conversational research tool that identifies the nuanced signals from the noise. Through specialised intent detection, contextually aware responses leveraged on user attributes and innovative navigation techniques, users gain an elevated experience that EY, KPMG and more use.",
       "I led product design for Nexis+AI, an AI research platform built for consultants at firms like KPMG and EY. The work covered product strategy, interaction design, design systems, research, and art direction. My task was to surface the signals that matter from inside an overwhelming amount of news, filings, and reports, so consultants can move faster and decide better.",
+    ],
   },
   {
     kind: "lede",
@@ -397,116 +399,128 @@ const nexisNarrative = [
   },
   { kind: "imagePlaceholder", caption: "The problem" },
 
-  // 03 · The value
-  { kind: "sectionHeader", chapter: "03", title: "The value" },
-  { kind: "subsectionHeader", title: "For the business" },
+  // 03 · The experience I built
+  {
+    kind: "sectionHeader",
+    chapter: "03",
+    title: "The experience I built",
+    subtitle:
+      "Independent product design — research, interaction, art direction, and design system are all my own contribution.",
+  },
   {
     kind: "prose",
     paragraphs: [
-      "For LexisNexis, the product is the next chapter of a research business that already serves the consulting world. The bet is that AI deepens that relationship rather than erodes it: 12,000 vetted publishers most generic AI tools will never see, paired with a design layer that makes the trust in the answer visible. 80% of users said they'd reach for Nexis+AI over ChatGPT for professional work.",
-    ],
-  },
-  { kind: "subsectionHeader", title: "For the consultant" },
-  {
-    kind: "prose",
-    paragraphs: [
-      "At the desk, the change is the one that matters most: less time wading through noise, more confidence in the signal, and recommendations a consultant can put their name on.",
-    ],
-  },
-  { kind: "imagePlaceholder", caption: "The value" },
-
-  // 04 · Directing business strategy
-  { kind: "sectionHeader", chapter: "04", title: "Directing business strategy" },
-  { kind: "subsectionHeader", title: "Shaping product direction" },
-  {
-    kind: "prose",
-    paragraphs: [
-      "Before any design moved, I set out the roadmap of work the team needed to do to identify the real problem, the gaps consultants were hitting, and the areas where the tool could grow. That sequencing turned a vague brief into a series of decisions the business could fund and the team could deliver against.",
-      "From there, every design decision was informed by data. The Trust and Transparency guidelines, the Co-Designed Ideal Response, the North Star designs across three months, six to twelve, and multi-year horizons, all of them traced back to what the research and the numbers were telling us, not what the loudest voice in the room thought looked right.",
-    ],
-  },
-  { kind: "subsectionHeader", title: "A philosophy as the design contract" },
-  {
-    kind: "richProse",
-    paragraphs: [
-      (
-        <>
-          To articulate and shape the north star, I built a set of principles:
-          different ways of approaching and tackling the problem and a way to
-          sell the idea to the business. They became the foundation every
-          design that followed had to build on:{" "}
-          <PrincipleLink name="Landscape of Data" />,{" "}
-          <PrincipleLink name="Progressive Disclosure" />,{" "}
-          <PrincipleLink name="Search Paths" />,{" "}
-          <PrincipleLink name="Skeuomorphism" />, and{" "}
-          <PrincipleLink name="Connective Tissue" />.
-        </>
-      ),
-    ],
-  },
-  { kind: "imagePlaceholder", caption: "The five principles in practice" },
-  { kind: "subsectionHeader", title: "Partnering with the ML team" },
-  {
-    kind: "prose",
-    paragraphs: [
-      "The behaviour I wanted from the product couldn't be designed at the screen layer alone. It had to come from the model. I partnered with data science to translate user intent into model directives: what counts as a good source, what counts as a good answer, how to handle uncertainty. That moved prompt engineering and search settings out of \"engineering decisions\" and into shared decisions, because user intent lives there too.",
+      "Four features did the heavy lifting. Each one answers a question consultants have about doing depth-of-research work inside an AI tool — and each one elevates their search ability past what a generic chat interface can offer.",
     ],
   },
 
-  // 05 · Features that moved the needle
-  { kind: "sectionHeader", chapter: "05", title: "Features that moved the needle" },
+  { kind: "subsectionHeader", title: "How can consultants tailor a search to their specific tasks?" },
   {
     kind: "prose",
     paragraphs: [
-      "There were more features than these, but four did the heavy lifting. Each one elevates the consultant's search ability, cutting through the noise and surfacing the signals they need, faster.",
+      "With explicit context dials. A competitor analysis needs different sources, structure, and weighting from a market analysis. Contextual search lets users set those conditions explicitly, so the same question returns a meaningfully different answer depending on the lens.",
     ],
   },
-
-  { kind: "subsectionHeader", title: "Branching" },
-  { kind: "imagePlaceholder", caption: "Branching" },
   {
-    kind: "prose",
-    paragraphs: [
-      "Consultants don't search linearly. They follow a thread, spot something worth chasing, and need to investigate without losing where they were. Branching lets them spin off a sub-search from any point in the main thread into its own page, dive as deep as they want, and return to the parent search untouched. The branch structure doubles as a record of how the user thinks.",
-    ],
+    kind: "outcomeNote",
+    text:
+      "Search shapes itself to the consultant's job — not the other way around.",
   },
-
-  { kind: "subsectionHeader", title: "Elaboration" },
-  { kind: "imagePlaceholder", caption: "Elaboration" },
-  {
-    kind: "prose",
-    paragraphs: [
-      "Re-prompting an AI to expand on a point breaks the user's flow and forces them to pick the right words. Action buttons elaborate on the selected part of a response in one click. It widens the net on the existing search rather than starting a new one. This pattern shipped in Nexis+AI before Claude later popularised the same idea in their consumer interface.",
-    ],
-  },
-
-  { kind: "subsectionHeader", title: "Contextual agentic search" },
   { kind: "imagePlaceholder", caption: "Contextual agentic search" },
+
+  { kind: "subsectionHeader", title: "How can consultants elaborate on a response without typing?" },
   {
     kind: "prose",
     paragraphs: [
-      "Natural language search lowers the barrier to entry but falls apart for professionals doing specific analysis. A competitor analysis needs sources, structure, and weighting different to a market analysis. Contextual search lets users dial in those conditions explicitly, so the same query returns a meaningfully different answer depending on the lens.",
+      "By selecting any part of a response and clicking elaborate. The platform widens the net on the existing search rather than starting a new one — no need to re-prompt, no need to pick the right words. This pattern shipped in Nexis+AI before Claude later popularised the same idea in their consumer interface.",
     ],
   },
+  {
+    kind: "outcomeNote",
+    text:
+      "Consultants drill into a specific point in seconds, without losing the thread they were already on.",
+  },
+  { kind: "imagePlaceholder", caption: "Elaboration" },
 
-  { kind: "subsectionHeader", title: "Sources and Time to Validation" },
+  { kind: "subsectionHeader", title: "How can consultants explore rabbit holes with confidence?" },
+  {
+    kind: "prose",
+    paragraphs: [
+      "By branching. From any point in the main search, the consultant spins off a sub-search into its own page, follows the rabbit hole as deep as they want, and returns to the parent thread untouched. The branch structure doubles as a record of how the consultant thinks.",
+    ],
+  },
+  {
+    kind: "outcomeNote",
+    text:
+      "Consultants chase tangents without losing context — the investigation stays one continuous trail of thought.",
+  },
+  { kind: "imagePlaceholder", caption: "Branching" },
+
+  { kind: "subsectionHeader", title: "How can consultants verify an answer before they use it?" },
+  {
+    kind: "prose",
+    paragraphs: [
+      "By anchoring every signal to a source the consultant can drill into. I introduced Time to Validation — the seconds between reading an answer and trusting it enough to use — as a design metric, and tuned inline citations, hover drill-downs, and visible source weighting around it.",
+    ],
+  },
+  {
+    kind: "outcomeNote",
+    text:
+      "Recommendations make it through partner review because every claim is one click from its source.",
+  },
   { kind: "imagePlaceholder", caption: "Sources and Time to Validation" },
+
+  // 04 · Philosophy
+  { kind: "sectionHeader", chapter: "04", title: "Philosophy" },
   {
     kind: "prose",
     paragraphs: [
-      "Surfacing a signal is half the job; confirming it's real is the other half. Every signal is anchored to a source the user can drill into. I introduced Time to Validation, the metric that measures the seconds between reading an answer and trusting it enough to use, and tuned the interaction patterns around it: inline citations, drill-down on hover, source weighting visible in the result.",
+      "Before any pixels moved I built a set of principles: ways of approaching the problem that every following design had to earn its place against. They turned the brief from \"build an AI search tool\" into \"design for defensible answers, not impressive ones\" — and gave the team a shared yardstick when the trade-offs got tight.",
+    ],
+  },
+  {
+    /* Three bespoke canvas scenes, one per principle, each picked to
+       mirror how the principle actually behaves inside Nexis+AI:
+       a constellation the user can re-connect for new patterns, a
+       branching search tree, and a calm helix that earns each turn. */
+    kind: "philosophyVisuals",
+    items: [
+      {
+        variant: "constellation",
+        label: "Constellation of data",
+        eyebrow: "Principle 01",
+        title: "Constellation of Data",
+        body:
+          "The same field of data points, read differently. How those points get connected is what tells the story — competitive intelligence draws one constellation, M&A draws another, market sizing draws a third. The interface makes those connections legible instead of collapsing them into a single confident answer.",
+      },
+      {
+        variant: "search-paths",
+        label: "Search paths",
+        eyebrow: "Principle 02",
+        title: "Search Paths",
+        body:
+          "Research isn't a straight line. From a single question, the consultant branches into sub-threads, follows the rabbit holes that look promising, prunes the ones that don't. Every search is a tree the user can fork, return to, and shape — the investigative work stays legible rather than flattening into a chat log.",
+      },
+      {
+        variant: "helix",
+        label: "Progressive disclosure",
+        eyebrow: "Principle 03",
+        title: "Progressive Disclosure",
+        body:
+          "Answer first. Evidence second. Source on demand. Each turn of the helix earns the next — the consultant sees the recommendation, then the supporting points, then the citation, only when they ask for it. The interface stays calm at the top and still rewards the consultant who wants to go all the way down.",
+      },
     ],
   },
 
-  // 06 · How I knew it worked
-  { kind: "sectionHeader", chapter: "06", title: "How I knew it worked" },
+  // 05 · Success benchmarks
+  { kind: "sectionHeader", chapter: "05", title: "Success benchmarks" },
   {
     kind: "prose",
     paragraphs: [
       "Two pieces of research carried the methodology, and the numbers backed them up.",
     ],
   },
-  { kind: "imagePlaceholder", caption: "How I knew it worked" },
+  { kind: "imagePlaceholder", caption: "Success benchmarks" },
   { kind: "subsectionHeader", title: "Answer Quality Testing" },
   {
     kind: "prose",
@@ -522,19 +536,8 @@ const nexisNarrative = [
     ],
   },
 
-  // 07 · Decisions worth telling
-  { kind: "sectionHeader", chapter: "07", title: "Decisions worth telling" },
-  { kind: "subsectionHeader", title: "When the user perspective surfaced the real problem" },
-  {
-    kind: "prose",
-    paragraphs: [
-      "Early on, the AI responses weren't hitting the quality bar. The team was working hard on the model and the engineering, optimising for technical correctness. The breakthrough came when I went under the hood with a user-centric lens. The prompt engineering and search settings had issues that weren't visible from a model-quality view alone: source weighting wasn't tuned to consultant tasks, prompts weren't shaped around user intent, defaults weren't matched to consultant jobs.",
-      "I ran experiments and A/B tested the changes. The numbers proved the case. What looked like a model problem was a user-intent problem expressed through model configuration, and surfacing it was design work.",
-    ],
-  },
-  { kind: "imagePlaceholder", caption: "Before / after" },
-  // 08 · What I'd do differently
-  { kind: "sectionHeader", chapter: "08", title: "What I'd do differently" },
+  // 06 · What I'd do differently
+  { kind: "sectionHeader", chapter: "06", title: "What I'd do differently" },
   {
     kind: "prose",
     paragraphs: [

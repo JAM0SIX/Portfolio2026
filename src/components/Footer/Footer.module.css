@@ -1,114 +1,344 @@
-/* Footer — sitewide. Atmospheric image fills the band; an
-   off-centre block on the right carries the tagline and a contact
-   CTA. The image is positioned via background-image so it can
-   crop responsively without an <img> aspect lock. */
+/* Footer — sitewide. The footer is two layers stacked:
+     1. Map plates running edge-to-edge as the atmospheric ground
+        (one plate per theme; the inactive one stays hidden).
+     2. Foreground content panel — three columns of identity, nav,
+        and contact — that sits over the map and carries the
+        actual functional content.
+   The container itself mirrors the left sidebar's treatment:
+   paper-deep ground, 1 px rule border, inset bevel + soft drop
+   shadow. The map is decorative; the panel does the work. */
 
 .footer {
   position: relative;
-  width: 100%;
-  margin-top: var(--space-9);
-  background: var(--ink);
+  margin: var(--space-9) 0 0;
+  background: var(--paper-deep);
   overflow: hidden;
   isolation: isolate;
+  border: 1px solid var(--rule);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.08),
+    0 3px 10px rgba(0, 0, 0, 0.10),
+    0 1px 2px rgba(0, 0, 0, 0.06);
+}
+:global([data-theme="onyx"]) .footer {
+  box-shadow:
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3),
+    0 3px 10px rgba(0, 0, 0, 0.4),
+    0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
+/* ─── Atmospheric ground ──────────────────────────────────────── */
+
+/* The .media sets the band's height via its own aspect-ratio —
+   same 16:9 footprint as the original footer. Inside it, the
+   PixelTerrain component renders a procedural pixel-grid backdrop
+   that drifts slowly between solid / dithered / empty cells. */
 .media {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  background-image: url("/footer-skier.jpg");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  z-index: 0;
 }
 
-/* Subtle scrim on the right half so the text always reads, even
-   over the brightest snow. Falls off to the left so the skier
-   stays clean. */
-.media::after {
-  content: "";
+/* ─── Foreground content panel ────────────────────────────────── */
+
+/* The inner panel overlays the map plate. Absolutely positioned
+   so it inhabits the same 16:9 band the media defines — the
+   footer keeps its original size, the columns just sit on top.
+   `justify-content: flex-end` anchors the column plates and the
+   colophon strip to the bottom of the band, so the upper portion
+   of the footer stays clean map. */
+.inner {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to right,
-    transparent 35%,
-    rgba(0, 0, 0, 0.45) 100%
-  );
-  pointer-events: none;
-}
-
-.content {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: min(46%, 540px);
-  padding: var(--space-7) var(--space-6);
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: flex-end;
-  text-align: right;
-  gap: var(--space-5);
-  color: #fff;
-  z-index: 1;
+  justify-content: flex-end;
+  /* Colophon sits flush against the column plates; 18 px of clear
+     space below to the footer's bottom edge. */
+  gap: 0;
+  padding: var(--space-7) var(--space-6) 18px;
 }
 
-.tagline {
+/* Two-plate grid: the merged identity+contact plate (which itself
+   splits into two sub-columns internally) sits beside the sitemap
+   plate. `align-items: end` bottom-aligns the shorter plate with
+   the taller one. */
+.columns {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: var(--space-6);
+  align-items: end;
+}
+/* Each plate is a recessed skeuomorphic container — same
+   language as the keypad's pressed-key state. Border + tinted
+   fill establish the well; the inset shadow stack does the
+   work of selling the depth:
+     · top + left inset shadow → rim casts down into the well
+     · bottom inset highlight  → far wall catches the light
+   The plates carry `data-pixel-clear` so the surrounding pixel
+   terrain still wraps around them — the recessed plate sits
+   inside a clean paper zone carved out of the pattern. */
+.col {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-5);
+  background: color-mix(in srgb, var(--ink) 4%, var(--paper-deep));
+  border: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.10),
+    inset 0 1px 1px rgba(0, 0, 0, 0.06),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.45);
+}
+:global([data-theme="onyx"]) .col {
+  background: color-mix(in srgb, var(--ink) 8%, var(--paper-deep));
+  border-color: color-mix(in srgb, var(--paper) 8%, transparent);
+  box-shadow:
+    inset 0 2px 5px rgba(0, 0, 0, 0.45),
+    inset 0 1px 1px rgba(0, 0, 0, 0.25),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* Split plate — 2×2 grid so the two text rows share a single
+   bottom baseline per row regardless of element height:
+     Row 1: Name        ⟷  CTA
+     Row 2: Role        ⟷  Socials
+   The row tracks auto-size to their tallest item; `align-items:
+   end` on each cell pins everything in the same row to the same
+   bottom edge. The gap between rows controls vertical breathing
+   room (matches the previous .role margin-top). */
+.colSplit {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  column-gap: var(--space-7);
+  row-gap: var(--space-3);
+  align-items: end;
+}
+.cellTopLeft     { grid-column: 1; grid-row: 1; }
+.cellTopRight    { grid-column: 2; grid-row: 1; }
+.cellBottomLeft  { grid-column: 1; grid-row: 2; }
+.cellBottomRight { grid-column: 2; grid-row: 2; }
+.colLabel {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+
+/* ─── Column 1: identity ──────────────────────────────────────── */
+
+.name {
   margin: 0;
   font-family: var(--font-sans);
-  font-size: clamp(1.25rem, 2.4vw, 2rem);
+  font-size: clamp(1.5rem, 2.8vw, 2.25rem);
   font-weight: var(--weight-semibold);
   letter-spacing: var(--track-tight);
   line-height: var(--leading-snug);
-  text-wrap: balance;
-  color: #fff;
+  color: var(--ink);
 }
-
-.cta {
+.role {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: clamp(1.05rem, 1.8vw, 1.4rem);
+  line-height: var(--leading-snug);
+  color: var(--ink-soft);
+}
+.location {
+  margin: var(--space-2) 0 0;
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--ink-mute);
+  letter-spacing: var(--track-wide);
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  /* Same accent dot the header uses for the live London indicator
+     so the two locations read as a pair across the page. */
+}
+.time { color: var(--ink); }
+.tagline {
+  margin: var(--space-4) 0 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-tight);
+  line-height: var(--leading-snug);
+  color: var(--accent);
+  text-wrap: balance;
+  max-width: 18ch;
+}
+
+/* ─── Column 2: sitemap ───────────────────────────────────────── */
+
+.navList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  /* Distribute the links across the full width of the sitemap
+     plate with even spacing between them — first link hugs the
+     left edge, last hugs the right, and the gaps between each
+     adjacent pair are equal. */
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
+}
+.navLink {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--ink);
+  text-decoration: none;
+  letter-spacing: var(--track-tight);
+  transition: color var(--dur-base) var(--ease-default);
+}
+.navLink:hover,
+.navLink:focus-visible { color: var(--accent); }
+
+/* ─── Column 3: contact + socials ─────────────────────────────── */
+
+.email {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 30%, transparent);
+  align-self: flex-start;
+  transition:
+    color var(--dur-base) var(--ease-default),
+    border-color var(--dur-base) var(--ease-default);
+}
+.email:hover,
+.email:focus-visible {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.cta {
+  margin-top: 0;
+  display: inline-flex;
+  justify-self: start;
+  align-items: center;
+  gap: var(--space-2);
   padding: var(--space-2) var(--space-5);
-  border: 1px solid rgba(255, 255, 255, 0.75);
-  color: #fff;
+  border: 1px solid var(--ink);
+  color: var(--ink);
   font-family: var(--font-sans);
   font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
   letter-spacing: var(--track-tight);
   text-decoration: none;
+  align-self: flex-start;
+  /* Resting state: rectangular silhouette expressed as a 6-point
+     polygon. Points 1 & 6 collapse onto the TL corner; points 3
+     & 4 collapse onto the BR corner. On hover those pairs spread
+     apart into the diagonal chamfer cuts, while the unchamfered
+     TR and BL corners stay put — giving the asymmetric "cut on
+     two opposite corners" silhouette. Same point count in both
+     states so clip-path interpolates smoothly. */
+  clip-path: polygon(
+    0% 0%,
+    100% 0%,
+    100% 100%,
+    100% 100%,
+    0% 100%,
+    0% 0%
+  );
   transition:
     background var(--dur-base) var(--ease-default),
-    color var(--dur-base) var(--ease-default);
+    color var(--dur-base) var(--ease-default),
+    clip-path var(--dur-base) var(--ease-default);
 }
 .cta:hover,
 .cta:focus-visible {
-  background: #fff;
-  color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  /* Hover: 8 px chamfer cut on top-left and bottom-right corners
+     only. The other two corners (top-right and bottom-left) stay
+     sharp. Reads as a diagonal silhouette across the button —
+     same chamfer token as the other surfaces in the family. */
+  clip-path: polygon(
+    var(--chamfer-size) 0%,
+    100% 0%,
+    100% calc(100% - var(--chamfer-size)),
+    calc(100% - var(--chamfer-size)) 100%,
+    0% 100%,
+    0% var(--chamfer-size)
+  );
 }
 .cta svg {
   display: block;
   transition: transform var(--dur-base) var(--ease-out);
 }
-.cta:hover svg {
-  transform: translateX(2px);
+.cta:hover svg { transform: translateX(2px); }
+
+.socialList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+.socialLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+  text-decoration: none;
+  transition: color var(--dur-base) var(--ease-default);
+}
+.socialLink:hover,
+.socialLink:focus-visible { color: var(--accent); }
+.socialLink svg { display: block; }
+
+/* ─── Colophon (full-width bottom strip) ──────────────────────── */
+
+.colophon {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--ink-mute);
+  letter-spacing: var(--track-wide);
 }
 
-@media (max-width: 720px) {
-  .media { aspect-ratio: 4 / 5; }
-  .media::after {
-    background: linear-gradient(
-      to bottom,
-      transparent 40%,
-      rgba(0, 0, 0, 0.55) 100%
-    );
+/* ─── Responsive ───────────────────────────────────────────────── */
+
+@media (max-width: 600px) {
+  .inner {
+    padding: var(--space-5) var(--space-4) var(--space-4) var(--space-4);
+    gap: var(--space-5);
   }
-  .content {
-    top: auto;
-    left: 0;
-    width: 100%;
-    padding: var(--space-5);
+  .columns {
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+  }
+  .colophon {
+    flex-direction: column;
     align-items: flex-start;
-    text-align: left;
+    gap: var(--space-1);
   }
+  .colophon span[aria-hidden] { display: none; }
 }

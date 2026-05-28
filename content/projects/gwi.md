@@ -45,23 +45,30 @@ narrative:
   # 01 · Hook
   - kind: hook
     headline: Agentic data system
-    scope: >
-      I owned the end-to-end design of GWI's internal data system, from
-      interviews and synthesis through strategy, architecture, and
-      engineering handoff. The system runs the research and data
-      pipeline that produces the insights GWI sells to clients like
-      FIFA, Meta, Amazon, and Omnicom.
+    scope:
+      - >
+        An agentic platform that takes the mundane work off
+        researchers and gives them the leverage to increase output
+        and efficiency.
+      - >
+        GWI's core product is selling data as insights with clients
+        including Meta, Amazon, Omnicom and Chelsea FC. I owned the
+        end to end product experience for GWI's internal data tools
+        and systems. From research and synthesis to identifying the
+        business risks and inefficiencies to designing the whole new
+        internal product tool and finally managing the development
+        of the tool itself.
+    heroImage:
+      caption: Hero image
 
   - kind: lede
     paragraphs:
       - >
-        The goal was to make the data process radically more efficient
-        and save the business significant money: collect larger
-        quantities of data, faster and at lower cost, giving
-        researchers the ability to do more with less.
-
-  - kind: imagePlaceholder
-    caption: Hero image
+        The goal: save the business £750,000 per year and open new
+        revenue opportunities through innovation. Make the data
+        process radically more efficient, collect larger quantities
+        of data faster, and give researchers the capacity to do more
+        with less.
 
   - kind: outcomes
     items:
@@ -73,39 +80,44 @@ narrative:
   - kind: sectionHeader
     chapter: "02"
     title: The problem
+  - kind: subsectionHeader
+    title: "Problem 1 · current tool has become a Frankenstein"
   - kind: prose
     paragraphs:
       - >
-        Research operators at GWI worked across seven systems to run a
-        single project: Qualtrics, Jira, Confluence, Slack, spreadsheets,
-        Salesforce, and an internal data tool. Each tool worked. The
-        connective tissue between them didn't.
+        As GWI scaled, RMP grew features and tools the business
+        demanded without enough thought for how they fit together.
+        The result is a tool with no cohesion. Researchers carry
+        the load of that incoherence, and it causes human error —
+        a misplaced step in one feature breaks something three
+        screens later, and the platform doesn't tell anyone.
       - >
-        The cost wasn't any single tool. It was the re-typing of context
-        at every handover, institutional knowledge being blocked from
-        moving downstream, and the silent failure modes hiding between
-        systems that nobody owned.
+        {{strong:The business risk}}: errors leak into the data
+        GWI sells. Insight quality erodes silently, client trust
+        takes the hit, and engineering capacity is spent patching
+        legacy instead of building forward.
+  - kind: subsectionHeader
+    title: "Problem 2 · No communication between tools"
+  - kind: prose
+    paragraphs:
+      - >
+        The other six systems don't talk to each other and they
+        don't talk to RMP. Data doesn't move downstream — researchers
+        re-type context at every handover, institutional knowledge
+        gets blocked between stages, and the failure modes hide in
+        the gaps.
+      - >
+        {{strong:The business risk}}: dropped context shapes the
+        deliverable before anyone catches it. Bad data lands with
+        the client, and what should be insight becomes liability.
   - kind: quote
     body: >
       There's so many platforms and so many steps and so many different
       things to remember… the fact that everything lives in a different
       place is really frustrating.
     source: Research operator, GWI
-  - kind: prose
-    paragraphs:
-      - >
-        The question I carried out of every interview was the same: how
-        do we do more with less?
-  - kind: subsectionHeader
-    title: What I actually saw
   - kind: imagePlaceholder
     caption: Quote wall screenshot
-  - kind: prose
-    paragraphs:
-      - >
-        I ran interviews with research operators across project setup,
-        fieldwork, and delivery. Quotes clustered into five distinct
-        failure modes.
   - kind: quoteWall
     items:
       - quote: Everything lives in a different place
@@ -124,307 +136,200 @@ narrative:
           No clean way to have a contract addendum… it's a hacky system…
           makes the audit significantly harder
         label: "Business risk: workarounds compound into audit liability"
-  - kind: prose
-    paragraphs:
-      - >
-        I paired these with a data stream map of the full project
-        lifecycle, surfacing the business risks and inefficiencies that
-        no individual operator could see because each one only lived
-        inside their slice of the process. The same problem kept
-        appearing under different names: the operator was the
-        integration layer.
 
-  # 03 · The value
+  # 03 · The experience I built
   - kind: sectionHeader
     chapter: "03"
-    title: The value
-  - kind: subsectionHeader
-    title: For the business
+    title: The experience I built
+    subtitle: >
+      Independent design work — research, design decisions, and UI
+      are all my own contribution.
   - kind: prose
     paragraphs:
       - >
-        The headline outcome is £750,000 a year reclaimed from the stack
-        of third-party tools the platform replaces. The first surface
-        alone ended GWI's reliance on Qualtrics, and the architecture
-        is sequenced so every following surface chips further away at
-        outside spend.
-  - kind: subsectionHeader
-    title: For the researcher
-  - kind: prose
-    paragraphs:
-      - >
-        At the keyboard, the change is the one that's easiest to feel:
-        one working surface instead of seven, 6x fewer clicks to reach
-        an insight, and 40% more capacity to do the analysis they were
-        actually hired to do.
-  - kind: imagePlaceholder
-    caption: The value
+        Five questions shaped where the researcher's attention
+        should go inside the platform. Each one led to a different
+        surface.
 
-  # 04 · The strategic move
+  - kind: subsectionHeader
+    title: "How do researchers want to identify issues and act on them?"
+  - kind: prose
+    paragraphs:
+      - >
+        By opening into a ranked list of activities — only the
+        signals that need a human decision today. Critical
+        information surfaces at the top of the homepage and each
+        item is one click from resolution; if it isn't on this
+        screen, it doesn't need them.
+  - kind: outcomeNote
+    text: >
+      Researchers open their day knowing exactly where their
+      attention is needed — and can act on it without leaving the
+      homepage.
+  - kind: imagePlaceholder
+    caption: Homepage — ranked attention
+
+  - kind: subsectionHeader
+    title: "What is the clear distinction between agents and researchers?"
+  - kind: prose
+    paragraphs:
+      - >
+        The agent handles the mundane: chasing approvals,
+        formatting exports, surfacing alerts. The researcher
+        holds the judgement calls — the decisions that shape
+        the data and the recommendation. Agent authority is
+        bounded by reversibility × confidence: cheap and
+        certain, it acts; expensive or uncertain, it escalates.
+  - kind: outcomeNote
+    text: >
+      The line of responsibility is clear — the agent does the
+      work, the researcher owns the decisions.
+  - kind: imagePlaceholder
+    caption: Agent surface
+
+  - kind: subsectionHeader
+    title: "How do operators move from alert to action?"
+  - kind: prose
+    paragraphs:
+      - >
+        Fieldwork is built for navigation, not monitoring.
+        Search-first IA, with visualisations that act as
+        wayfinding rather than reporting. The agent does the
+        watching; the operator does the moving.
+  - kind: outcomeNote
+    text: >
+      Operators intervene in seconds rather than discovering
+      problems hours after they've started costing money.
+  - kind: imagePlaceholder
+    caption: Fieldwork wayfinding
+
+  - kind: subsectionHeader
+    title: "How can we save the business money?"
+  - kind: prose
+    paragraphs:
+      - >
+        By bringing the work GWI currently pays third parties
+        for back in-house. Translation is the clearest example:
+        an automated first pass handles the bulk, with human
+        review focused only on the questions that need judgement.
+        Every surface in the platform is sequenced to replace
+        another piece of outside spend.
+  - kind: outcomeNote
+    text: >
+      Translation moves from a multi-day third-party bottleneck
+      to a routine step inside the draft — and the same pattern
+      repeats across the stack.
+  - kind: imagePlaceholder
+    caption: In-tool translation flow
+
+  - kind: subsectionHeader
+    title: "How do researchers want to handle surveys?"
+  - kind: prose
+    paragraphs:
+      - >
+        With every draft grounded in GWI's own question library
+        (RAG) so consistency is enforced across questions and
+        languages, and stress-tested against simulated
+        respondents (synthetic data) to catch coverage gaps
+        before fieldwork.
+  - kind: outcomeNote
+    text: >
+      Drafts catch their own gaps before fieldwork starts —
+      fewer late-stage rewrites, less stress at the deadline.
+  - kind: imagePlaceholder
+    caption: Drafting with RAG + synthetic data
+
+  # 04 · Philosophy
   - kind: sectionHeader
     chapter: "04"
-    title: The strategic move
+    title: Philosophy
   - kind: prose
     paragraphs:
-      - >
-        If the operator is the integration layer, the platform isn't
-        fixing anything by adding a better tool. It's fixing things by
-        becoming the integration layer itself.
-      - >
-        That meant one canonical record underneath everything: every
-        project, survey, wave, and fieldwork status lives in a single
-        place that every other system reads from and writes to. Not a
-        new tool in the stack. A replacement for the stack's seams.
       - >
         Three pillars sit on top of the shared state: a Project Hub
         that holds the world, a Drafting workflow that changes it, and
         Fieldwork that runs it. An agent layer sits across all three,
         not a fourth pillar, but the membrane that gives the platform
         continuous context from project creation to data delivery.
-  - kind: pillarScroll
-    eyebrow: The architecture
+  - kind: philosophyLayers
     pillars:
       - title: Project Hub
         body: >
-          Holds the world: every project, survey, wave, and fieldwork
-          state in one canonical place. Replaces the spread of
-          Confluence pages, spreadsheets, and Salesforce records that
-          operators currently re-type into each other.
+          Holds the world. Every project, survey, wave, and fieldwork
+          state lives in one canonical place. The other tools read
+          from it and write back into it.
+        deepBody:
+          - >
+            The Hub is the canonical source of truth that the rest of
+            the stack reads from and writes to. Every project,
+            survey, wave, and fieldwork status lives here, replacing
+            the spread of Confluence pages, Salesforce records, and
+            ad-hoc spreadsheets the team used to reconcile by hand.
+          - >
+            The homepage opens into a ranked list of activities — only
+            the signals that need a human decision today. If it isn't
+            on this screen, it doesn't need you. The promise: the Hub
+            holds the world so researchers don't have to.
       - title: Drafting workflow
         body: >
-          Changes the world: where surveys are authored, translated,
-          and approved. The agent sits on the same canvas as the draft
-          so authorship and AI suggestions stay legible.
+          Changes the world. Where surveys are authored, translated,
+          and approved. The agent sits on the same canvas as the
+          draft so authorship and AI suggestions stay legible.
+        deepBody:
+          - >
+            Drafting is grounded by RAG against GWI's own question
+            library and translation corpus, so consistency is
+            enforced across both questions and the languages each
+            survey ships in. Synthetic data layers on top as a
+            stress test: the platform runs drafts against simulated
+            respondents to find coverage gaps before fieldwork.
+          - >
+            Translation runs in-tool with an automated first pass
+            and human review focused only on the questions that
+            need judgement — replacing the third-party translation
+            agencies that previously ran every project.
       - title: Fieldwork
         body: >
-          Runs the world: in-field monitoring, quota management, and
-          respondent-facing survey delivery. Built for navigation and
+          Runs the world. In-field monitoring, quota management, and
+          respondent-facing delivery. Built for navigation and
           intervention, not passive dashboards.
+        deepBody:
+          - >
+            Fieldwork is where the work runs and the survey reaches
+            respondents. The IA is search-first; visualisations act
+            as wayfinding rather than reporting. An operator should
+            be able to move from alert to intervention in seconds.
+            The agent does the watching; the operator does the moving.
+          - >
+            Includes quota management, in-field monitoring, and the
+            respondent-facing survey delivery that ends GWI's
+            reliance on Qualtrics.
     membrane:
-      label: Agent layer · cross-cutting context
-  - kind: subsectionHeader
-    title: How I got there
-  - kind: imagePlaceholder
-    caption: JTBD ecosystem mapping
-  - kind: prose
-    paragraphs:
-      - >
-        I mapped the operator journey across the six stages of a
-        research project, then ran a JTBD synthesis to extract the
-        jobs the platform needed to do, not the features it needed to
-        have. The outputs clustered into the three pillars and the
-        cross-cutting agent layer.
-      - >
-        One JTBD insight shaped the architecture more than any other:
-        operators don't move through the workflow linearly. They jump
-        into the process at different stages and rarely start at the
-        beginning and end at the end in one session. That meant the
-        platform had to design entry points for every single job, not
-        a single happy path.
-      - >
-        I also chose to build on, not replace. GWI had existing
-        platform foundations (NDP) doing useful work in survey
-        generation and fieldwork monitoring. The new architecture
-        extends them rather than starting from zero.
-
-  # 05 · What I designed
+      title: Agent membrane
+      body: >
+        Across all three. One agent with continuous context that
+        carries learning between the Hub, drafting, and fieldwork —
+        not a fourth pillar but the layer that connects them.
+      deepBody:
+        - >
+          The membrane isn't a fourth pillar. It's one agent with
+          continuous context that flows between the Hub, Drafting,
+          and Fieldwork — carrying what it learned during drafting
+          into fieldwork monitoring, and what it sees in fieldwork
+          back into the Hub's status model.
+        - >
+          Authority is bounded by reversibility × confidence. Cheap
+          and certain, it acts and notifies. Expensive or uncertain,
+          it escalates. The user trusts the agent because its scope
+          is visible, not assumed.
+        - >
+          Its job is to surface critical information the moment it
+          matters, support the operator's decisions, and carry out
+          the mundane work — chasing approvals, reformatting
+          exports, queuing reminders.
+  # 05 · What I'd do differently
   - kind: sectionHeader
     chapter: "05"
-    title: What I designed
-  - kind: prose
-    paragraphs:
-      - >
-        The interesting work wasn't deciding what the pillars were. It
-        was deciding where the operator's attention should go inside
-        each one.
-  - kind: decisionList
-    decisions:
-      - name: Homepage as orientation, not dashboard
-        summary: Critical information, organised signals, ranked order of activities.
-        image:
-          caption: Homepage as orientation
-        body:
-          - >
-            Most operator tools open into a wall of charts. I designed
-            the homepage to surface only critical information, the
-            signals that need a human decision today.
-          - >
-            Multiple signals from across the pillars are organised into
-            one ranked order of activities, so the operator opens the
-            day with a single ordered list of where their attention
-            should go. The promise: if it isn't on this screen, it
-            doesn't need you.
-      - name: Drafting backed by RAG and synthetic data
-        summary: RAG for question and translation consistency, synthetic data for survey coverage.
-        image:
-          caption: Drafting with RAG + synthetic data
-        body:
-          - >
-            A RAG system grounds every drafting suggestion in GWI's
-            own question library and translation corpus, so consistency
-            is enforced across questions and across the languages each
-            survey ships in.
-          - >
-            Synthetic data acts as a stress test on top: the platform
-            runs the draft against simulated respondents to identify
-            gaps in question coverage, optimise the spread, and surface
-            where the survey will fail before it goes out.
-      - name: Agent that surfaces, supports, and acts
-        summary: Surfaces critical information, keeps the user in control, carries out the mundane.
-        image:
-          caption: Agent surface
-        body:
-          - >
-            The agent surfaces critical information the moment it
-            matters: a stalled quota, an unanswered approval, an error
-            that needs eyes. The operator keeps control of every
-            decision.
-          - >
-            It also recommends and carries out the mundane work on the
-            user's behalf: chasing approvals, reformatting exports,
-            queuing reminders. Trust comes from the agent's scope being
-            visible, not assumed.
-      - name: Translation kept inside the tool
-        summary: Automated first pass, human review focused only on questions that need judgement.
-        image:
-          caption: In-tool translation flow
-        body:
-          - >
-            Survey translation was going to third parties at significant
-            per-project cost and turnaround time. I designed an in-tool
-            translation flow with an automated first pass and human
-            review focused only on the questions that needed judgement.
-      - name: Fieldwork architecture for navigation, not monitoring
-        summary: Wayfinding over reporting, the agent watches, the operator moves.
-        image:
-          caption: Fieldwork wayfinding
-        body:
-          - >
-            The fieldwork surface isn't a dashboard. Operators don't
-            need to watch, they need to get to the right project fast.
-          - >
-            I designed the IA around search, filtering, and data
-            visualisations that act as wayfinding rather than reporting.
-            The agent does the watching; the operator does the moving.
-    closer: >
-      The common thread: every decision is about where to put the
-      human's attention. The platform doesn't ask the operator to look
-      at more, it asks them to look at less, more precisely.
-  - kind: subsectionHeader
-    title: The agent as connective tissue
-  - kind: imagePlaceholder
-    caption: Screen of agent surface
-  - kind: prose
-    paragraphs:
-      - >
-        The agent isn't a fourth pillar, it's the membrane. One agent
-        with continuous context across the Hub, drafting, and fieldwork.
-        It carries what it learned during drafting into fieldwork
-        monitoring, and what it sees in fieldwork into the Hub's status
-        model.
-      - >
-        Its authority is bounded by reversibility times confidence.
-        Cheap and certain, it acts and notifies. Expensive or uncertain,
-        it escalates. The user trusts the agent because its scope is
-        visible, not assumed.
-  - kind: subsectionHeader
-    title: Inside each pillar
-  - kind: imagePlaceholder
-    caption: Project Hub
-  - kind: prose
-    paragraphs:
-      - >
-        The canonical state of every research project. Status, owners,
-        waves, fieldwork health, and risks all live here and feed
-        everything downstream. Replaces the spread of Confluence pages,
-        Salesforce records, and ad-hoc spreadsheets the team used to
-        reconcile by hand.
-  - kind: imagePlaceholder
-    caption: Drafting
-  - kind: prose
-    paragraphs:
-      - >
-        Survey authoring with the agent on the same canvas as the
-        draft. Every change the agent makes is attributable line by
-        line, and every suggestion shows the source it pulled from.
-        Translation runs in-tool with human review only where judgement
-        is needed.
-  - kind: imagePlaceholder
-    caption: Fieldwork
-  - kind: prose
-    paragraphs:
-      - >
-        In-field monitoring, quota management, and respondent delivery
-        built for navigation rather than passive watching. The IA is
-        search-first, with visualisations that act as wayfinding so an
-        operator can move from alert to intervention in seconds.
-
-  # 06 · A decision worth telling
-  - kind: sectionHeader
-    chapter: "06"
-    title: A decision worth telling
-  - kind: prose
-    paragraphs:
-      - >
-        Leadership initially wanted to extend the legacy tool. I argued
-        the legacy tool was a symptom of the stack problem, not a
-        foundation to build on.
-      - >
-        The evidence backed it up. The existing tool was a Frankenstein
-        of features layered on year after year, most of them unmanaged,
-        undocumented, and patched into corners of the code nobody on
-        the current team had touched. That accumulation, on its own,
-        was a significant reason the business needed this
-        transformation: every new requirement had to fight the weight
-        of the old one.
-      - >
-        I made the case with a working prototype rather than a deck.
-        Using an AI sandbox, I built a rough version of the agent
-        membrane operating across mock project, draft, and fieldwork
-        states. The point wasn't the UI, it was getting leadership to
-        submerge themselves in the flow and architecture before they
-        could start picking at the surface. By the time the
-        conversation came back to interface, the foundation question
-        was already settled.
-  - kind: imagePlaceholder
-    caption: Sandbox prototype
-
-  # 07 · Where the work is
-  - kind: sectionHeader
-    chapter: "07"
-    title: Where the work is
-  - kind: prose
-    paragraphs:
-      - >
-        The thesis is the deliverable. The architecture is the bet.
-        The build is sequenced, and it's underway.
-  - kind: statusList
-    items:
-      - state: Live
-        title: Respondent-facing survey question UI
-        description: >
-          The surface that ends GWI's reliance on Qualtrics. The fastest
-          path to cutting third-party spend, and the first proof that
-          the platform can replace the stack one surface at a time.
-      - state: Designed
-        title: Project Hub, Drafting workflow, Fieldwork architecture
-        description: >
-          IA, key flows, and the design system foundations are in
-          place. Engineering is building against them now.
-      - state: Bought-in
-        title: The thesis as shared language
-        description: >
-          I wrote the platform's value proposition document, the
-          framing the business now uses to talk about itself, and it
-          was adopted across leadership. The Director of Product
-          accepted the concept; my architecture and site map confirmed
-          the new-foundation proposal during the build-approach
-          discussion. I'm now kick-starting the engineering process
-          against the work.
-
-  # 08 · What I'd do differently
-  - kind: sectionHeader
-    chapter: "08"
     title: What I'd do differently
   - kind: prose
     paragraphs:

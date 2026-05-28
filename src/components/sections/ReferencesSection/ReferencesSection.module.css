@@ -1,34 +1,122 @@
-/* References — vertical list of "name · role · company · year" rows.
-   On hover or focus, the row reveals its quote inline beneath using
-   the grid-template-rows 0fr → 1fr accordion technique. */
+/* References — folder-tab card stack.
+   ─────────────────────────────────────
+   Five testimonial cards stacked at the same width. Each card
+   has a folder tab protruding above its top edge at a unique
+   horizontal position, so all five tabs line up across the top
+   of the stack like files filed in a sleeve.
+   Cards behind translate UPWARD so their tabs sit above the
+   active card; the active card carries the body content. */
 
 .section {
   margin-top: 240px;
 }
 
-.list {
-  list-style: none;
+.stack {
+  position: relative;
+  padding-top: var(--stack-peek);
+  min-height: 320px;
+  /* Perspective makes the pull-out animation read in 3D — when a
+     card lifts forward (translateZ) and tilts (rotateX) it looks
+     physically pulled toward the viewer rather than just bigger. */
+  perspective: 1400px;
+  perspective-origin: 50% 40%;
+}
+
+/* Every card spans the full stack width — no perspective scaling,
+   no lateral inset. The only thing that varies per card is
+   translateY (depth offset) and z-index (stacking order). */
+/* Card is a passive container — the tab does all the click work.
+   Keeps the body free of click handlers so text inside the
+   active card stays selectable and naturally read-only.
+   Transform is the initial/resting position; the pull-out
+   animation is driven by WAAPI (see ReferencesSection.js) which
+   commits its final keyframe, so further re-renders don't fight
+   the animated state. */
+.card {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   flex-direction: column;
-  border-top: var(--border-default) solid var(--rule);
+  align-items: stretch;
+  text-align: left;
+  padding: var(--space-5);
+  background: var(--paper-deep);
+  border: 1px solid var(--rule);
+  color: inherit;
+  font: inherit;
+  transform: translate3d(0, calc(var(--depth) * var(--stack-offset) * -1), 0);
+  /* Only transition box-shadow and background. The transform is
+     animated imperatively via the Web Animations API so we get a
+     richer pull-out keyframe than CSS transitions can express. */
+  transition:
+    box-shadow var(--dur-base) var(--ease-default),
+    background var(--dur-base) var(--ease-default);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  /* Each card establishes its own 3D context so rotateX inside
+     the keyframes renders independently per card. */
+  transform-style: preserve-3d;
+  transform-origin: 50% 100%;
+}
+.cardActive {
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.12),
+    0 2px 4px rgba(0, 0, 0, 0.06);
+}
+:global([data-theme="onyx"]) .cardActive {
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.5),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+}
+/* Focus ring lives on the tab now (it's the interactive element). */
+.tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  z-index: 1;
 }
 
-.row {
-  position: relative;
-  padding: var(--space-4) var(--space-3) var(--space-5);
-  border-bottom: var(--border-default) solid var(--rule);
+/* Folder tab — protrudes ABOVE the card's top edge. Same fill
+   as the card and borders on top/left/right only, so the tab
+   and card outline read as one continuous L-shaped border.
+   The tab's bottom overlaps the card's top edge by 1 px so the
+   filled tab covers the card's top border across the tab's
+   width — leaving the card's top border visible only to the
+   left and right of the tab. */
+.tab {
+  position: absolute;
+  bottom: 100%;
+  left: var(--tab-x);
+  /* Fixed width = 1/total of the card width. Tabs abut each
+     other across the top edge — no gaps, no overlaps — and
+     since every card sets --tab-w to the same fraction, the
+     tabs from the five cards line up as a continuous row. */
+  width: var(--tab-w);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Tab height decoupled from --stack-offset so the cards can
+     stack tightly while tabs stay legible. */
+  height: var(--tab-h);
+  padding: 0 var(--space-3);
+  background: var(--paper-deep);
+  border: 1px solid var(--rule);
+  border-bottom: 0;
+  margin-bottom: -1px;
+  overflow: hidden;
+  /* Tab is the click target — pointer cursor, normal font, no
+     default button chrome (handled by the styles above). */
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  transition: background var(--dur-base) var(--ease-default);
 }
-
-.head {
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr) auto;
-  gap: var(--space-4);
-  align-items: baseline;
+.tab:hover {
+  background: color-mix(in srgb, var(--ink) 4%, var(--paper-deep));
 }
-
-.name {
+.tabText {
   font-family: var(--font-sans);
-  font-size: var(--text-md);
+  font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
   color: var(--ink);
   letter-spacing: var(--track-tight);
@@ -37,13 +125,34 @@
   text-overflow: ellipsis;
 }
 
+/* Body — quote + meta. Visible on the active card only. */
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-base) var(--ease-default);
+}
+.cardActive .body {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.quote {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: var(--leading-relaxed);
+  color: var(--ink);
+  text-wrap: balance;
+}
+
 .meta {
+  margin: 0;
   font-family: var(--font-sans);
   font-size: var(--text-sm);
   color: var(--ink-mute);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 .role,
 .company { color: var(--ink-soft); }
@@ -51,33 +160,13 @@
   margin: 0 var(--space-2);
   color: var(--ink-faint);
 }
-
-.year {
-  font-family: var(--font-sans);
-  font-size: var(--text-sm);
-  color: var(--ink-mute);
-  font-variant-numeric: tabular-nums;
-}
-
-.quote {
-  margin: var(--space-3) 0 0;
-  font-family: var(--font-sans);
-  font-size: var(--text-sm);
-  line-height: var(--leading-relaxed);
-  color: var(--ink-soft);
-  max-width: 64ch;
-  text-wrap: balance;
-}
+.year { color: var(--ink-mute); font-variant-numeric: tabular-nums; }
 
 @media (max-width: 600px) {
-  .head {
-    grid-template-columns: 1fr auto;
-    grid-template-areas:
-      "name year"
-      "meta meta";
-    row-gap: var(--space-1);
+  .card {
+    padding: var(--space-4);
   }
-  .name { grid-area: name; }
-  .meta { grid-area: meta; }
-  .year { grid-area: year; }
+  .tab { padding: 0 var(--space-2); }
+  .tabText { font-size: var(--text-xs); }
+  .quote { font-size: var(--text-sm); }
 }

@@ -68,6 +68,21 @@
   color: var(--ink);
 }
 
+/* Optional subtitle / deck under the section title. Used when the
+   section needs a single-line clarifier (e.g. ownership statement)
+   that doesn't deserve a full prose block but is too important to
+   bury in body copy. Smaller and lighter than the title; sits flush
+   with it (same align-items: flex-start from the parent). */
+.sectionSubtitle {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-snug);
+  color: var(--ink-mute);
+  max-width: 60ch;
+}
+
 /* Subsection header — quieter inline tier inside a section. */
 .subsectionHeader {
   display: inline-flex;
@@ -103,13 +118,61 @@
   color: var(--ink-soft);
 }
 
-/* Lede — larger, slightly more weighty than body prose. Used for the
-   goal line that sits between hook and hero image. */
+/* OutcomeNote — small qualitative-win callout used in the Experience
+   section to acknowledge the user-side outcome of each design move.
+   No numbers, just the qualitative shift. Lives between a prose
+   answer and its hero image so the reader gets: explanation →
+   outcome → visual proof.
+
+   Same accent-rule vocabulary as the Lede but smaller and quieter:
+   a label tag in accent caps over a short italic line, both
+   pushed in by a 2 px accent rule on the left and a barely-there
+   tint fill. Sits at the inline reading column width so it nests
+   under the prose rather than spanning the page. */
+.outcomeNote {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-top: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-left: 2px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+  max-width: 60ch;
+}
+.outcomeNoteLabel {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.outcomeNoteText {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-style: italic;
+  line-height: var(--leading-snug);
+  color: var(--ink);
+}
+
+/* Lede — the goal callout between hook and hero image.
+   ------------------------------------------------------
+   Rendered as an indented bordered strip: a 3 px accent rule on the
+   left, a slight paper-deep background tint, generous padding, and
+   pushed in from the main content edge so it reads as a deliberate
+   pull-out rather than a paragraph that ran wide. Quieter than a
+   chamfered card — no corner cuts, no shadow — but clearly the most
+   important sentence on the page. */
 .lede {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
   max-width: 64ch;
+  margin-left: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  border-left: 3px solid var(--accent);
+  background: var(--paper-deep);
 }
 .ledeParagraph {
   margin: 0;
@@ -143,12 +206,21 @@
   letter-spacing: var(--track-tight);
 }
 
-/* QuoteWall — two-column rows of {quote, failure-mode label}. */
+/* QuoteWall — two-column rows of {quote, failure-mode label}.
+   Each row flips into view from above (rotateX -28° → 0°) when the
+   wall scrolls into the viewport, and inside each row the quote
+   text typewrites in character-by-character. The interaction lives
+   in ./QuoteWall.js; this file just sets the from/to states and
+   the transition. */
 .quoteWall {
   list-style: none;
   display: flex;
   flex-direction: column;
   border-top: var(--border-default) solid var(--rule);
+  /* preserve-3d so the per-row rotateX renders with depth rather than
+     flattening into a plain Y-axis squash. */
+  transform-style: preserve-3d;
+  perspective: 900px;
 }
 .quoteWallRow {
   display: grid;
@@ -157,6 +229,19 @@
   align-items: baseline;
   padding: var(--space-4) 0;
   border-bottom: var(--border-default) solid var(--rule);
+
+  /* Initial folded-out state. Top-anchored origin so the row hinges
+     down from above like an index card landing on its edge. */
+  opacity: 0;
+  transform: rotateX(-28deg) translateY(8px);
+  transform-origin: top center;
+  transition:
+    opacity 360ms ease-out,
+    transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.quoteWallRowShown {
+  opacity: 1;
+  transform: rotateX(0deg) translateY(0);
 }
 .quoteWallQuote {
   font-family: var(--font-sans);

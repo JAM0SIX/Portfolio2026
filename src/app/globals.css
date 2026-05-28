@@ -569,12 +569,17 @@ main.page { position: relative; z-index: 1; }
 }
 
 
-/* ─── Skeuomorphic cursor key-pad — strong active/inactive contrast ── */
+/* ─── Skeuomorphic cursor key-pad ───────────────────────────────────
+   One raised key per cursor mode (dot / plus / tick / off). Clicking
+   a key sets that mode; the active key reads as pressed-in via the
+   inverted shadow stack. Same bevel + gradient vocabulary as the
+   theme knob and the menu rows, so the cursor toggle and the theme
+   slider read as a matched pair on the panel. */
 .skeuo-keypad {
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  padding: 4px 0;         /* no horizontal padding so keys flush left */
+  padding: 4px 0;          /* no horizontal padding so keys flush left */
   margin-bottom: var(--space-1);
   border-radius: 0;
   background: transparent;
@@ -591,8 +596,8 @@ main.page { position: relative; z-index: 1; }
   border: 0;
   color: var(--key-icon);
   background: linear-gradient(180deg, var(--key-from) 0%, var(--key-to) 100%);
-  /* Raised — same exact shadow stack as the theme knob: rim
-     outline + top bevel + bottom inset shadow + soft drop. */
+  /* Raised — same shadow stack as the theme knob: rim outline + top
+     bevel + bottom inset shadow + soft drop. */
   box-shadow:
     inset 0 0 0 1px var(--key-border),
     inset 0 1px 0 var(--toggle-knob-bevel),
@@ -608,8 +613,8 @@ main.page { position: relative; z-index: 1; }
   color: var(--toggle-icon-hover);
 }
 .skeuo-key.is-active {
-  /* Pressed — identical material to the theme track: same lighter
-     recessed-channel gradient + same shadow stack. */
+  /* Pressed — inverted gradient + inverted shadow stack so the key
+     reads as recessed into the plate. */
   background: linear-gradient(180deg, var(--key-to) 0%, var(--key-from) 100%);
   color: var(--key-icon-active);
   box-shadow:
@@ -883,8 +888,6 @@ main.page { position: relative; z-index: 1; }
   color: var(--ink-mute);
   font-size: var(--text-xs);
   font-weight: var(--weight-medium);
-  letter-spacing: var(--track-caps);
-  text-transform: uppercase;
 }
 .projects-grid {
   display: grid;
@@ -964,39 +967,199 @@ main.page { position: relative; z-index: 1; }
   );
 }
 
-.project__image {
+/* Project card image — rectangular notches with inverse-chamfer
+   inside corners, sized per-content.
+   ─────────────────────────────────────────────────────────────
+   The image silhouette is a rectangle minus two rectangular
+   notches (TL + BR), where each notch's inside corner — the L-join
+   between the notch wall and the image edge — is replaced by a
+   45° diagonal cut sloping into the image. That cut is the
+   inverse-chamfer treatment, matching the convex chamfer
+   vocabulary used elsewhere on the site but applied at the
+   *inside* of the L instead of the outside of a corner.
+
+   The notch dimensions are driven by CSS variables that
+   ProjectsGrid.js sets via JS measurement of the actual rendered
+   badge (TL) and tag pill row (BR). So cards with longer tags
+   get wider BR notches; cards without a badge get a zero-size TL
+   notch (silhouette stays a clean rectangle at that corner).
+   Defaults of 0 ensure the polygon stays well-formed before JS
+   has measured. */
+
+.project__image-frame {
   position: relative;
-  aspect-ratio: 4 / 3;
+  /* Taller than 4:3 — gives the image back the vertical real
+     estate it loses to the TL notch so the visible image area
+     still feels roughly 4:3 after the corner is carved out. */
+  aspect-ratio: 4 / 3.52;
+  /* JS-measured TL notch dimensions in pixels (sized to the
+     badge). Fallback 0 means "no notch" if measurement hasn't
+     run yet or there is no badge. */
+  --notch-tl-w: 0px;
+  --notch-tl-h: 0px;
+  /* Notch inside L-corner is sharp. */
+  --notch-chamfer: 0px;
+  /* Slant amount: how far the TL notch's inner wall leans LEFT
+     as it descends. Source of truth for the slant value — JS
+     reads this via getComputedStyle to compute the slant-aware
+     arc offsets below. */
+  --notch-slant: 10px;
+  /* Corner radius applied to each of the notch's three corners.
+     Source of truth for the radius value — JS reads this too. */
+  --notch-radius: 8px;
+  /* Arc tangent-point offsets at the SLANTED corners (inside
+     corner where bottom-of-notch meets the wall, and top corner
+     where the wall meets the top edge). Computed in JS from
+     slant, notch height, and radius using the standard
+     d = R / tan(θ/2) fillet formula where θ is the interior
+     angle of the corner. Defaults to 0 before JS measures. */
+  --notch-corner-d: 0px;
+  --notch-corner-dx: 0px;
+  --notch-corner-dy: 0px;
+}
+.project__image {
+  position: absolute;
+  inset: 0;
   background: var(--tile);
   display: grid;
   place-items: center;
   overflow: hidden;
+  /* Rectangular TL notch with a slanted right wall and rounded
+     corners. Uses shape() with arc commands (true circular
+     fillets, not Bézier curves). The OUTSIDE corner of the L
+     (bottom-left, at 90°) uses a simple --notch-radius offset on
+     both tangent points; the SLANTED corners (inside corner +
+     top corner) need offsets computed from the slant geometry
+     and exposed by JS as --notch-corner-d / -dx / -dy.
+
+     Path walks CW from just past the top corner of the wall:
+       1.  (notch-tl-w + d, 0)               — start of top edge after the top-corner arc
+       2.  line → (100%, 0)                   — top edge
+       3.  line → (100%, 100%)                — right edge
+       4.  line → (0, 100%)                   — bottom edge
+       5.  line → (0, notch-tl-h - R)         — up left edge, stop before outside-corner arc
+       6.  arc  → (R, notch-tl-h)             — outside corner of the L (convex, 90°)
+       7.  line → (notch-tl-w - slant - d, notch-tl-h)
+                                               — bottom edge of notch, stop before inside-corner arc
+       8.  arc  → (notch-tl-w - slant + dx, notch-tl-h - dy)
+                                               — inside corner (concave fillet, slanted)
+       9.  line → (notch-tl-w - dx, dy)       — slanted wall, stop before top-corner arc
+       10. arc  → (notch-tl-w + d, 0)         — top corner (convex, slanted) */
+  clip-path: shape(
+    from calc(var(--notch-tl-w) + var(--notch-corner-d)) 0,
+    line to 100% 0,
+    line to 100% 100%,
+    line to 0 100%,
+    line to 0 calc(var(--notch-tl-h) + var(--notch-radius)),
+    arc to var(--notch-radius) var(--notch-tl-h)
+      of var(--notch-radius) cw,
+    line to calc(var(--notch-tl-w) - var(--notch-slant) - var(--notch-corner-d)) var(--notch-tl-h),
+    arc to
+      calc(var(--notch-tl-w) - var(--notch-slant) + var(--notch-corner-dx))
+      calc(var(--notch-tl-h) - var(--notch-corner-dy))
+      of var(--notch-radius) ccw,
+    line to
+      calc(var(--notch-tl-w) - var(--notch-corner-dx))
+      var(--notch-corner-dy),
+    arc to calc(var(--notch-tl-w) + var(--notch-corner-d)) 0
+      of var(--notch-radius) cw,
+    close
+  );
 }
-.project__badge {
-  position: absolute;
-  top: var(--space-2);
-  left: var(--space-2);
-  z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  padding: 2px var(--space-2);
-  background: var(--paper);
-  border: var(--border-default) solid var(--rule);
-  font-family: var(--font-sans);
-  font-size: 10px;
-  font-weight: var(--weight-semibold);
-  letter-spacing: var(--track-tight);
-  color: var(--ink);
-  line-height: 1.4;
-}
-.project__badge[data-status="new"] { color: var(--accent); border-color: var(--accent); }
-.project__badge[data-status="coming-soon"] { color: var(--ink-mute); }
 .project__image-placeholder {
   width: 100%;
   height: 100%;
   background: var(--tile);
 }
+
+/* Status badge fits into the TL notch. Anchored flush to the TL
+   corner; the notch is sized in JS to be slightly larger than
+   the badge so the breathing room appears on the *image side* of
+   the badge (between it and the inverse-chamfered inside corner),
+   not between the badge and the frame edge. */
+.project__badge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  /* No padding — the badge text sits flush with the frame's
+     left edge so it stacks on a single vertical axis with the
+     project title below it. Notch height matches the text's
+     line-height exactly. */
+  padding: 0;
+  background: transparent;
+  border: 0;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: var(--weight-semibold);
+  color: var(--ink);
+  /* line-height: 0.8 collapses the bbox just below the baseline.
+     Uppercase letters have no descenders so nothing visible is
+     clipped, and the notch — sized to offsetHeight — now hugs
+     the *visible bottom* of the letters instead of the bottom of
+     the line-box's descender area. */
+  line-height: 0.8;
+}
+.project__badge[data-status="new"] { color: var(--accent); }
+.project__badge[data-status="coming-soon"] { color: var(--ink-mute); }
+
+/* Project tags row — now sits inline inside .project__head where
+   the date used to live, right-aligned next to the project title.
+   No absolute positioning, no special wrapping logic; just an
+   inline-flex row of borderless tag pills. */
+.project__tags-row {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: 0;
+}
+/* Transparent, borderless tag pills inside the BR notch. The
+   default .tag is a layered chamfer (outer element = border
+   colour, ::before = paper fill); dropping both layers' fills
+   gives a clean text-only label sitting directly on whatever's
+   behind it. Doesn't affect tag pills elsewhere on the site. */
+.project__tags-row .tag {
+  background: transparent;
+  /* Strip the chamfer clip-path so the tag bbox isn't reduced
+     by the corner cuts (the notch is sized off offsetWidth and
+     clipping would otherwise hide a sliver of the text). */
+  clip-path: none;
+  /* Drop all padding on these tags. With no pill chrome behind
+     them the padding only served to inflate spacing — which
+     means the last tag's text sat 10 px inside the row's right
+     edge instead of flush with it. Removing padding lets the
+     last tag align cleanly with the date below; the row's
+     `gap: var(--space-2)` still spaces neighbouring tags from
+     each other. */
+  padding: 0;
+}
+.project__tags-row .tag::before {
+  display: none;
+}
+/* Small dot separator between adjacent tags. The pseudo-element
+   sits in normal flow so the gap on the row spaces it from the
+   tags on either side. Only renders between tags, never before
+   the first one. */
+.project__tags-row .tag + .tag::after {
+  content: "";
+  position: absolute;
+  /* Centered in the row's gap (var(--space-2) = 8 px) between
+     this tag and its predecessor. The base .tag rule already has
+     `position: relative`, so the absolute child positions against
+     this tag's box. */
+  left: calc(var(--space-2) * -0.5);
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--ink-mute);
+}
+
 .project__head {
   display: flex;
   align-items: baseline;

@@ -1,14 +1,29 @@
 /*
  * ProjectLayers.css
  * -----------------
- * Scoped styles for the ProjectLayers component. Uses Haz. tokens from globals.
+ * Scoped styles for the ProjectLayers component.
+ *
+ * Layout: scroll-pinned. Vertical inside — the isometric rhombus
+ * stack sits on top, the active layer's text panel below it. As
+ * the user scrolls past the section, the stage advances; layers
+ * separate vertically, the active layer's rhombus lights up, and
+ * the panel cross-fades to the matching slide.
+ *
+ * When a `membrane` is provided, an additional 3D wireframe cuboid
+ * is drawn around the rhombus stack. The cuboid is NOT another
+ * rhombus in the stack — it's a transparent 3D box (12 edges, six
+ * outlined faces) that visually contains the layers. On stage 4
+ * the cuboid's edges pick up the accent colour and the rhombi dim;
+ * stage 4 reads as "the wrapping volume that holds the layers
+ * together".
+ *
  * Class prefix: `pl-`
  *
- * Breakpoints (keep in sync with ProjectLayers.tsx):
- *   > 1100px — wide two-column
- *   ≤ 1100px — medium: tighter stack / copy
- *   ≤ 800px  — stacked: one column
- *   ≤ 480px  — extra-small stack
+ * Breakpoints (keep in sync with ProjectLayers.js):
+ *   > 1100px — comfortable
+ *   ≤ 1100px — medium
+ *   ≤ 800px  — narrow
+ *   ≤ 480px  — extra-small
  */
 
 .pl-scene {
@@ -16,90 +31,34 @@
   height: 400vh;
   --pl-stack-gap: 110px;
   --pl-stack-box: 520px;
-  --pl-layer-size: 360px;
-  --pl-sticky-pad-x: var(--space-9);
-  --pl-panel-max: 560px;
+  --pl-layer-size: 320px;
+  --pl-panel-max: 64ch;
 }
 
-/* Compact mode — used when ProjectLayers is rendered inside the
-   reading column (.col, ~576px wide). Locks the stacked layout
-   regardless of viewport width and shortens the scrolljack so it
-   doesn't feel disproportionate at small scale. */
+/* Compact mode — when ProjectLayers is rendered inside the reading
+   column. Smaller stack, shorter scrolljack. */
 .pl-scene--compact {
-  height: 250vh;
+  height: 260vh;
   --pl-stack-gap: 72px;
-  /* Explicit pixel sizes so .pl-stack stays square (percentage values
-     would resolve against the parent's width AND height, breaking the
-     1:1 ratio when the stage is auto-sized). */
-  --pl-stack-box: 280px;
-  --pl-layer-size: 220px;
-  --pl-sticky-pad-x: 0;
-  --pl-panel-max: 100%;
+  --pl-stack-box: 320px;
+  --pl-layer-size: 200px;
+  --pl-panel-max: 56ch;
 }
-.pl-scene--compact .pl-sticky {
-  /* Auto-sized rows so the stage hugs the rhombus and the panel hugs
-     the copy. align-content: center floats the whole stack to the
-     vertical centre of the 100vh sticky container, with an explicit
-     80px row-gap. Grid (not flex) keeps the 1fr column track
-     definite so .pl-stack's percentage width still resolves. */
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: auto auto;
-  align-content: center;
-  row-gap: 80px;
-}
-.pl-scene--compact .pl-stage {
-  /* Override the desktop height: 100% — in compact the stage is
-     auto-sized to its rhombus contents. */
-  height: auto;
-}
-.pl-scene--compact .pl-panel {
-  min-height: 200px;
-  max-height: 46vh;
-}
-.pl-scene--compact .pl-slides {
-  min-height: 200px;
-}
-.pl-scene--compact .pl-slide[data-slide="1"],
-.pl-scene--compact .pl-slide[data-slide="2"],
-.pl-scene--compact .pl-slide[data-slide="3"] {
-  top: 0;
-  transform: none;
-}
-.pl-scene--compact .pl-text {
-  padding-left: 0;
-  text-align: center;
-  width: 100%;
-}
-.pl-scene--compact .pl-slide {
-  justify-content: center;
-}
-.pl-scene--compact .pl-slide .pl-body {
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 56ch;
-}
-/* Hide the progress pips in compact mode — the section title + rhombus
-   stages already do the work of showing where you are. */
 .pl-scene--compact .pl-progress { display: none; }
 
 @media (max-width: 1100px) {
   .pl-scene {
     --pl-stack-gap: 92px;
     --pl-stack-box: 440px;
-    --pl-layer-size: 300px;
-    --pl-sticky-pad-x: var(--space-7);
-    --pl-panel-max: 480px;
+    --pl-layer-size: 280px;
   }
 }
 
 @media (max-width: 800px) {
   .pl-scene {
     --pl-stack-gap: 72px;
-    --pl-stack-box: min(88vw, 360px);
-    --pl-layer-size: min(62vw, 240px);
-    --pl-sticky-pad-x: var(--space-5);
-    --pl-panel-max: 100%;
+    --pl-stack-box: min(86vw, 360px);
+    --pl-layer-size: min(56vw, 220px);
   }
 }
 
@@ -107,45 +66,49 @@
   .pl-scene {
     --pl-stack-gap: 64px;
     --pl-stack-box: min(92vw, 320px);
-    --pl-layer-size: min(58vw, 210px);
+    --pl-layer-size: min(52vw, 190px);
   }
 }
 
+/* Sticky pin — vertical layout. Visual on top, panel below. */
 .pl-sticky {
   position: sticky;
   top: 0;
   height: 100vh;
   width: 100%;
-  display: grid;
-  grid-template-columns: 1.1fr 1fr;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  overflow: hidden;
-  padding: 0 var(--pl-sticky-pad-x);
+  justify-content: center;
+  gap: var(--space-7);
+  padding: var(--space-6) var(--space-5);
 }
 
 @media (max-width: 800px) {
   .pl-sticky {
-    grid-template-columns: 1fr;
-    grid-template-rows: minmax(0, 1fr) auto;
-    align-content: center;
-    row-gap: var(--space-4);
-    padding: 0 var(--pl-sticky-pad-x) max(var(--space-8), env(safe-area-inset-bottom, 0px));
-  }
-
-  .pl-sticky > .pl-stage {
-    min-height: 0;
+    gap: var(--space-5);
+    padding: var(--space-5) var(--space-4);
   }
 }
 
-/* ─── Rhombus stack ─────────────────────────────────────────────────────── */
+/* ─── Rhombus stack ──────────────────────────────────────────────────
+   Three rhombi (and the optional cuboid wireframe) live inside a
+   square stack box. Rhombi are absolutely positioned at the centre
+   and offset vertically by `--pl-offset` for stages 1–3. */
 
 .pl-stage {
   position: relative;
-  height: 100%;
   display: flex;
-  align-items: center;
   justify-content: center;
-  min-width: 0;
+  /* No `perspective` here. The 3D transforms on the cuboid still
+     render in 3D space thanks to `transform-style: preserve-3d` on
+     `.pl-stack`, but without a perspective declaration the
+     projection is *orthographic* — parallel projection, no
+     foreshortening. The cuboid's front face (closer to viewer) and
+     back face (further away) render at identical screen size, which
+     is what a true isometric box looks like. With perspective on,
+     the back face shrinks and the box reads as a frustum rather
+     than a cuboid, so the edges miss the layer corners. */
 }
 
 .pl-stack {
@@ -153,14 +116,14 @@
   width: var(--pl-stack-box);
   height: var(--pl-stack-box);
   max-width: 100%;
+  /* preserve-3d so the cuboid child can transform-style its faces
+     in true 3D space. */
+  transform-style: preserve-3d;
 }
 
-/* Base layer = the dotted "inactive" appearance (always present).
-   ::after sits on top with the solid accent fill, faded in/out via
-   opacity to indicate the active stage. Doing it this way avoids
-   transitioning background-image (which can't be smoothly animated)
-   and keeps the transform + accent crossfade on a single duration so
-   they never finish at different times. */
+/* Each rhombus is a square rotated to the isometric "top-of-cube"
+   view (rotateZ(45) makes it a diamond; rotateX(60) tilts it back).
+   The same view used for the cuboid faces below. */
 .pl-layer {
   position: absolute;
   left: 50%;
@@ -174,8 +137,6 @@
   --pl-dot-color: var(--ink);
   --pl-dot-size: 1.6px;
   --pl-dot-step: 14px;
-  /* Use the design-system accent tint so inactive layers stay in sync
-     with whatever the accent colour is set to. */
   background-color: var(--accent-tint);
   background-image: radial-gradient(
     circle,
@@ -184,7 +145,8 @@
   );
   background-size: var(--pl-dot-step) var(--pl-dot-step);
   background-position: 0 0;
-  transition: transform var(--dur-slow) var(--ease-default);
+  transition: transform var(--dur-slow) var(--ease-default),
+              opacity   var(--dur-slow) var(--ease-default);
   will-change: transform;
 }
 .pl-layer::after {
@@ -201,115 +163,179 @@
 .pl-layer--middle { --pl-offset: 0px; }
 .pl-layer--bottom { --pl-offset: var(--pl-stack-gap); }
 
-/* Stage 0: all layers stacked, all solid accent (::after opacity 1). */
+/* Stage 0 — all rhombi stacked together at centre, solid accent. */
 .pl-scene[data-stage="0"] .pl-layer {
-  transform: translate(-50%, -50%) translateY(0) rotateX(60deg) rotateZ(45deg);
+  transform: translate(-50%, -50%) rotateX(60deg) rotateZ(45deg);
 }
 .pl-scene[data-stage="0"] .pl-layer::after { opacity: 1; }
 
-/* Stages 1-3: layers separate; only the active layer's ::after is
-   visible. The inactive layers reveal the dotted base through the
-   faded ::after. */
+/* Stages 1+ — rhombi separate vertically to their offsets. */
 .pl-scene:not([data-stage="0"]) .pl-layer {
-  transform: translate(-50%, calc(-50% + var(--pl-offset))) rotateX(60deg) rotateZ(45deg);
+  transform: translate(-50%, calc(-50% + var(--pl-offset)))
+             rotateX(60deg) rotateZ(45deg);
 }
 
+/* Stages 1–3 — only the active layer's accent fill is visible. */
 .pl-scene[data-stage="1"] .pl-layer--top::after,
 .pl-scene[data-stage="2"] .pl-layer--middle::after,
 .pl-scene[data-stage="3"] .pl-layer--bottom::after {
   opacity: 1;
 }
 
-/* ─── Text panel ────────────────────────────────────────────────────────── */
+/* Stage 4 — rhombi dim back to ~25% so the cuboid takes over as
+   the visual focus. */
+.pl-scene[data-stage="4"] .pl-layer {
+  opacity: 0.45;
+}
+.pl-scene[data-stage="4"] .pl-layer::after {
+  opacity: 0;
+}
+
+/* ─── 3D cuboid wireframe ─────────────────────────────────────────────
+   Six faces in 3D space form a transparent cuboid that contains
+   the rhombus stack. Same isometric rotation as the rhombi
+   (rotateX(60deg) rotateZ(45deg)) so the orientation matches.
+   Width × height match the rhombus footprint; depth spans 2×
+   stack-gap so the box is tall enough to enclose the fully-
+   separated rhombi.
+
+   Faces are borders-only, transparent fill — the visible result
+   is 12 edges (the borders of the 6 face rectangles forming a
+   wireframe cuboid). On stage 4 every face's border picks up the
+   accent colour and a faint tint fill bleeds in, so the cuboid
+   "lights up" as the membrane stage activates. */
+
+.pl-cuboid {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  transform-style: preserve-3d;
+  /* Same orientation as the rhombi so the box wraps the stack
+     visually. */
+  transform: rotateX(60deg) rotateZ(45deg);
+  /* Cuboid dimensions chosen so the box edges land *exactly* on the
+     rhombus edges:
+     - width/height = layer-size, so the front-face's projected shape
+       is the same rhombus as a layer
+     - depth = 2 × stack-gap / sin(60°) ≈ 2.3094 × stack-gap, so the
+       front face's centre projects to screen-Y = −stack-gap (the
+       top layer's position) and the back face's centre projects to
+       +stack-gap (the bottom layer's position)
+     The result: the four corners of the cuboid's front face sit on
+     the top layer's four corners, the back face's corners sit on
+     the bottom layer's, and the four long edges of the cuboid run
+     from each top-layer corner down to its matching bottom-layer
+     corner. */
+  --cuboid-w: var(--pl-layer-size);
+  --cuboid-h: var(--pl-layer-size);
+  --cuboid-d: calc(var(--pl-stack-gap) * 2.3094);
+  transition: opacity var(--dur-slow) var(--ease-default);
+}
+
+.pl-cuboid-face {
+  position: absolute;
+  border: 1px solid color-mix(in srgb, var(--ink-mute) 30%, transparent);
+  background: transparent;
+  transition:
+    border-color var(--dur-slow) var(--ease-default),
+    background   var(--dur-slow) var(--ease-default);
+}
+
+/* Top + bottom faces — full layer-size square cross-section,
+   offset along the local Z axis by half the depth. */
+.pl-cuboid-front,
+.pl-cuboid-back {
+  width: var(--cuboid-w);
+  height: var(--cuboid-h);
+  left: calc(var(--cuboid-w) / -2);
+  top: calc(var(--cuboid-h) / -2);
+}
+.pl-cuboid-front { transform: translateZ(calc(var(--cuboid-d) / 2)); }
+.pl-cuboid-back  { transform: translateZ(calc(var(--cuboid-d) / -2)); }
+
+/* Left + right side faces — rotated 90° around Y so their face
+   plane aligns with ±X. */
+.pl-cuboid-east,
+.pl-cuboid-west {
+  width: var(--cuboid-d);
+  height: var(--cuboid-h);
+  left: calc(var(--cuboid-d) / -2);
+  top: calc(var(--cuboid-h) / -2);
+}
+.pl-cuboid-east { transform: translateX(calc(var(--cuboid-w) / 2)) rotateY(90deg); }
+.pl-cuboid-west { transform: translateX(calc(var(--cuboid-w) / -2)) rotateY(90deg); }
+
+/* Top + bottom faces — rotated 90° around X so their face plane
+   aligns with ±Y. */
+.pl-cuboid-top,
+.pl-cuboid-bottom {
+  width: var(--cuboid-w);
+  height: var(--cuboid-d);
+  left: calc(var(--cuboid-w) / -2);
+  top: calc(var(--cuboid-d) / -2);
+}
+.pl-cuboid-top    { transform: translateY(calc(var(--cuboid-h) / -2)) rotateX(90deg); }
+.pl-cuboid-bottom { transform: translateY(calc(var(--cuboid-h) / 2)) rotateX(90deg); }
+
+/* Stage 4 activation — cuboid edges glow accent, faces take a
+   barely-there tint so the cuboid reads as "lit up" without
+   obscuring the dimmed rhombi inside. */
+.pl-scene[data-stage="4"] .pl-cuboid-face {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent-tint) 12%, transparent);
+}
+
+/* ─── Text panel (sits below the stack) ─────────────────────────────── */
 
 .pl-panel {
   position: relative;
-  height: 100%;
-  max-width: var(--pl-panel-max);
-  min-width: 0;
   width: 100%;
-}
-
-@media (max-width: 800px) {
-  .pl-panel {
-    flex: 0 0 auto;
-    max-height: 46vh;
-  }
-}
-
-@media (max-width: 480px) {
-  .pl-panel {
-    max-height: 50vh;
-  }
+  max-width: var(--pl-panel-max);
+  min-height: 220px;
+  text-align: center;
 }
 
 .pl-slides {
   position: relative;
-  height: 100%;
   width: 100%;
+  min-height: 220px;
 }
 
 @media (max-width: 800px) {
-  .pl-slides {
-    min-height: 160px;
-  }
+  .pl-slides { min-height: 200px; }
+  .pl-panel  { min-height: 200px; }
 }
 
+/* Slides cross-fade in place — they all share centre. */
 .pl-slide {
   position: absolute;
-  left: 0;
-  right: 0;
+  inset: 0;
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--dur-slow) var(--ease-default) 100ms;
-}
-
-.pl-slide[data-slide="1"] {
-  top: calc(50% - var(--pl-stack-gap));
-  transform: translateY(-0.6em);
-}
-.pl-slide[data-slide="2"] {
-  top: 50%;
-  transform: translateY(-0.6em);
-}
-.pl-slide[data-slide="3"] {
-  top: calc(50% + var(--pl-stack-gap));
-  transform: translateY(-0.6em);
-}
-
-@media (max-width: 800px) {
-  /* Only one slide visible per stage; anchor copy to panel top */
-  .pl-slide[data-slide="1"],
-  .pl-slide[data-slide="2"],
-  .pl-slide[data-slide="3"] {
-    top: 0;
-    transform: none;
-  }
+  transition: opacity var(--dur-slow) var(--ease-default) 80ms;
 }
 
 .pl-scene[data-stage="1"] .pl-slide[data-slide="1"],
 .pl-scene[data-stage="2"] .pl-slide[data-slide="2"],
-.pl-scene[data-stage="3"] .pl-slide[data-slide="3"] {
+.pl-scene[data-stage="3"] .pl-slide[data-slide="3"],
+.pl-scene[data-stage="4"] .pl-slide[data-slide="4"] {
   opacity: 1;
   pointer-events: auto;
 }
 
 .pl-text {
-  padding-left: clamp(12px, 4vw, 140px);
-}
-
-@media (max-width: 1100px) {
-  .pl-text {
-    padding-left: clamp(12px, 5vw, 100px);
-  }
-}
-
-@media (max-width: 800px) {
-  .pl-text {
-    padding-left: clamp(8px, 3vw, 48px);
-  }
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
 }
 
 .pl-slide h3 {
@@ -317,61 +343,34 @@
   font-family: var(--font-sans);
   font-size: clamp(var(--text-md), 2.2vw, var(--text-lg));
   font-weight: var(--weight-medium);
-  letter-spacing: 0.02em;
-  line-height: var(--leading-tight);
+  letter-spacing: var(--track-tight);
   color: var(--ink);
-  opacity: 0;
-  transform: translateY(6px);
-  transition:
-    opacity var(--dur-slow) var(--ease-default) 400ms,
-    transform var(--dur-slow) var(--ease-default) 400ms;
-}
-
-.pl-scene[data-stage="1"] .pl-slide[data-slide="1"] h3,
-.pl-scene[data-stage="2"] .pl-slide[data-slide="2"] h3,
-.pl-scene[data-stage="3"] .pl-slide[data-slide="3"] h3 {
-  opacity: 1;
-  transform: translateX(0);
 }
 
 .pl-slide .pl-body {
-  margin: var(--space-3) 0 0 0;
-  font-family: var(--font-sans);
-  font-size: clamp(13px, 1.6vw, var(--text-base));
-  font-weight: var(--weight-regular);
+  margin: 0;
+  font-size: var(--text-sm);
   line-height: var(--leading-relaxed);
-  letter-spacing: var(--track-normal);
-  color: var(--ink-82);
-  max-width: min(360px, 100%);
-  opacity: 0;
-  transform: translateY(6px);
-  transition:
-    opacity var(--dur-slow) var(--ease-default) 400ms,
-    transform var(--dur-slow) var(--ease-default) 400ms;
+  color: var(--ink-soft);
+  max-width: 52ch;
 }
 
-.pl-scene[data-stage="1"] .pl-slide[data-slide="1"] .pl-body,
-.pl-scene[data-stage="2"] .pl-slide[data-slide="2"] .pl-body,
-.pl-scene[data-stage="3"] .pl-slide[data-slide="3"] .pl-body {
-  opacity: 1;
-  transform: translateY(0);
+.pl-readmore {
+  margin: var(--space-3) 0 0;
+  font-size: var(--text-sm);
+  color: var(--ink-mute);
+  letter-spacing: var(--track-wide);
+  text-transform: uppercase;
 }
+
+/* ─── Progress pips (centred horizontally under the panel) ─────────── */
 
 .pl-progress {
-  position: absolute;
-  right: var(--space-7);
-  top: 50%;
-  transform: translateY(-50%);
   display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  z-index: 5;
-}
-
-@media (max-width: 800px) {
-  .pl-progress {
-    right: max(var(--space-4), env(safe-area-inset-right, 0px));
-  }
+  flex-direction: row;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
 }
 
 .pl-dot {
@@ -388,7 +387,8 @@
 
 .pl-scene[data-stage="1"] .pl-dot[data-dot="1"],
 .pl-scene[data-stage="2"] .pl-dot[data-dot="2"],
-.pl-scene[data-stage="3"] .pl-dot[data-dot="3"] {
+.pl-scene[data-stage="3"] .pl-dot[data-dot="3"],
+.pl-scene[data-stage="4"] .pl-dot[data-dot="4"] {
   background: var(--accent);
   border-color: var(--accent);
   transform: scale(1.25);
@@ -396,9 +396,9 @@
 
 @media (prefers-reduced-motion: reduce) {
   .pl-layer,
+  .pl-layer::after,
   .pl-slide,
-  .pl-slide h3,
-  .pl-slide .pl-body,
+  .pl-cuboid-face,
   .pl-dot {
     transition: none !important;
   }

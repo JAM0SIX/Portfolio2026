@@ -85,7 +85,7 @@ function useActiveSection(sectionIds) {
   return activeId;
 }
 
-function BackToIndex({ to = "/", label = "Index" }) {
+function BackToIndex({ to = "/", label = "Home" }) {
   return (
     <Link href={to} className="sidebar-back" title={`Back to ${label}`}>
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -101,17 +101,28 @@ function BackToIndex({ to = "/", label = "Index" }) {
    Just the back link + the doc title + its TOC sections. The active
    row is whichever section the user is currently reading (scroll-spy),
    falling back to the URL hash on first paint. */
-function DocSidebar({ title, href, sections, hash, backTo = "/", backLabel = "Index" }) {
+function DocSidebar({ title, href, sections, hash, backTo = "/", backLabel = "Home" }) {
   const sectionIds = sections ? sections.map((s) => s.id) : [];
   const spyId = useActiveSection(sectionIds);
   const activeId = spyId || hash;
+  /* Doc-title is active only when no section is currently in view.
+     At the top of the page (before scroll-spy picks up the first
+     section) and after scrolling back above the first section, the
+     project name is highlighted. Once the user scrolls into any
+     section, the doc-title drops back to its resting state and the
+     matching section row picks up the active styling instead. */
+  const titleActive = !activeId;
 
   return (
     <>
       <BackToIndex to={backTo} label={backLabel} />
       <div className="tree">
         <div className="folder-group open">
-          <Link href={href} className="row file active doc-title" title={title}>
+          <Link
+            href={href}
+            className={`row file doc-title${titleActive ? " active" : ""}`}
+            title={title}
+          >
             <span className="chev" />
             <span className="label">{title}</span>
           </Link>
@@ -150,7 +161,7 @@ function IndexSidebar({ pathname, projectsOpen, notesOpen, setProjectsOpen, setN
           aria-expanded={projectsOpen}
         >
           <Chev />
-          <span className="label">Projects</span>
+          <span className="label">Work</span>
         </button>
         {/* .children is the grid container (grid-template-rows transitions
             from 0fr to 1fr); .children-list is the single grid row whose
