@@ -3,10 +3,30 @@
    stacks them with consistent rhythm. Section headers introduce a
    numbered chapter; subsection headers are a quieter inline tier. */
 
-.narrative {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-7);
+/* The narrative subgrids the parent .col's column tracks so each
+   block can independently choose to sit in the reading column or
+   span the full bleed width — without having to know the column
+   maths itself. Direct children default to the reading track; a
+   child wrapped (or marked) with `:global(.bleed)` jumps to the
+   full-width bleed track. Vertical rhythm via row-gap is unchanged.
+
+   Selector specificity note: the rules below are prefixed with
+   :global(.col) so they out-rank the global `.col > *` defaults
+   in globals.css. Without the prefix CSS modules and the global
+   stylesheet land at equal specificity and load order decides —
+   which is unstable. */
+:global(.col) > .narrative {
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: bleed-start / bleed-end;
+  row-gap: var(--space-7);
+}
+.narrative > * {
+  grid-column: reading-start / reading-end;
+  min-width: 0;
+}
+.narrative > :global(.bleed) {
+  grid-column: bleed-start / bleed-end;
 }
 
 /* Hook — the opening block. Eyebrow + headline + scope paragraph. */
@@ -106,13 +126,17 @@
   max-width: 64ch;
 }
 
-/* Section header — numbered chapter ("02") above the section title. */
+/* Section header — numbered chapter ("02") above the section title.
+   The extra margin-top doubles the visual gap between sections
+   beyond the narrative's default row-gap, so each section reads
+   as its own beat on the page rather than blending into the
+   previous one. */
 .sectionHeader {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: var(--space-2);
-  margin-top: var(--space-6);
+  margin-top: calc(var(--space-6) * 2);
   padding-bottom: var(--space-3);
   border-bottom: var(--border-default) solid var(--rule);
 }
@@ -337,12 +361,24 @@
 .decisionRows {
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  /* Each decision row already takes a full viewport via min-height,
+     so the outer gap is zero — adding any extra space here would
+     break the "one GIF per viewport" rhythm by pushing the next
+     row partly into view at the end of a scroll. */
+  gap: 0;
 }
 .decisionRow {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: var(--space-3);
+  /* Each row owns a full viewport, so a reader scrolling through
+     the decisions sees one GIF, then the next, with no overlap
+     between them. min-height (not height) lets a row grow if its
+     content is taller than the viewport — important on short
+     viewports / large fonts. */
+  min-height: 100vh;
+  padding: var(--space-7) 0;
 }
 
 /* StatusList — three stacked status rows for "where the work is". */
@@ -410,6 +446,9 @@
   gap: var(--space-2);
 }
 .imageSlot {
+  /* Aspect ratio is now set inline by ImagePlaceholder so hero
+     (bleed) figures can use a taller frame than in-line ones —
+     fallback here covers any legacy use that doesn't pass one. */
   aspect-ratio: 16 / 9;
   background:
     repeating-linear-gradient(
@@ -419,10 +458,171 @@
     ),
     var(--paper);
   border: var(--border-default) dashed var(--rule);
+  overflow: hidden;
+  position: relative;
+}
+/* When the slot has a real image inside it (GIF / PNG / JPG via
+   DecisionList's d.image.src), drop the dashed pattern + border so
+   the media reads as the content rather than a placeholder. */
+.imageSlot:has(.imageMedia) {
+  background: var(--paper-deep);
+  border: var(--border-default) solid var(--rule);
+}
+.imageMedia {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
 }
 .imageCaption {
   font-family: var(--font-sans);
   font-size: var(--text-xs);
   color: var(--ink-mute);
   letter-spacing: var(--track-tight);
+}
+
+/* Prototype embed — live, interactive React bundle in an iframe.
+   Same vertical rhythm + caption treatment as imagePlaceholder so
+   it slots into the narrative without breaking the cadence. */
+.prototypeEmbed {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+}
+/* Frame holds the iframe in a square-cornered, bordered box. The
+   aspect ratio is provided inline by PrototypeEmbed (defaults
+   16:9) so the same CSS supports 4:3, 1:1, or any other ratio
+   without per-ratio classes. `overflow: hidden` crops the iframe
+   when it's scaled to cover a non-native aspect ratio. */
+.prototypeFrame {
+  position: relative;
+  /* Explicit width is required because the iframe child is
+     position: absolute (contributes 0 to intrinsic size), and the
+     parent figure is a flex column — without this the frame
+     collapses to its content's min size instead of stretching to
+     fill the reading column. */
+  width: 100%;
+  background: var(--paper-deep);
+  border: var(--border-default) solid var(--rule);
+  overflow: hidden;
+}
+/* Iframe is rendered at the prototype's native viewport (width
+   and height are written inline by PrototypeEmbed — different
+   prototypes have different native canvases, e.g. 1920x1080 for
+   the 16:9 ones and 1440x1080 for the 4:3 ones) and JS-scaled
+   (transform: translate + scale) via a ResizeObserver to cover the
+   frame and centre on a configurable focus point. Pure CSS can't
+   do this because `scale()` requires a unitless number and
+   `calc(<length> / <number>)` produces a length. */
+.prototypeIframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: 0;
+  background: transparent;
+  display: block;
+  transform-origin: 0 0;
+}
+.prototypePoster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  display: block;
+  object-fit: cover;
+}
+
+/* MediaPlate — hero treatment.
+   The plate matches the left sidebar's visible height (viewport
+   minus the shell gutters on top and bottom) so the hero band
+   reads as the right-hand peer of the sidebar. Horizontal padding
+   is set inline by MediaPlate; vertical centering is by flex so
+   the device sits in the middle with backdrop showing above and
+   below. Square corners on both the plate and the device — no
+   rounded corners. */
+.mediaPlate {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - var(--shell-gutter) * 2);
+  overflow: hidden;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mediaPlateBackdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+}
+.mediaPlateBackdropBlurred {
+  /* The poster image scaled up and blurred — produces a soft
+     ambient colour smear that matches the media without needing
+     a separate asset. transform: scale > 1 hides the blur's edge
+     fade outside the plate. */
+  filter: blur(80px) saturate(1.35);
+  transform: scale(1.25);
+}
+.mediaPlateInner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+/* The device — the actual video frame, image slot or prototype
+   frame — fills the plate's full width, keeps its own height
+   (so it lands at the same 650px size the hero used before the
+   backdrop treatment was added), and casts the floating drop
+   shadow. Square corners. */
+.mediaPlateInner > * {
+  width: 100%;
+  border-radius: 0;
+  overflow: hidden;
+  box-shadow:
+    0 30px 60px rgba(0, 0, 0, 0.28),
+    0 12px 20px rgba(0, 0, 0, 0.18),
+    0 2px 4px rgba(0, 0, 0, 0.12);
+}
+:global([data-theme="onyx"]) .mediaPlateInner > * {
+  box-shadow:
+    0 30px 60px rgba(0, 0, 0, 0.55),
+    0 12px 20px rgba(0, 0, 0, 0.4),
+    0 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+/* Video block — looping silent screen recording (e.g. the
+   PhilpotPearce live-site hero). Same framing language as the
+   prototype embeds: square-cornered bordered box, no chamfer. */
+.videoEmbed {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+}
+.videoFrame {
+  position: relative;
+  width: 100%;
+  background: var(--paper-deep);
+  border: var(--border-default) solid var(--rule);
+  overflow: hidden;
+}
+.videoMedia {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  display: block;
+  object-fit: cover;
 }

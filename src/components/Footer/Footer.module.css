@@ -327,14 +327,55 @@
 /* ─── Responsive ───────────────────────────────────────────────── */
 
 @media (max-width: 600px) {
+  /* Footer expands to a full-viewport-height exit ramp on mobile.
+     The pixel terrain becomes an absolutely-positioned background
+     plate (no longer the height driver), and .inner flows
+     naturally so columns can stack vertically. */
+  .footer {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .media {
+    position: absolute;
+    inset: 0;
+    aspect-ratio: auto;
+  }
   .inner {
+    position: relative;
+    inset: auto;
+    flex: 1;
     padding: var(--space-5) var(--space-4) var(--space-4) var(--space-4);
     gap: var(--space-5);
   }
   .columns {
     grid-template-columns: 1fr;
-    gap: var(--space-5);
+    gap: var(--space-4);
+    align-items: stretch;
   }
+  /* Identity plate: collapse the 2x2 grid into a single vertical
+     stack so the name, role, socials, and CTA each get a full
+     row — no cramped baselines, no overflow. */
+  .colSplit {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+  .cellTopLeft,
+  .cellTopRight,
+  .cellBottomLeft,
+  .cellBottomRight {
+    grid-column: auto;
+    grid-row: auto;
+  }
+  .socialList {
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+  /* Site nav row wraps onto multiple lines if needed instead of
+     scrolling horizontally. */
+  .navList { flex-wrap: wrap; gap: var(--space-3) var(--space-4); }
   .colophon {
     flex-direction: column;
     align-items: flex-start;

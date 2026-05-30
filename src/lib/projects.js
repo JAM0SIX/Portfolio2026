@@ -377,8 +377,11 @@ const nexisNarrative = [
       "Nexis+AI is a conversational research tool that identifies the nuanced signals from the noise. Through specialised intent detection, contextually aware responses leveraged on user attributes and innovative navigation techniques, users gain an elevated experience that EY, KPMG and more use.",
       "I led product design for Nexis+AI, an AI research platform built for consultants at firms like KPMG and EY. The work covered product strategy, interaction design, design systems, research, and art direction. My task was to surface the signals that matter from inside an overwhelming amount of news, filings, and reports, so consultants can move faster and decide better.",
     ],
-    heroImage: { caption: "Hero image" },
   },
+  /* Hero — full-width bleed placeholder, sits directly under the
+     first body paragraph. Swap for a video block once a recording
+     of the live Nexis+AI tool exists. */
+  { kind: "imagePlaceholder", caption: "Hero image", bleed: true },
   {
     kind: "outcomes",
     items: [
@@ -426,7 +429,25 @@ const nexisNarrative = [
     text:
       "Search shapes itself to the consultant's job — not the other way around.",
   },
-  { kind: "imagePlaceholder", caption: "Contextual agentic search" },
+  {
+    kind: "prototypeEmbed",
+    src: "/prototypes/q1-contextual-search/index.html#/q1",
+    caption: "Contextual agentic search — interactive prototype",
+    /* 4:3 frame around a 16:9 native prototype — the iframe is
+       scaled to *cover* the frame so the left and right edges of
+       the prototype crop off and the central column (search input
+       + intent tiles + welcome text) sits front and centre. */
+    aspect: "4 / 3",
+    /* Native canvas the prototype was designed for. The iframe
+       renders at this size and then PrototypeEmbed CSS-scales it
+       down to fit the frame. */
+    nativeWidth: 1920,
+    nativeHeight: 1080,
+    /* Static fallback shown when prefers-reduced-motion is on.
+       Captured from the prototype's opening frame; refresh by
+       running scripts/capture-prototype-posters.sh. */
+    poster: "/prototypes/q1-contextual-search/poster.png",
+  },
 
   { kind: "subsectionHeader", title: "How can consultants elaborate on a response without typing?" },
   {
@@ -440,7 +461,17 @@ const nexisNarrative = [
     text:
       "Consultants drill into a specific point in seconds, without losing the thread they were already on.",
   },
-  { kind: "imagePlaceholder", caption: "Elaboration" },
+  {
+    kind: "prototypeEmbed",
+    src: "/prototypes/q2-elaboration/index.html#/q2",
+    caption: "Elaboration — interactive prototype",
+    /* Q2's native canvas is already 4:3 (1440x1080), so frame
+       aspect matches native and the iframe fits without crop. */
+    aspect: "4 / 3",
+    nativeWidth: 1440,
+    nativeHeight: 1080,
+    poster: "/prototypes/q2-elaboration/poster.png",
+  },
 
   { kind: "subsectionHeader", title: "How can consultants explore rabbit holes with confidence?" },
   {
@@ -454,7 +485,17 @@ const nexisNarrative = [
     text:
       "Consultants chase tangents without losing context — the investigation stays one continuous trail of thought.",
   },
-  { kind: "imagePlaceholder", caption: "Branching" },
+  {
+    kind: "prototypeEmbed",
+    src: "/prototypes/q3-branching/index.html#/q3",
+    caption: "Branching — interactive prototype",
+    /* Q3's native canvas is 4:3 (1440x1080), matching the frame
+       aspect — fits without crop. */
+    aspect: "4 / 3",
+    nativeWidth: 1440,
+    nativeHeight: 1080,
+    poster: "/prototypes/q3-branching/poster.png",
+  },
 
   { kind: "subsectionHeader", title: "How can consultants verify an answer before they use it?" },
   {
@@ -468,7 +509,17 @@ const nexisNarrative = [
     text:
       "Recommendations make it through partner review because every claim is one click from its source.",
   },
-  { kind: "imagePlaceholder", caption: "Sources and Time to Validation" },
+  {
+    kind: "prototypeEmbed",
+    src: "/prototypes/q4-verification/index.html#/q4",
+    caption: "Sources and Time to Validation — interactive prototype",
+    /* Q4's native canvas is 4:3 (1440x1080), matching the frame
+       aspect — fits without crop. */
+    aspect: "4 / 3",
+    nativeWidth: 1440,
+    nativeHeight: 1080,
+    poster: "/prototypes/q4-verification/poster.png",
+  },
 
   // 04 · Philosophy
   { kind: "sectionHeader", chapter: "04", title: "Philosophy" },

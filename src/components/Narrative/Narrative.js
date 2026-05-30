@@ -29,6 +29,9 @@ import SidePanel from "@/components/SidePanel/SidePanel";
 import PillarScroll from "@/components/PillarScroll/PillarScroll";
 import ScrambleText from "@/components/ScrambleText/ScrambleText";
 import QuoteWall from "./QuoteWall";
+import PrototypeEmbed from "./PrototypeEmbed";
+import MediaPlate from "./MediaPlate";
+import Video from "./Video";
 import styles from "./Narrative.module.css";
 
 function slugify(s) {
@@ -259,9 +262,47 @@ function DecisionList({ intro, decisions, closer }) {
       <div className={styles.decisionRows}>
         {decisions.map((d) => (
           <div key={d.name} className={styles.decisionRow}>
-            {d.image && (
+            {d.embed ? (
+              /* A decision can opt into a live iframe figure (e.g.
+                 the "Work as the hero" card embeds the home page's
+                 hero on a 12-second loop) instead of the static
+                 dashed placeholder. PrototypeEmbed handles the
+                 same in-view gating + scaling rules as the rest of
+                 the prototype embeds. */
+              <PrototypeEmbed
+                {...d.embed}
+                caption={d.embed.caption || d.image?.caption}
+              />
+            ) : d.image?.src ? (
+              /* Real image (GIF, PNG, JPG) — fills the same imageSlot
+                 frame the dashed placeholder uses, so the layout
+                 doesn't shift between "with art" and "without art"
+                 decisions. GIFs autoplay natively in browsers; no
+                 extra wiring needed. The frame matches the native
+                 export aspect of the source GIFs (2940x1840). */
               <figure className={styles.imagePlaceholder}>
-                <div className={styles.imageSlot} aria-hidden="true" />
+                <div
+                  className={styles.imageSlot}
+                  style={{ aspectRatio: "2940 / 1840" }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={d.image.src}
+                    alt={d.image.alt || d.image.caption || ""}
+                    className={styles.imageMedia}
+                  />
+                </div>
+                {d.image.caption && (
+                  <figcaption className={styles.imageCaption}>{d.image.caption}</figcaption>
+                )}
+              </figure>
+            ) : d.image && (
+              <figure className={styles.imagePlaceholder}>
+                <div
+                  className={styles.imageSlot}
+                  style={{ aspectRatio: "2940 / 1840" }}
+                  aria-hidden="true"
+                />
                 {d.image.caption && (
                   <figcaption className={styles.imageCaption}>{d.image.caption}</figcaption>
                 )}
@@ -312,10 +353,36 @@ function StatusList({ items }) {
   );
 }
 
-function ImagePlaceholder({ caption }) {
+function ImagePlaceholder({ caption, bleed = false, aspect, backdrop, poster }) {
+  /* In-line placeholders use a 16:9 dashed slot. Bleed (hero)
+     placeholders sit inside a MediaPlate at the original 650px
+     hero height — same as the Video hero treatment, just with a
+     dashed inner instead of real video. */
+  const slotStyle =
+    bleed && !aspect
+      ? { height: 650 }
+      : { aspectRatio: aspect ?? "16 / 9" };
+  if (bleed) {
+    return (
+      <figure className={`${styles.imagePlaceholder} bleed`}>
+        <MediaPlate backdrop={backdrop} poster={poster}>
+          <div
+            className={styles.imageSlot}
+            style={slotStyle}
+            aria-hidden="true"
+          />
+        </MediaPlate>
+        {caption && <figcaption className={styles.imageCaption}>{caption}</figcaption>}
+      </figure>
+    );
+  }
   return (
     <figure className={styles.imagePlaceholder}>
-      <div className={styles.imageSlot} aria-hidden="true" />
+      <div
+        className={styles.imageSlot}
+        style={slotStyle}
+        aria-hidden="true"
+      />
       {caption && <figcaption className={styles.imageCaption}>{caption}</figcaption>}
     </figure>
   );
@@ -366,6 +433,8 @@ const RENDERERS = {
   decisionList: DecisionList,
   statusList: StatusList,
   imagePlaceholder: ImagePlaceholder,
+  prototypeEmbed: PrototypeEmbed,
+  video: Video,
   outcomeNote: OutcomeNote,
   pillarScroll: PillarScroll,
   outcomes: Outcomes,

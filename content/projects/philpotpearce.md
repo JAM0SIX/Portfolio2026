@@ -25,8 +25,16 @@ narrative:
       how users will flow through their space, how visual hierarchy can
       effectively communicate their message and of course the web design
       and build.
-    heroImage:
-      caption: Hero image
+  # Hero — looping silent capture of the live philpottpearce.com
+  # site. Sits directly under the first body paragraph (the hook's
+  # scope) so it reads as the visual answer to the question the
+  # scope poses. Poster is the first frame, also used as the
+  # reduced-motion fallback.
+  - kind: video
+    src: /projects/philpotpearce/hero.mov
+    poster: /projects/philpotpearce/hero-poster.png
+    caption: Hero — philpottpearce.com
+    bleed: true
 
   # 02 · The problem
   - kind: sectionHeader
@@ -55,7 +63,9 @@ narrative:
       - name: Restraint as the brand
         summary: The visual system as a statement of values, not decoration.
         image:
+          src: /projects/philpotpearce/restraint.gif
           caption: Brand system
+          alt: Animated walkthrough of PhilpotPearce's restrained visual system
         body:
           - >
             Most agencies dress up their identities. PhilpotPearce strips
@@ -68,7 +78,9 @@ narrative:
       - name: Navigation as thesis statement
         summary: The golden circle as information architecture.
         image:
+          src: /projects/philpotpearce/navigation.gif
           caption: IA as thesis
+          alt: Navigation menu following the golden circle structure
         body:
           - >
             Most agency sites lead with a service checklist. We led with
@@ -82,7 +94,9 @@ narrative:
       - name: Work as the hero
         summary: Project pages built to showcase, not narrate.
         image:
+          src: /projects/philpotpearce/work-as-hero.gif
           caption: Work showcase
+          alt: Project pages designed to put the work first
         body:
           - >
             Project pages are designed as exhibitions. Large imagery,
@@ -95,7 +109,9 @@ narrative:
       - name: Editorial typography
         summary: A single rhythm from hero to component states.
         image:
+          src: /projects/philpotpearce/editorial.gif
           caption: Type system
+          alt: Editorial typography running through the whole site
         body:
           - >
             One typographic system runs from hero through navigation

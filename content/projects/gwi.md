@@ -65,8 +65,12 @@ narrative:
         business risks and inefficiencies to designing the whole new
         internal product tool and finally managing the development
         of the tool itself.
-    heroImage:
-      caption: Hero image
+  # Hero — full-width bleed placeholder, sits directly under the
+  # first body paragraph. Swap for a video block once a recording
+  # of the live GWI tool exists.
+  - kind: imagePlaceholder
+    caption: Hero image
+    bleed: true
 
   - kind: lede
     paragraphs:
