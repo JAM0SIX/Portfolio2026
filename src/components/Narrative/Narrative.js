@@ -20,12 +20,18 @@
      imagePlaceholder  { caption? }
 */
 
+import { Fragment } from "react";
 import AbilityCard from "@/components/AbilityCard/AbilityCard";
 import Orbit from "@/components/Orbit/Orbit";
 import ProjectLayers from "@/components/ProjectLayers/ProjectLayers";
+import PhilosophyVisuals from "@/components/PhilosophyVisuals/PhilosophyVisuals";
 import SidePanel from "@/components/SidePanel/SidePanel";
 import PillarScroll from "@/components/PillarScroll/PillarScroll";
 import ScrambleText from "@/components/ScrambleText/ScrambleText";
+import QuoteWall from "./QuoteWall";
+import PrototypeEmbed from "./PrototypeEmbed";
+import MediaPlate from "./MediaPlate";
+import Video from "./Video";
 import styles from "./Narrative.module.css";
 
 function slugify(s) {
@@ -44,14 +50,18 @@ function slugify(s) {
    `{{principle:Landscape of Data}}` and the renderer swaps it for
    the corresponding component at render time.
 
+   Built-in inline tags (don't need a token map):
+     {{strong:text}}  →  <strong>text</strong>
+     {{em:text}}      →  <em>text</em>
+
    `tokens` is shaped { [type]: { [name]: ReactNode } }. Currently
-   only the `principle` type is used; new types can be added by
-   the case-study data without touching this helper. */
+   only the `principle` type is used by consumers; new types can
+   be added by the case-study data without touching this helper. */
 const TOKEN_RE = /(\{\{[a-z]+:[^}]+\}\})/g;
 const TOKEN_PARSE = /^\{\{([a-z]+):(.+)\}\}$/;
 
 function renderText(text, tokens) {
-  if (typeof text !== "string" || !tokens) return text;
+  if (typeof text !== "string") return text;
   const parts = text.split(TOKEN_RE);
   if (parts.length === 1) return text;
   let touched = false;
@@ -59,6 +69,21 @@ function renderText(text, tokens) {
     const m = part.match(TOKEN_PARSE);
     if (!m) return part;
     const [, type, name] = m;
+
+    /* Built-in inline tags — render without consulting the tokens
+       map. Lets prose hint at emphasis without dragging the whole
+       token machinery in for a simple <strong>. */
+    if (type === "strong") {
+      touched = true;
+      return <strong key={i}>{name}</strong>;
+    }
+    if (type === "em") {
+      touched = true;
+      return <em key={i}>{name}</em>;
+    }
+
+    /* Caller-defined tokens (currently used for SidePanel
+       triggers). Falls through if no map was passed. */
     const body = tokens?.[type]?.[name];
     if (!body) return part;
     touched = true;
@@ -71,24 +96,80 @@ function renderText(text, tokens) {
   return touched ? out : text;
 }
 
-function Hook({ eyebrow, headline, scope }) {
+function Hook({ eyebrow, headline, scope, heroImage, company, clients }) {
+  /* `scope` is either a single string (legacy — one paragraph) or
+     an array of strings (each rendered as its own <p>). Lets a
+     case study lead with a brief "what is this tool" sentence,
+     then follow with a "what I did" paragraph.
+
+     `heroImage`, if provided, renders an imagePlaceholder-style
+     <figure> *between* the first and subsequent scope paragraphs.
+     Useful when the lead sentence should hand off to the visual
+     before the longer descriptor — the visual lands as part of
+     the introduction rather than as a separate block underneath. */
+  const scopeParas = Array.isArray(scope) ? scope : scope ? [scope] : [];
   return (
     <header className={styles.hook}>
+      {clients?.length > 0 && (
+        <div className={styles.clientRow} aria-label="Clients">
+          {clients.map((c) => (
+            <span key={c.name} className={styles.clientChip}>
+              {c.logo ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img src={c.logo} alt={c.name} className={styles.clientLogo} />
+              ) : (
+                <span className={styles.clientMark} aria-hidden="true" />
+              )}
+              <span className={styles.clientName}>{c.name}</span>
+            </span>
+          ))}
+        </div>
+      )}
+      {company && (
+        <div className={styles.companyLine}>
+          {company.logo ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img src={company.logo} alt="" className={styles.companyLogo} />
+          ) : (
+            <span className={styles.companyMark} aria-hidden="true" />
+          )}
+          <span className={styles.companyName}>{company.name}</span>
+        </div>
+      )}
       {eyebrow && <span className={styles.hookEyebrow}>{eyebrow}</span>}
       <h1 className={styles.hookHeadline}>
         <ScrambleText text={headline} as="text" />
       </h1>
-      {scope && <p className={styles.hookScope}>{scope}</p>}
+      {scopeParas.map((p, i) => (
+        <Fragment key={i}>
+          <p className={styles.hookScope}>{p}</p>
+          {/* After the first scope paragraph, drop in the hero
+              image if the case study passed one. */}
+          {i === 0 && heroImage && (
+            <figure className={styles.imagePlaceholder}>
+              <div className={styles.imageSlot} aria-hidden="true" />
+              {heroImage.caption && (
+                <figcaption className={styles.imageCaption}>
+                  {heroImage.caption}
+                </figcaption>
+              )}
+            </figure>
+          )}
+        </Fragment>
+      ))}
     </header>
   );
 }
 
-function SectionHeader({ chapter, title }) {
+function SectionHeader({ chapter, title, subtitle }) {
   const id = slugify(title);
   return (
     <header id={id} className={styles.sectionHeader}>
       {chapter && <span className={styles.sectionChapter}>{chapter}</span>}
       <h2 className={styles.sectionTitle}>{title}</h2>
+      {subtitle && (
+        <p className={styles.sectionSubtitle}>{subtitle}</p>
+      )}
     </header>
   );
 }
@@ -157,18 +238,8 @@ function Quote({ body, source }) {
   );
 }
 
-function QuoteWall({ items }) {
-  return (
-    <ul className={styles.quoteWall}>
-      {items.map((it, i) => (
-        <li key={i} className={styles.quoteWallRow}>
-          <span className={styles.quoteWallQuote}>&ldquo;{it.quote}&rdquo;</span>
-          <span className={styles.quoteWallLabel}>{it.label}</span>
-        </li>
-      ))}
-    </ul>
-  );
-}
+/* QuoteWall lives in its own client component because it uses an
+   IntersectionObserver to stagger the row flip-in. See ./QuoteWall.js. */
 
 /* DecisionList — renders an intro paragraph that names each decision
    inline as a SidePanel trigger. The full body of each decision lives
@@ -191,9 +262,92 @@ function DecisionList({ intro, decisions, closer }) {
       <div className={styles.decisionRows}>
         {decisions.map((d) => (
           <div key={d.name} className={styles.decisionRow}>
-            {d.image && (
+            {d.embed ? (
+              /* A decision can opt into a live iframe figure (e.g.
+                 the "Work as the hero" card embeds the home page's
+                 hero on a 12-second loop) instead of the static
+                 dashed placeholder. PrototypeEmbed handles the
+                 same in-view gating + scaling rules as the rest of
+                 the prototype embeds. */
+              <PrototypeEmbed
+                {...d.embed}
+                caption={d.embed.caption || d.image?.caption}
+              />
+            ) : d.image?.src ? (
+              /* Real image (GIF, PNG, JPG) — fills the same imageSlot
+                 frame the dashed placeholder uses, so the layout
+                 doesn't shift between "with art" and "without art"
+                 decisions. GIFs autoplay natively in browsers; no
+                 extra wiring needed. The frame matches the native
+                 export aspect of the source GIFs (2940x1840). */
               <figure className={styles.imagePlaceholder}>
-                <div className={styles.imageSlot} aria-hidden="true" />
+                <div
+                  className={styles.imageSlot}
+                  style={{ aspectRatio: "2940 / 1840" }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={d.image.src}
+                    alt={d.image.alt || d.image.caption || ""}
+                    className={styles.imageMedia}
+                  />
+                </div>
+                {d.image.caption && (
+                  <figcaption className={styles.imageCaption}>{d.image.caption}</figcaption>
+                )}
+              </figure>
+            ) : d.images && d.images.length > 0 ? (
+              /* Image grid — same 2-col vocabulary as the About page
+                 gallery (wide spans both, square forces 1:1, default
+                 is 4:5 portrait). Used when one decision needs to be
+                 carried by a small group of photographs rather than
+                 a single image / gif. */
+              <div className={styles.decisionImageGrid}>
+                {d.images.map((img, i) => {
+                  const cellClass = [
+                    styles.decisionImageCell,
+                    img.wide && styles.decisionImageCellWide,
+                    img.square && styles.decisionImageCellSquare,
+                  ].filter(Boolean).join(" ");
+                  /* Per-image aspect override — when set, takes
+                     priority over the wide/square defaults so a
+                     single cell can be sized off-pattern (e.g.
+                     "make restraint-1 slightly taller"). */
+                  const mountStyle = img.aspect
+                    ? { aspectRatio: img.aspect }
+                    : undefined;
+                  return (
+                    <figure key={img.src || i} className={cellClass}>
+                      <div
+                        className={styles.decisionImageMount}
+                        style={mountStyle}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={img.src}
+                          alt={img.alt || img.caption || ""}
+                          className={styles.imageMedia}
+                          /* Per-image crop anchor — when the image
+                             aspect doesn't match the cell, this
+                             decides which part of the source stays
+                             visible. Defaults to center via CSS. */
+                          style={img.position ? { objectPosition: img.position } : undefined}
+                        />
+                      </div>
+                      {img.caption && (
+                        <figcaption className={styles.imageCaption}>{img.caption}</figcaption>
+                      )}
+                    </figure>
+                  );
+                })}
+              </div>
+            ) : d.image && (
+              <figure className={styles.imagePlaceholder}>
+                <div
+                  className={styles.imageSlot}
+                  style={{ aspectRatio: "2940 / 1840" }}
+                  aria-hidden="true"
+                />
                 {d.image.caption && (
                   <figcaption className={styles.imageCaption}>{d.image.caption}</figcaption>
                 )}
@@ -244,12 +398,95 @@ function StatusList({ items }) {
   );
 }
 
-function ImagePlaceholder({ caption }) {
+function ImagePlaceholder({
+  caption,
+  bleed = false,
+  aspect,
+  backdrop,
+  poster,
+  /* Optional real image inside the slot. When { src } is set the
+     dashed placeholder pattern is suppressed (via the imageSlot's
+     :has(.imageMedia) rule) and the img fills the frame. Used by
+     Nexis+AI to show Q1's first-step prototype poster as the
+     hero "device" inside the MediaPlate. */
+  image,
+  /* `plain: true` opts the bleed image out of the MediaPlate
+     treatment — the slot just fills the bleed track edge-to-edge
+     instead of sitting as a floating device on a sidebar-tall
+     backdrop. Used for the closing image on each project page,
+     which wants to read as a final beat rather than another hero. */
+  plain = false,
+  /* Per-instance height override for bleed (non-plain) hero slots
+     — useful when one hero needs a different device size from
+     the 650px default. Matches the Video component's `height`
+     prop. Ignored when `aspect` is set or when plain/inline. */
+  height,
+}) {
+  /* Plate-wrapped bleed inherits the 650px hero height by default,
+     overridable per-instance via `height`. Plain bleed (no plate)
+     and inline both lean on aspect-ratio sizing so the slot is
+     sized by its content's natural shape rather than a fixed band. */
+  const slotStyle =
+    bleed && !plain && !aspect
+      ? { height: height ?? 650 }
+      : { aspectRatio: aspect ?? "16 / 9" };
+  const slot = image?.src ? (
+    <div className={styles.imageSlot} style={slotStyle}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={image.src}
+        alt={image.alt || caption || ""}
+        className={styles.imageMedia}
+      />
+    </div>
+  ) : (
+    <div
+      className={styles.imageSlot}
+      style={slotStyle}
+      aria-hidden="true"
+    />
+  );
+  if (bleed && !plain) {
+    return (
+      <figure className={`${styles.imagePlaceholder} bleed`}>
+        <MediaPlate backdrop={backdrop} poster={poster}>
+          {slot}
+        </MediaPlate>
+        {caption && <figcaption className={styles.imageCaption}>{caption}</figcaption>}
+      </figure>
+    );
+  }
+  if (bleed) {
+    /* Plain bleed — slot fills the bleed track edge-to-edge with
+       no plate, no horizontal inset. Used for the closing image
+       on each project page. */
+    return (
+      <figure className={`${styles.imagePlaceholder} bleed`}>
+        {slot}
+        {caption && <figcaption className={styles.imageCaption}>{caption}</figcaption>}
+      </figure>
+    );
+  }
   return (
     <figure className={styles.imagePlaceholder}>
-      <div className={styles.imageSlot} aria-hidden="true" />
+      {slot}
       {caption && <figcaption className={styles.imageCaption}>{caption}</figcaption>}
     </figure>
+  );
+}
+
+/* OutcomeNote — small qualitative-win callout that sits beside a
+   prose answer. Used in the Experience section under each Q&A to
+   tip the head to the *user* outcome (no numbers, just the
+   qualitative shift). Uses the same accent-rule + tint vocabulary
+   as the Lede so it reads as a "this is a deliberate aside,"
+   smaller and quieter so it doesn't outweigh the prose itself. */
+function OutcomeNote({ text, label = "User outcome" }) {
+  return (
+    <aside className={styles.outcomeNote} aria-label={label}>
+      <span className={styles.outcomeNoteLabel}>{label}</span>
+      <p className={styles.outcomeNoteText}>{text}</p>
+    </aside>
   );
 }
 
@@ -283,12 +520,33 @@ const RENDERERS = {
   decisionList: DecisionList,
   statusList: StatusList,
   imagePlaceholder: ImagePlaceholder,
+  prototypeEmbed: PrototypeEmbed,
+  video: Video,
+  outcomeNote: OutcomeNote,
   pillarScroll: PillarScroll,
   outcomes: Outcomes,
   orbit: ({ satellites }) => <Orbit satellites={satellites} />,
   layers: ({ problem, value, solution }) => (
     <ProjectLayers compact problem={problem} value={value} solution={solution} />
   ),
+  /* philosophyLayers — the layered rhombus stack repurposed for the
+     philosophy section. Takes 3 pillars + an optional `membrane`
+     (the 4th, wrapping layer). Each pillar/membrane can carry a
+     `deepBody` which becomes the SidePanel content behind a "Read
+     more" link in its slide. */
+  philosophyLayers: ({ pillars = [], membrane }) => (
+    <ProjectLayers
+      problem={pillars[0]}
+      value={pillars[1]}
+      solution={pillars[2]}
+      membrane={membrane}
+    />
+  ),
+  /* philosophyVisuals — bespoke canvas scenes (one per principle)
+     paired with copy in an alternating layout. Used in Nexis+AI to
+     replace the layered-cuboid metaphor with something closer to
+     how each principle actually behaves in the product. */
+  philosophyVisuals: ({ items }) => <PhilosophyVisuals items={items} />,
 };
 
 export default function Narrative({ blocks = [], tokens }) {
@@ -310,12 +568,18 @@ export default function Narrative({ blocks = [], tokens }) {
 }
 
 /* Helper: extract the chapters from a narrative for use in the
-   sidebar TOC. Returns [{ id, label }]. */
+   sidebar TOC. Returns [{ id, label }].
+
+   The label is just the section title — chapter numbers are
+   intentionally omitted from the menu so the sidebar reads as a
+   plain list of section names. The chapter number still shows in
+   the page's section headers themselves (rendered by SectionHeader),
+   but it would feel duplicated to repeat it in the menu. */
 export function narrativeTOC(blocks = []) {
   return blocks
     .filter((b) => b.kind === "sectionHeader")
     .map((b) => ({
       id: slugify(b.title),
-      label: b.chapter ? `${b.chapter} · ${b.title}` : b.title,
+      label: b.title,
     }));
 }

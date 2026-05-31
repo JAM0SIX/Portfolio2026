@@ -1,0 +1,18 @@
+/* PixelTerrain — canvas-driven pixel grid backdrop. Fills its
+   container with a chunky cell grid that drifts slowly between
+   fill states. Designed to sit underneath the footer's content
+   plates as the atmospheric ground that replaces the map photo. */
+
+.terrain {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}

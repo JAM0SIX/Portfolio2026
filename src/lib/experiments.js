@@ -5,15 +5,6 @@
 
 export const EXPERIMENTS = [
   {
-    slug: "metallic",
-    href: "/experiments/metallic",
-    tag: "Shader",
-    title: "Metallic cards",
-    meta: "React · Motion · WebGL",
-    description:
-      "A scroll-pinned 3D Coverflow where each card is a WebGL liquid-metal shader. Scrolling rotates the carousel and the active card's shader animates while in focus.",
-  },
-  {
     slug: "stack",
     href: "/experiments/stack",
     tag: "Interface",

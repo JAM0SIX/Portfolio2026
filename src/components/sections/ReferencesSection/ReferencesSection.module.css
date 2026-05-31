@@ -1,34 +1,195 @@
-/* References — vertical list of "name · role · company · year" rows.
-   On hover or focus, the row reveals its quote inline beneath using
-   the grid-template-rows 0fr → 1fr accordion technique. */
+/* References — folder-tab card stack.
+   ─────────────────────────────────────
+   Five testimonial cards stacked at the same width. Each card
+   has a folder tab protruding above its top edge at a unique
+   horizontal position, so all five tabs line up across the top
+   of the stack like files filed in a sleeve.
+   Cards behind translate UPWARD so their tabs sit above the
+   active card; the active card carries the body content. */
 
 .section {
   margin-top: 240px;
 }
 
-.list {
-  list-style: none;
+/* Stack — adds 60px of internal height so the cards have more
+   room to breathe in their resting/peek positions. */
+.stack {
+  position: relative;
+  padding-top: var(--stack-peek);
+  min-height: 380px;
+  /* Perspective makes the pull-out animation read in 3D — when a
+     card lifts forward (translateZ) and tilts (rotateX) it looks
+     physically pulled toward the viewer rather than just bigger. */
+  perspective: 1400px;
+  perspective-origin: 50% 40%;
+}
+
+/* Every card spans the full stack width — no perspective scaling,
+   no lateral inset. The only thing that varies per card is
+   translateY (depth offset) and z-index (stacking order). */
+/* Card is a passive container — the tab does all the click work.
+   Keeps the body free of click handlers so text inside the
+   active card stays selectable and naturally read-only.
+   Transform is the initial/resting position; the pull-out
+   animation is driven by WAAPI (see ReferencesSection.js) which
+   commits its final keyframe, so further re-renders don't fight
+   the animated state. */
+.card {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   flex-direction: column;
-  border-top: var(--border-default) solid var(--rule);
+  align-items: stretch;
+  text-align: left;
+  /* Asymmetric padding — extra vertical breathing room above and
+     below the quote / meta so the body content sits more
+     comfortably away from the card edges. Horizontal padding
+     stays at space-5. */
+  padding: var(--space-7) var(--space-5);
+  background: var(--paper-deep);
+  /* Card outline: left, right and bottom only — the top border
+     is split into two segments via ::before / ::after so a gap
+     can sit under this card's active tab, letting the tab's
+     bottom edge merge with the card outline at clean L corners.
+     The card has no real `border`, so absolutely-positioned tabs
+     are anchored to the border-box (not padding-box) and align
+     pixel-perfectly with the card edges. */
+  color: inherit;
+  font: inherit;
+  transform: translate3d(0, calc(var(--depth) * var(--stack-offset) * -1), 0);
+  /* Only transition box-shadow and background. The transform is
+     animated imperatively via the Web Animations API so we get a
+     richer pull-out keyframe than CSS transitions can express. */
+  transition:
+    box-shadow var(--dur-base) var(--ease-default),
+    background var(--dur-base) var(--ease-default);
+  box-shadow:
+    inset 1px 0 0 var(--rule),
+    inset -1px 0 0 var(--rule),
+    inset 0 -1px 0 var(--rule),
+    0 1px 2px rgba(0, 0, 0, 0.05);
+}
+/* Top border, split into two pieces around the card's tab slot.
+   ::before draws from the card's left edge to the tab's left edge;
+   ::after picks up at the tab's right edge and runs to the card's
+   right edge. For the first tab (tab-x = 0%) ::before has width 0;
+   for the last tab (tab-x + tab-w = 100%) ::after has width 0. */
+.card::before,
+.card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  height: 1px;
+  background: var(--rule);
+  pointer-events: none;
+}
+.card::before {
+  left: 0;
+  width: var(--tab-x);
+}
+.card::after {
+  left: calc(var(--tab-x) + var(--tab-w));
+  right: 0;
+  /* Each card establishes its own 3D context so rotateX inside
+     the keyframes renders independently per card. */
+  transform-style: preserve-3d;
+  transform-origin: 50% 100%;
+}
+.cardActive {
+  box-shadow:
+    inset 1px 0 0 var(--rule),
+    inset -1px 0 0 var(--rule),
+    inset 0 -1px 0 var(--rule),
+    0 6px 18px rgba(0, 0, 0, 0.12),
+    0 2px 4px rgba(0, 0, 0, 0.06);
+}
+:global([data-theme="onyx"]) .cardActive {
+  box-shadow:
+    inset 1px 0 0 var(--rule),
+    inset -1px 0 0 var(--rule),
+    inset 0 -1px 0 var(--rule),
+    0 6px 18px rgba(0, 0, 0, 0.5),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+}
+/* Focus ring lives on the tab now (it's the interactive element). */
+.tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  z-index: 1;
 }
 
-.row {
-  position: relative;
-  padding: var(--space-4) var(--space-3) var(--space-5);
-  border-bottom: var(--border-default) solid var(--rule);
+/* Folder tab — protrudes ABOVE the card's top edge. Same fill
+   as the card and borders on top/left/right only, so the tab
+   and card outline read as one continuous L-shaped border.
+   The tab's bottom overlaps the card's top edge by 1 px so the
+   filled tab covers the card's top border across the tab's
+   width — leaving the card's top border visible only to the
+   left and right of the tab. */
+.tab {
+  position: absolute;
+  bottom: 100%;
+  /* Tabs sit flush in their slot — no overhang. Each tab takes
+     exactly 1/total of the row width and abuts its neighbours
+     cleanly. */
+  left: var(--tab-x);
+  width: var(--tab-w);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Tab height decoupled from --stack-offset so the cards can
+     stack tightly while tabs stay legible. */
+  height: var(--tab-h);
+  padding: 0 var(--space-3);
+  /* "Borders" drawn as background gradients rather than a real
+     `border`, layered bottom-up:
+       1. top edge       (1 px tall, full width)
+       2. left edge      (1 px wide, anchored top, height = --tab-side-h)
+       3. right edge     (1 px wide, anchored top, height = --tab-side-h)
+       4. solid fill     (--tab-fill)
+     The two side-edge heights are driven by a custom property so
+     each tab can decide whether its left/right border extends to
+     the bottom or stops 1 px short. Default = stops short, so
+     interior tab edges don't visibly poke into the card body.
+     The first tab's LEFT edge and last tab's RIGHT edge override
+     this to full height so they merge cleanly with the card's
+     left/right outline at the corner.
+     The fill is a custom property too so `:hover` only swaps that
+     layer — the border gradients stay intact. */
+  --tab-fill: var(--paper-deep);
+  /* Side borders run full height so they merge with the card
+     outline at clean L corners. The card no longer draws a top
+     border under this tab (split via ::before/::after with a gap
+     at the tab slot), so a full-height side border can't visually
+     "eat" into the card top — there's nothing there to clash with. */
+  background:
+    linear-gradient(var(--rule), var(--rule)) top    left  / 100% 1px no-repeat,
+    linear-gradient(var(--rule), var(--rule)) top    left  / 1px 100% no-repeat,
+    linear-gradient(var(--rule), var(--rule)) top    right / 1px 100% no-repeat,
+    var(--tab-fill);
+  /* Pull the tab down by 1 px so its bottom edge sits inside the
+     card's top-border row — the tab fill covers the 1 px gap
+     between the card's left/right inset shadows so the L-junctions
+     read as a single continuous line. */
+  margin-bottom: -1px;
+  overflow: hidden;
+  /* Tab is the click target — pointer cursor, normal font, no
+     default button chrome (handled by the styles above). */
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  transition: background var(--dur-base) var(--ease-default);
 }
-
-.head {
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr) auto;
-  gap: var(--space-4);
-  align-items: baseline;
+/* Hover swaps only the fill layer (--tab-fill) so the three
+   border gradients above it stay rendered. Setting `background`
+   here would otherwise wipe the whole layered stack. */
+.tab:hover {
+  --tab-fill: color-mix(in srgb, var(--ink) 4%, var(--paper-deep));
 }
-
-.name {
+.tabText {
   font-family: var(--font-sans);
-  font-size: var(--text-md);
+  font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
   color: var(--ink);
   letter-spacing: var(--track-tight);
@@ -37,13 +198,66 @@
   text-overflow: ellipsis;
 }
 
+/* Body — avatar + quote + meta. Visible on the active card only. */
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-base) var(--ease-default);
+}
+/* Square portrait of the person giving the reference. Sits at the
+   top of the body so the reader knows who's speaking before the
+   quote starts. Fixed 64px square with the project's standard
+   panel chrome (paper-deep ground, rule border, square corners). */
+.avatar {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  margin: 0;
+  background: var(--paper-deep);
+  border: 1px solid var(--rule);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* Placeholder initial shown when no `avatar` URL is supplied. Quiet
+   enough that it doesn't compete with the quote, recognisable
+   enough to read as a stand-in face. */
+.avatarInitial {
+  font-family: var(--font-sans);
+  font-size: 22px;
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-tight);
+  color: var(--ink-mute);
+}
+.cardActive .body {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.quote {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: var(--leading-relaxed);
+  color: var(--ink);
+  text-wrap: balance;
+}
+
 .meta {
+  margin: 0;
   font-family: var(--font-sans);
   font-size: var(--text-sm);
   color: var(--ink-mute);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 .role,
 .company { color: var(--ink-soft); }
@@ -51,33 +265,13 @@
   margin: 0 var(--space-2);
   color: var(--ink-faint);
 }
-
-.year {
-  font-family: var(--font-sans);
-  font-size: var(--text-sm);
-  color: var(--ink-mute);
-  font-variant-numeric: tabular-nums;
-}
-
-.quote {
-  margin: var(--space-3) 0 0;
-  font-family: var(--font-sans);
-  font-size: var(--text-sm);
-  line-height: var(--leading-relaxed);
-  color: var(--ink-soft);
-  max-width: 64ch;
-  text-wrap: balance;
-}
+.year { color: var(--ink-mute); font-variant-numeric: tabular-nums; }
 
 @media (max-width: 600px) {
-  .head {
-    grid-template-columns: 1fr auto;
-    grid-template-areas:
-      "name year"
-      "meta meta";
-    row-gap: var(--space-1);
+  .card {
+    padding: var(--space-4);
   }
-  .name { grid-area: name; }
-  .meta { grid-area: meta; }
-  .year { grid-area: year; }
+  .tab { padding: 0 var(--space-2); }
+  .tabText { font-size: var(--text-xs); }
+  .quote { font-size: var(--text-sm); }
 }

@@ -175,19 +175,21 @@
    structural seams against the dark background.
    ──────────────────────────────────────────────────────────────────── */
 [data-theme="onyx"] {
-  /* Accent — same vivid blue as paper theme; bump tint opacities
-     slightly so they still read against the darker onyx surfaces. */
-  --accent:       #1F51FF;
-  --accent-hover: #173FCC;
-  --accent-soft:  rgba(31, 81, 255, 0.22);
-  --accent-tint:  rgba(31, 81, 255, 0.12);
+  /* Accent — brighter electric blue so it carries enough luminance
+     against the dark surface to meet WCAG AA contrast for body links
+     and small UI. */
+  --accent:       #5C8BFF;
+  --accent-hover: #80A4FF;
+  --accent-soft:  rgba(92, 139, 255, 0.28);
+  --accent-tint:  rgba(92, 139, 255, 0.16);
 
-  /* Surfaces — onyx lifts off pure black with a touch of warmth so the
-     dark mode reads as inky midnight rather than void. */
-  --paper:       #16161B;
-  --paper-deep:  #1E1E25;
-  --panel:       #25252E;
-  --tile:        #2C2C36;
+  /* Surfaces — lifted a step so the panel/page reads as soft graphite
+     rather than near-black; gives borders and inset bevels enough
+     luminance separation to register clearly. */
+  --paper:       #1C1C22;
+  --paper-deep:  #26262E;
+  --panel:       #2E2E38;
+  --tile:        #353541;
 
   /* Ink — onyx ink inverts to paper-tone at the same opacity tiers */
   --ink:         #F5F3EE;
@@ -198,9 +200,9 @@
   /* Structural lines — solid raised neutrals, lifted a couple of shades
      above the previous values so they're clearly visible against the
      onyx surface tiers. */
-  --rule:        #3E3E48;
-  --rule-soft:   #2A2A32;
-  --guide:       #4A4A55;
+  --rule:        #525261;
+  --rule-soft:   #3A3A45;
+  --guide:       #5C5C6B;
 
   /* Opacity-named ink in onyx — paper-tone at the same tiers as paper */
   --ink-12: rgba(245, 243, 238, 0.12);

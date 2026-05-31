@@ -3,44 +3,43 @@ slug: philpotpearce
 name: PhilpotPearce
 initial: P
 date: "2024"
-role: "Brand identity & website · Independent consultancy"
+role: "Brand identity & website"
 tags:
-  - Identity
-  - Web
   - Brand
+  - Web design
 blurb: >
   Visual identity and web presence for a creative consultancy — balancing
   editorial craft with a clear, confident voice.
 badge: Shipped
 liveUrl: "#"
-metrics:
-  - ["Lighthouse perf.", "98", "/100"]
-  - ["Pages shipped", "12", ""]
-  - ["CSS exceptions", "0", ""]
 narrative:
   # 01 · Hook
   - kind: hook
     headline: A studio that speaks for itself
+    company:
+      name: PhilpotPearce
+    clients:
+      - name: PhilpotPearce
     scope: >
-      I designed the brand identity and website for PhilpotPearce, an
-      independent product design consultancy in London. The work covered
-      brand strategy, visual identity, information architecture, art
-      direction, and the web design and build. My task was to give a
-      sharp practice a public face that matched the work, with restraint
-      as the loudest signal.
-  - kind: lede
-    paragraphs:
-      - >
-        The goal was to land the studio as a credible practice from the
-        first visit and let the work do the talking from the second
-        click on.
-  - kind: imagePlaceholder
-    caption: Hero image
-  - kind: outcomes
-    items:
-      - ["Lighthouse perf.", "98", "/100"]
-      - ["Pages shipped", "12", ""]
-      - ["CSS exceptions", "0", ""]
+      I designed in collaboration with the founders, guiding them through
+      how users will flow through their space, how visual hierarchy can
+      effectively communicate their message and of course the web design
+      and build.
+  # Hero — looping silent capture of the live philpottpearce.com
+  # site. Sits directly under the first body paragraph (the hook's
+  # scope) so it reads as the visual answer to the question the
+  # scope poses. Poster is the first frame, also used as the
+  # reduced-motion fallback.
+  - kind: video
+    src: /projects/philpotpearce/hero.mov
+    poster: /projects/philpotpearce/hero-poster.png
+    caption: Hero — philpottpearce.com
+    bleed: true
+    # 80px taller than the 650px bleed default — only the device
+    # changes; the plate keeps its sidebar-matched height.
+    height: 730
+    backdrop:
+      src: /projects/philpotpearce/plate-bg.png
 
   # 02 · The problem
   - kind: sectionHeader
@@ -49,74 +48,12 @@ narrative:
   - kind: prose
     paragraphs:
       - >
-        Two co-founders, both senior product designers, were starting a
-        studio with the right work and the wrong shopfront. Their
-        practice was sharp; their public presence was nothing. Without a
-        brand and a site, they were invisible to the clients they
-        wanted and indistinguishable from the agencies they didn't.
-      - >
-        The market was already full of agencies talking loudly about
-        themselves. Any new studio that joined the noise would lose.
-        The opening had to come from somewhere quieter.
-  - kind: imagePlaceholder
-    caption: The problem
-
-  # 03 · The value
+        The founders had recently started their own studio. They didn't
+        know how to successfully pull off a build that could match their
+        identity. They needed a way to stand out from all the noise.
+  # 03 · What I designed
   - kind: sectionHeader
     chapter: "03"
-    title: The value
-  - kind: subsectionHeader
-    title: For the business
-  - kind: prose
-    paragraphs:
-      - >
-        PhilpotPearce launched with a brand the founders could carry
-        into pitches, into press, and into commercial conversations.
-        The site became their primary acquisition channel, designed to
-        filter for clients who valued craft and outcomes over
-        service-list shopping.
-  - kind: subsectionHeader
-    title: For the visitor
-  - kind: prose
-    paragraphs:
-      - >
-        In thirty seconds, a visitor reads the studio's worldview from
-        the navigation alone. From there it's a series of clear,
-        restrained pages that put the work in front of them and step
-        out of the way.
-  - kind: imagePlaceholder
-    caption: The value
-
-  # 04 · Directing the studio's voice
-  - kind: sectionHeader
-    chapter: "04"
-    title: Directing the studio's voice
-  - kind: prose
-    paragraphs:
-      - >
-        Restraint as the brand. Most agencies dress up their
-        identities; PhilpotPearce strips back. Every visual decision,
-        every word on the site, every component had to earn its place.
-        The studio's value proposition is in what they don't do as much
-        as what they do.
-  - kind: subsectionHeader
-    title: Five principles
-  - kind: prose
-    paragraphs:
-      - >
-        The work was anchored by five principles the founders and I
-        argued features in or out against:
-        {{principle:Synonymous brand language}},
-        {{principle:Outcome centric}},
-        {{principle:The golden circle}},
-        {{principle:Less is more}}, and
-        {{principle:Portfolio architecture}}.
-        Each came from how the founders actually wanted the studio to
-        operate, not from how an agency website is supposed to look.
-
-  # 05 · What I designed
-  - kind: sectionHeader
-    chapter: "05"
     title: What I designed
   - kind: prose
     paragraphs:
@@ -127,8 +64,19 @@ narrative:
     decisions:
       - name: Restraint as the brand
         summary: The visual system as a statement of values, not decoration.
-        image:
-          caption: Brand system
+        images:
+          - src: /projects/philpotpearce/restraint-1.png
+            wide: true
+            # Aspect tuned so the wide cell lands ~30px taller than
+            # the default 16:9 at reading-column width (576/354).
+            aspect: 576 / 354
+            alt: Restraint in the brand system — overview frame
+          - src: /projects/philpotpearce/restraint-2.png
+            square: true
+            alt: Restraint in the brand system — square detail
+          - src: /projects/philpotpearce/restraint-3.png
+            square: true
+            alt: Restraint in the brand system — second square detail
         body:
           - >
             Most agencies dress up their identities. PhilpotPearce strips
@@ -141,7 +89,9 @@ narrative:
       - name: Navigation as thesis statement
         summary: The golden circle as information architecture.
         image:
+          src: /projects/philpotpearce/navigation.gif
           caption: IA as thesis
+          alt: Navigation menu following the golden circle structure
         body:
           - >
             Most agency sites lead with a service checklist. We led with
@@ -152,23 +102,28 @@ narrative:
             By the time the visitor reaches the work, they've already
             absorbed the studio's philosophy. The work doesn't have to
             justify itself, it just has to land.
-      - name: Work as the hero
-        summary: Project pages built to showcase, not narrate.
-        image:
-          caption: Work showcase
-        body:
-          - >
-            Project pages are designed as exhibitions. Large imagery,
-            sparing captions, no marketing scaffolding around the work.
-            The visitor's job is to look; the studio's job is to give
-            them something worth looking at.
-          - >
-            This is the moment where the brand has to disappear and the
-            work has to carry the weight.
       - name: Editorial typography
         summary: A single rhythm from hero to component states.
-        image:
-          caption: Type system
+        images:
+          - src: /projects/philpotpearce/editorial-1.png
+            wide: true
+            # ~20px taller than the wide default at reading-column
+            # width (576/344 vs 576/324 for the stock 16:9).
+            aspect: 576 / 344
+            alt: Editorial typography running through the whole site
+          - src: /projects/philpotpearce/editorial-4.png
+            wide: true
+            # Pin the crop to the left edge — the meaningful detail
+            # in this image sits on the left, and the default
+            # centre-anchored object-fit was hiding it.
+            position: left center
+            alt: Editorial typography — second detail
+          - src: /projects/philpotpearce/editorial-6.png
+            wide: true
+            # Anchor the crop to the left so the meaningful detail
+            # stays visible (same fix as editorial-4).
+            position: left center
+            alt: Editorial typography — third detail
         body:
           - >
             One typographic system runs from hero through navigation
@@ -179,40 +134,36 @@ narrative:
             The system was designed so new pages ship without new CSS
             exceptions, which keeps the studio's site as disciplined as
             its work.
+      - name: Work as the hero
+        summary: Project pages built to showcase, not narrate.
+        images:
+          - src: /projects/philpotpearce/work-as-hero.gif
+            wide: true
+            # ~20px taller than the wide default (576/344 vs 576/324).
+            aspect: 576 / 344
+            alt: Project pages designed to put the work first
+          - src: /projects/philpotpearce/work-as-hero-1.png
+            wide: true
+            alt: Project page detail
+        body:
+          - >
+            Project pages are designed as exhibitions. Large imagery,
+            sparing captions, no marketing scaffolding around the work.
+            The visitor's job is to look; the studio's job is to give
+            them something worth looking at.
+          - >
+            This is the moment where the brand has to disappear and the
+            work has to carry the weight.
 
-  # 06 · A decision worth telling
-  - kind: sectionHeader
-    chapter: "06"
-    title: A decision worth telling
-  - kind: prose
-    paragraphs:
-      - >
-        The founders' instinct, like most studios opening a website,
-        was to start with Work / About / Services. I argued the
-        studio's whole positioning would collapse if the navigation
-        looked like every other agency's navigation, no matter how
-        good the work behind it was.
-      - >
-        The golden circle, Why before How before What, gave the IA a
-        thesis. Once the founders saw the first round of pages built
-        on that structure, the conversation moved from "is this
-        navigable" to "this is the studio." The IA became the brand,
-        and the brand became the IA.
+  # Closing image — large, full-bleed-width slot that sits at the
+  # foot of the page just above the global footer. Plain bleed
+  # (no plate / no backdrop) so it reads as a final beat rather
+  # than another hero. Drop an `image: { src }` once the asset
+  # is ready.
   - kind: imagePlaceholder
-    caption: Navigation as thesis
-
-  # 07 · What I'd do differently
-  - kind: sectionHeader
-    chapter: "07"
-    title: What I'd do differently
-  - kind: prose
-    paragraphs:
-      - >
-        I'd have shipped a writing system alongside the visual one.
-        Restraint is a much harder discipline in copy than in design,
-        and a couple of pages where the words drift would undo the
-        work the type and layout do silently. Next time, a tone-of-voice
-        spec sits inside the design system, not next to it.
+    bleed: true
+    plain: true
+    caption: ""
 ---
 
 # PhilpotPearce

@@ -85,7 +85,7 @@ function useActiveSection(sectionIds) {
   return activeId;
 }
 
-function BackToIndex({ to = "/", label = "Index" }) {
+function BackToIndex({ to = "/", label = "Home" }) {
   return (
     <Link href={to} className="sidebar-back" title={`Back to ${label}`}>
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -101,17 +101,28 @@ function BackToIndex({ to = "/", label = "Index" }) {
    Just the back link + the doc title + its TOC sections. The active
    row is whichever section the user is currently reading (scroll-spy),
    falling back to the URL hash on first paint. */
-function DocSidebar({ title, href, sections, hash, backTo = "/", backLabel = "Index" }) {
+function DocSidebar({ title, href, sections, hash, backTo = "/", backLabel = "Home" }) {
   const sectionIds = sections ? sections.map((s) => s.id) : [];
   const spyId = useActiveSection(sectionIds);
   const activeId = spyId || hash;
+  /* Doc-title is active only when no section is currently in view.
+     At the top of the page (before scroll-spy picks up the first
+     section) and after scrolling back above the first section, the
+     project name is highlighted. Once the user scrolls into any
+     section, the doc-title drops back to its resting state and the
+     matching section row picks up the active styling instead. */
+  const titleActive = !activeId;
 
   return (
     <>
       <BackToIndex to={backTo} label={backLabel} />
       <div className="tree">
         <div className="folder-group open">
-          <Link href={href} className="row file active doc-title" title={title}>
+          <Link
+            href={href}
+            className={`row file doc-title${titleActive ? " active" : ""}`}
+            title={title}
+          >
             <span className="chev" />
             <span className="label">{title}</span>
           </Link>
@@ -135,22 +146,41 @@ function DocSidebar({ title, href, sections, hash, backTo = "/", backLabel = "In
   );
 }
 
-/* Default sidebar — the full file tree, flat at the top level. */
-function IndexSidebar({ pathname, projectsOpen, notesOpen, setProjectsOpen, setNotesOpen }) {
+/* Default sidebar — the full file tree, flat at the top level.
+   Used on every page. When the user is on a project / note /
+   experiment, the matching row picks up the active state and the
+   parent folder is highlighted as well; the rest of the menu
+   stays put so the reader keeps the same navigational frame as
+   the landing page. */
+function IndexSidebar({
+  pathname,
+  activeProjectSlug,
+  activeNoteId,
+  isExperimentsRoute,
+  projectsOpen,
+  notesOpen,
+  setProjectsOpen,
+  setNotesOpen,
+}) {
   const isHome = pathname === "/";
   return (
     <div className="tree" id="sidebar-tree">
       <FileRow href="/" label="Home" active={isHome} />
 
       <div className={`folder-group${projectsOpen ? " open" : ""}`}>
+        {/* Folder shows the active state only when (a) a project is
+            the active route AND (b) the folder is collapsed — i.e.
+            the matching child row is hidden. When the folder is
+            open the child row carries the active state on its own,
+            so we don't double-highlight. */}
         <button
           type="button"
-          className="row folder"
+          className={`row folder${activeProjectSlug && !projectsOpen ? " active" : ""}`}
           onClick={() => setProjectsOpen((v) => !v)}
           aria-expanded={projectsOpen}
         >
           <Chev />
-          <span className="label">Projects</span>
+          <span className="label">Work</span>
         </button>
         {/* .children is the grid container (grid-template-rows transitions
             from 0fr to 1fr); .children-list is the single grid row whose
@@ -158,33 +188,50 @@ function IndexSidebar({ pathname, projectsOpen, notesOpen, setProjectsOpen, setN
             collapse without the max-height jank. */}
         <div className="children">
           <div className="children-list">
-            {projects.map((p) => (
-              <FileRow key={p.slug} href={`/${p.slug}`} label={p.name} active={false} />
-            ))}
+            {projects
+              .filter((p) => !p.excludeFromMenu)
+              .map((p) => (
+                <FileRow
+                  key={p.slug}
+                  href={`/${p.slug}`}
+                  label={p.name}
+                  active={p.slug === activeProjectSlug}
+                />
+              ))}
           </div>
         </div>
       </div>
 
       <div className={`folder-group${notesOpen ? " open" : ""}`}>
+        {/* Same single-active-row rule as the Work folder above. */}
         <button
           type="button"
-          className="row folder"
+          className={`row folder${activeNoteId && !notesOpen ? " active" : ""}`}
           onClick={() => setNotesOpen((v) => !v)}
           aria-expanded={notesOpen}
         >
           <Chev />
-          <span className="label">Writing</span>
+          <span className="label">Thoughts</span>
         </button>
         <div className="children">
           <div className="children-list">
             {ARTICLES.map((a) => (
-              <FileRow key={a.id} href={`/reading/${a.id}`} label={a.title} active={false} />
+              <FileRow
+                key={a.id}
+                href={`/reading/${a.id}`}
+                label={a.title}
+                active={a.id === activeNoteId}
+              />
             ))}
           </div>
         </div>
       </div>
 
-      <FileRow href="/experiments" label="Experiments" active={pathname === "/experiments"} />
+      <FileRow
+        href="/experiments"
+        label="Experiments"
+        active={isExperimentsRoute}
+      />
       <FileRow href="/about" label="About" active={pathname === "/about"} />
     </div>
   );
@@ -192,72 +239,54 @@ function IndexSidebar({ pathname, projectsOpen, notesOpen, setProjectsOpen, setN
 
 export default function Sidebar() {
   const pathname = usePathname() || "/";
-  const hash = useHash();
 
+  /* Work out which row should carry the active state. The sidebar
+     itself doesn't change shape — it stays the same global menu on
+     every page — but rows it can match get highlighted. */
   const activeProject = projects.find((p) => pathname === `/${p.slug}`);
   const activeNote =
     pathname.startsWith("/reading/")
       ? ARTICLES.find((a) => a.id === pathname.replace("/reading/", ""))
       : null;
-  const activeExperiment =
-    pathname.startsWith("/experiments/")
-      ? EXPERIMENTS.find((e) => pathname === e.href)
-      : null;
+  const isExperimentsRoute = pathname.startsWith("/experiments");
 
-  const [projectsOpen, setProjectsOpen] = useState(false);
-  const [notesOpen, setNotesOpen] = useState(false);
+  /* Auto-open the folder that contains the active row so the user
+     can see where they are without having to expand the section
+     manually. The user can still toggle these afterwards — folders
+     re-open on navigation rather than locking. */
+  const [projectsOpen, setProjectsOpen] = useState(Boolean(activeProject));
+  const [notesOpen, setNotesOpen] = useState(Boolean(activeNote));
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const inDocMode = Boolean(activeProject || activeNote || activeExperiment);
+  useEffect(() => {
+    if (activeProject) setProjectsOpen(true);
+    if (activeNote) setNotesOpen(true);
+  }, [activeProject, activeNote]);
 
   return (
     <aside className={`sidebar${mobileOpen ? " is-open" : ""}`} aria-label="Navigation">
       <div className="sidebar-inner">
-      <div className="sidebar-header">
-        <LogoMark />
-        <button
-          type="button"
-          className="sidebar-header__slot"
-          aria-label="Toggle navigation"
-          aria-expanded={mobileOpen}
-          onClick={() => setMobileOpen((v) => !v)}
-        />
-      </div>
+        <div className="sidebar-header">
+          <LogoMark />
+          <button
+            type="button"
+            className="sidebar-header__slot"
+            aria-label="Toggle navigation"
+            aria-expanded={mobileOpen}
+            onClick={() => setMobileOpen((v) => !v)}
+          />
+        </div>
 
-      {inDocMode ? (
-        activeProject ? (
-          <DocSidebar
-            title={activeProject.name}
-            href={`/${activeProject.slug}`}
-            sections={activeProject.sections}
-            hash={hash}
-          />
-        ) : activeNote ? (
-          <DocSidebar
-            title={activeNote.title}
-            href={`/reading/${activeNote.id}`}
-            sections={activeNote.sections}
-            hash={hash}
-          />
-        ) : (
-          <DocSidebar
-            title={activeExperiment.title}
-            href={activeExperiment.href}
-            sections={null}
-            hash={hash}
-            backTo="/experiments"
-            backLabel="Experiments"
-          />
-        )
-      ) : (
         <IndexSidebar
           pathname={pathname}
+          activeProjectSlug={activeProject?.slug || null}
+          activeNoteId={activeNote?.id || null}
+          isExperimentsRoute={isExperimentsRoute}
           projectsOpen={projectsOpen}
           notesOpen={notesOpen}
           setProjectsOpen={setProjectsOpen}
           setNotesOpen={setNotesOpen}
         />
-      )}
       </div>
     </aside>
   );

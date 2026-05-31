@@ -12,6 +12,14 @@
    during the scramble. Aria-label carries the real text for screen
    readers; the visible span tree is aria-hidden.
 
+   "Once per session" behaviour: each piece of text only animates on
+   its first appearance in a tab session. Navigating away and back
+   shows the heading already settled — the animation reads as page-
+   arrival flair the first time you encounter a heading, not a
+   recurring intro every time you revisit. Persisted in
+   sessionStorage so it survives both client-side route changes and
+   full-page refreshes within the same tab.
+
    Tunables (all in ms unless noted):
      duration — how long each character scrambles before settling.
      stagger  — delay added per character index (left-to-right wave).
@@ -23,6 +31,36 @@ import { useEffect, useState } from "react";
 
 const DEFAULT_POOL =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*?";
+
+/* Session-scoped store of every text that has finished animating in
+   this tab. Read once at module load from sessionStorage; the
+   in-memory Set keeps lookups O(1) and writes flush back to storage
+   so a refresh doesn't replay every heading. Memory-only fallback
+   if storage is unavailable (private browsing on some Safari builds). */
+const SEEN_KEY = "harrys-scrambled-seen";
+const seenTexts = (() => {
+  if (typeof window === "undefined") return new Set();
+  try {
+    const raw = window.sessionStorage.getItem(SEEN_KEY);
+    return new Set(raw ? JSON.parse(raw) : []);
+  } catch {
+    return new Set();
+  }
+})();
+function markSeen(text) {
+  if (seenTexts.has(text)) return;
+  seenTexts.add(text);
+  if (typeof window === "undefined") return;
+  try {
+    window.sessionStorage.setItem(
+      SEEN_KEY,
+      JSON.stringify(Array.from(seenTexts)),
+    );
+  } catch {
+    /* Storage quota / disabled — fine, the in-memory Set still works
+       for the rest of the session. */
+  }
+}
 
 export default function ScrambleText({
   text,
@@ -44,6 +82,11 @@ export default function ScrambleText({
   const [chars, setChars] = useState(() => text.split(""));
 
   useEffect(() => {
+    /* Skip the animation if this exact text has already animated
+       in this tab session. The initial state already matches the
+       target text so the heading just renders as-is. */
+    if (seenTexts.has(text)) return;
+
     const target = text.split("");
 
     /* Pick ONE random glyph per slot up-front, then schedule per-
@@ -70,8 +113,15 @@ export default function ScrambleText({
       }, settleAt);
     });
 
+    /* Mark the text as seen once the last character has settled —
+       not on mount — so a quick mid-animation navigation doesn't
+       cheat the next visit out of its animation. */
+    const finalSettleAt = (target.length - 1) * stagger + duration;
+    const seenTimer = setTimeout(() => markSeen(text), finalSettleAt);
+
     return () => {
       timers.forEach((t) => t && clearTimeout(t));
+      clearTimeout(seenTimer);
     };
   }, [text, duration, stagger, pool]);
 

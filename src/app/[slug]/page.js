@@ -87,7 +87,6 @@ export default async function CaseStudyPage({ params }) {
           <div className="case-study__meta">
             <dl><dt>Role</dt><dd>{p.role}</dd></dl>
             <dl><dt>Year</dt><dd>{p.date}</dd></dl>
-            <dl><dt>Tags</dt><dd>{p.tags.join(" · ")}</dd></dl>
           </div>
           <Narrative blocks={p.narrative} tokens={p.tokens} />
         </article>
@@ -105,7 +104,6 @@ export default async function CaseStudyPage({ params }) {
         <div className="case-study__meta">
           <dl><dt>Role</dt><dd>{p.role}</dd></dl>
           <dl><dt>Year</dt><dd>{p.date}</dd></dl>
-          <dl><dt>Tags</dt><dd>{p.tags.join(" · ")}</dd></dl>
         </div>
 
         {outcomes.length > 0 && (

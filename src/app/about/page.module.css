@@ -1,0 +1,271 @@
+/* About page — scoped styles.
+   Two main blocks:
+     1. .letter   — a paper card resembling a physical letter
+     2. .gallery  — a mixed-size photo grid below */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 160px;
+  padding: 64px 0 120px;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   LETTER
+   ──────────────────────────────────────────────────────────────
+   Warm cream paper card centred in the column. Soft drop shadow
+   + a half-degree tilt makes it sit like a real letter dropped on
+   a desk. The signature sits italic and right-aligned beneath the
+   body, and a polaroid-style photo of me is tucked at the bottom
+   with its own slight counter-tilt to read as "attached after
+   signing".
+   ────────────────────────────────────────────────────────────── */
+
+.letter {
+  position: relative;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 56px 56px 48px;
+  /* White card in light mode, paper-deep (theme-aware) in dark
+     mode. Same border + shadow recipe as the left sidebar:
+     1px rule border, inset top highlight + bottom shadow for
+     the moulded-plastic bevel, soft outer drop shadow pair. */
+  background: #ffffff;
+  color: var(--ink);
+  border: 1px solid var(--rule);
+  transform: rotate(-0.5deg);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.08),
+    0 3px 10px rgba(0, 0, 0, 0.10),
+    0 1px 2px rgba(0, 0, 0, 0.06);
+}
+/* Dark-mode: theme-aware paper-deep fill, drop the bright top
+   inset (which would read as a stark line) and deepen the cast
+   shadows. Mirrors the sidebar's onyx treatment. */
+:global([data-theme="onyx"]) .letter {
+  background: var(--paper-deep);
+  box-shadow:
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3),
+    0 3px 10px rgba(0, 0, 0, 0.4),
+    0 1px 2px rgba(0, 0, 0, 0.25);
+}
+/* The signature SVG is drawn with black strokes — invert it in
+   dark mode so it reads as white on the dark card. */
+:global([data-theme="onyx"]) .signatureImg {
+  filter: invert(1);
+}
+
+.letterHeader {
+  margin: 0 0 32px;
+  font-family: var(--font-sans);
+  font-size: clamp(1.6rem, 3vw, 2.25rem);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-tight);
+  line-height: var(--leading-snug);
+  text-wrap: balance;
+}
+
+.letterBody {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: var(--leading-relaxed);
+  max-width: 52ch;
+}
+
+/* Sign-off row: typed name / role / signature on the left,
+   polaroid photo on the right. `justify-content: space-between`
+   pushes the photo to the far right while the signature block
+   anchors at the left of the letter body. */
+.signoff {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  margin-top: 36px;
+}
+.signatureBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+.signatureName {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-tight);
+  color: var(--ink);
+  line-height: var(--leading-snug);
+}
+.signatureRole {
+  margin: 0 0 6px;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+  line-height: var(--leading-snug);
+}
+/* Smaller signature again — sits left-aligned underneath the
+   typed name and role like a real letter sign-off. */
+.signatureImg {
+  display: block;
+  height: auto;
+  width: clamp(48px, 5vw, 64px);
+}
+
+/* Polaroid-style photo. Wrapped in a white frame with a thin
+   photo inside; slight counter-tilt so it reads as someone
+   tucked it in. Now sits inside .signoff (no margin needed;
+   the flex parent handles positioning). */
+.photoFrame {
+  display: inline-block;
+  margin: 0;
+  padding: 12px 12px 40px;
+  background: #ffffff;
+  /* Tilt opposite to the letter so the photo doesn't read as
+     mounted flat against the page. */
+  transform: rotate(1.4deg);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.08),
+    0 8px 18px rgba(0, 0, 0, 0.16);
+}
+.photoSlot {
+  /* Position relative so the Next.js <Image fill> inside renders
+     correctly. The dashed-pattern background remains as a
+     loading fallback in case the headshot fails to fetch. */
+  position: relative;
+  display: block;
+  width: 170px;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      var(--paper-deep) 0 8px,
+      transparent 8px 16px
+    ),
+    var(--paper);
+}
+/* Zoom the headshot into its slot — `object-fit: cover` already
+   crops to the slot's 4:5 portrait, the scale pushes the subject
+   closer so we read the face, not the wider scene. overflow:hidden
+   on the slot above clips the extra. */
+.photoSlot img {
+  transform: scale(1.6875);
+}
+
+/* ──────────────────────────────────────────────────────────────
+   PHOTO GALLERY
+   ──────────────────────────────────────────────────────────────
+   Below the letter: a mixed-size grid of photos that "resemble"
+   me. Two columns at desktop, single column at mobile. Some
+   photos span both columns to break up the rhythm.
+   ────────────────────────────────────────────────────────────── */
+
+.gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+}
+.galleryHead {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 56ch;
+}
+.galleryTitle {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: clamp(1.4rem, 2.6vw, 2rem);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-tight);
+  color: var(--ink);
+}
+.galleryDeck {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: var(--leading-relaxed);
+  color: var(--ink-soft);
+  text-wrap: balance;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+/* Wide cells span both columns — used sparingly to break the
+   regular 2-column rhythm. */
+.cellWide { grid-column: 1 / -1; }
+
+.cell {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cellImage {
+  /* Position relative for Next.js <Image fill>. Dashed border +
+     pattern fall through as a loading state. */
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      var(--paper-deep) 0 8px,
+      transparent 8px 16px
+    ),
+    var(--paper);
+  border: var(--border-default) solid var(--rule);
+}
+.cellWide .cellImage {
+  aspect-ratio: 16 / 9;
+}
+/* Square variant overrides BOTH the default 4:5 and the wide
+   16:9. Applied alongside .cellWide gives a full-row square. */
+.cellSquare .cellImage,
+.cellWide.cellSquare .cellImage {
+  aspect-ratio: 1 / 1;
+}
+
+/* Subsection heading inside the gallery grid — spans both
+   columns and introduces a themed group of photos. Sized down
+   from the main .galleryTitle so it reads as a sub-tier; top
+   margin gives clear separation from the preceding row. */
+.subheading {
+  grid-column: 1 / -1;
+  margin: 24px 0 0;
+  font-family: var(--font-sans);
+  font-size: clamp(1.1rem, 1.8vw, 1.4rem);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-tight);
+  color: var(--ink);
+}
+.cellCaption {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+  color: var(--ink-mute);
+}
+
+@media (max-width: 720px) {
+  .letter {
+    padding: 36px 28px 32px;
+  }
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .cellWide {
+    grid-column: auto;
+  }
+  .cellWide .cellImage {
+    aspect-ratio: 4 / 3;
+  }
+}

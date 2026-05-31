@@ -1,48 +1,305 @@
-/* BookLog — "My Notes" section.
-   2×3 grid of note covers (max 200px wide each). Each links to /reading/[id]. */
+"use client";
+
+/* BookLog — "My thoughts" section.
+   ─────────────────────────────────
+   Stacked list of articles, one row per piece. Each row carries
+   a unique dot-matrix sigil + title + date. Hovering a row pops
+   a floating description tooltip that tracks the cursor; the
+   row itself is the full-bleed link into /reading/[id]. */
 
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { ARTICLES } from "./articles";
-import Cover from "./Cover";
 import styles from "./BookLogCarousel.module.css";
 
-/* Deterministic pseudo-random tilt from the article id. Same input
-   always returns the same output, so SSR and client agree. Range is
-   roughly -2.5deg to +2.5deg. */
-function tiltFor(id) {
-  let h = 2166136261;
-  for (let i = 0; i < id.length; i++) {
-    h ^= id.charCodeAt(i);
-    h = Math.imul(h, 16777619);
+/* ── Animated dot matrix ───────────────────────────────────────
+   5×5 grid of dots that loops through a sequence of frames. Every
+   article gets a different animation from ANIMATIONS below (cross
+   pulse, diagonal sweep, horizontal scan, cluster, perimeter
+   spinner). All dots are always drawn — "on" cells render at
+   full opacity, "off" cells at 0.2 — and the opacity transitions
+   smoothly between frames so the pattern reads as motion rather
+   than a hard cut. */
+
+/* Tiny frame parser: takes a string of 0s and 1s (whitespace
+   ignored) and returns a flat 25-cell array. Lets the animation
+   sequences below stay readable line-by-line. */
+function f(s) {
+  return s.replace(/\s/g, "").split("").map((c) => (c === "1" ? 1 : 0));
+}
+
+/* Five animations, one per article. Each is an array of frames
+   (each frame is a 5×5 grid expressed as 25 zeroes and ones).
+   The component cycles through frames at a steady interval. */
+const ANIMATIONS = [
+  // 0 — Rising X: a 5-row "X" shape travels up one row per
+  // frame and exits the top of the grid; another X enters from
+  // the bottom on the next cycle. Xs are spaced exactly 5 rows
+  // apart (the grid height + 0 gap) so the flow is seamless —
+  // as one X's row 4 leaves the top, the next X's row 0 is
+  // exactly entering at the bottom. The animation is naturally
+  // a 5-frame cycle: a 6th frame would just be frame 0 again.
+  // 5 frames × 150 ms = 750 ms per full pass.
+  [
+    f("10001 01010 00100 01010 10001"),
+    f("01010 00100 01010 10001 10001"),
+    f("00100 01010 10001 10001 01010"),
+    f("01010 10001 10001 01010 00100"),
+    f("10001 10001 01010 00100 01010"),
+  ],
+  // 1 — Diagonal sweep: a full diagonal line travels across the
+  // grid one cell at a time. 9 frames of motion + 1 rest = 10.
+  [
+    f("10000 00000 00000 00000 00000"),
+    f("01000 10000 00000 00000 00000"),
+    f("00100 01000 10000 00000 00000"),
+    f("00010 00100 01000 10000 00000"),
+    f("00001 00010 00100 01000 10000"),
+    f("00000 00001 00010 00100 01000"),
+    f("00000 00000 00001 00010 00100"),
+    f("00000 00000 00000 00001 00010"),
+    f("00000 00000 00000 00000 00001"),
+    f("00000 00000 00000 00000 00000"),
+  ],
+  // 2 — Staggered wave: one dot per column, each oscillating
+  // vertically at the same 10-frame period but with a phase
+  // offset of π/4 between adjacent columns. The result is a
+  // travelling wave — neighbouring columns reach their peak
+  // (top) and trough (bottom) at slightly different times, so
+  // the dots trace a sinusoidal curve that ripples across the
+  // grid rather than all bobbing in unison.
+  //   row[c] = round(2 + 2 · sin(frame · 2π/10 + c · π/4))
+  [
+    f("00000 00000 10001 01010 00100"),  // V shape, peak at bottom
+    f("00000 00001 00010 10000 01100"),
+    f("00001 00010 00100 00000 11000"),
+    f("00011 00100 00000 01000 10000"),
+    f("00110 00001 01000 10000 00000"),
+    f("00100 01010 10001 00000 00000"),  // V shape, peak at top
+    f("01100 10000 00010 00001 00000"),
+    f("11000 00000 00100 00010 00001"),
+    f("10000 01000 00000 00100 00011"),
+    f("00000 10000 01000 00001 00110"),
+  ],
+  // 3 — Droplet ripple: a wave expands outward from the centre
+  // through three discrete rings — centre dot → inner 3×3 ring
+  // → outer 5×5 perimeter ring — then rests before the next
+  // drop. Each ring is held for 3 frames so the CSS opacity
+  // transition (~660 ms) has time to bring it close to full
+  // brightness before the next ring takes over. The previous
+  // ring continues fading via the transition as the new one
+  // lights up, producing the soft expanding-wave trail.
+  [
+    f("00000 00000 00100 00000 00000"),  // 0: centre
+    f("00000 00000 00100 00000 00000"),  // 1: centre (hold)
+    f("00000 00000 00100 00000 00000"),  // 2: centre (hold)
+    f("00000 01110 01010 01110 00000"),  // 3: inner ring
+    f("00000 01110 01010 01110 00000"),  // 4: inner ring (hold)
+    f("00000 01110 01010 01110 00000"),  // 5: inner ring (hold)
+    f("11111 10001 10001 10001 11111"),  // 6: outer ring
+    f("11111 10001 10001 10001 11111"),  // 7: outer ring (hold)
+    f("11111 10001 10001 10001 11111"),  // 8: outer ring (hold)
+    f("00000 00000 00000 00000 00000"),  // 9: rest (ripple fades)
+  ],
+  // 4 — Snake: a 3-segment serpent winds up and down each column
+  // — down col 0, up col 1, down col 2, up col 3, down col 4 —
+  // covering all 25 cells over a 25-frame cycle. The 3 explicitly
+  // lit cells (head + 2 body segments) appear at full opacity;
+  // further behind, the cells fade out smoothly via the long
+  // CSS opacity transition, so the visible body extends past the
+  // 3 explicit segments as a soft trailing tail.
+  (() => {
+    const path = [
+      [0, 0], [0, 1], [0, 2], [0, 3], [0, 4],
+      [1, 4], [1, 3], [1, 2], [1, 1], [1, 0],
+      [2, 0], [2, 1], [2, 2], [2, 3], [2, 4],
+      [3, 4], [3, 3], [3, 2], [3, 1], [3, 0],
+      [4, 0], [4, 1], [4, 2], [4, 3], [4, 4],
+    ];
+    const BODY = 3;
+    return path.map((_, i) => {
+      const cells = new Array(25).fill(0);
+      for (let b = 0; b < BODY; b++) {
+        const idx = (i - b + path.length) % path.length;
+        const [c, r] = path[idx];
+        cells[r * 5 + c] = 1;
+      }
+      return cells;
+    });
+  })(),
+];
+
+/* Frame duration is intentionally short and the CSS opacity
+   transition (in BookLogCarousel.module.css) is intentionally
+   long — that mismatch is what gives the matrix its motion. A
+   dot that was lit in frame N starts fading toward its off
+   opacity the moment frame N+1 promotes it to "off", and the
+   long transition stretches that fade across several frames.
+   Moving patterns naturally leave a smooth comet-tail trail; the
+   pulse animation breathes in and out. No explicit trail logic
+   in JS — the browser's interpolation does it all. */
+const FRAME_DURATION = 150;
+const OFF_OPACITY = 0.15;
+
+function DotMatrix({ animation = 0, startFrame = 0, size = 5, cell = 6, dot = 2 }) {
+  const frames = ANIMATIONS[animation % ANIMATIONS.length];
+  const [frameIdx, setFrameIdx] = useState(startFrame % frames.length);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setFrameIdx((i) => (i + 1) % frames.length);
+    }, FRAME_DURATION);
+    return () => clearInterval(id);
+  }, [frames.length]);
+
+  /* Guard against a stale frameIdx that's out-of-range for the
+     current frames array — can happen briefly during dev HMR
+     when an animation's frame count shrinks, or on the first
+     render after a prop change before the effect resets state. */
+  const current = frames[frameIdx % frames.length] || frames[0];
+  const px = size * cell;
+  const dots = [];
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      const i = r * size + c;
+      const on = current[i] === 1;
+      dots.push(
+        <circle
+          key={i}
+          cx={c * cell + cell / 2}
+          cy={r * cell + cell / 2}
+          r={dot}
+          fill="currentColor"
+          style={{ opacity: on ? 1 : OFF_OPACITY }}
+        />
+      );
+    }
   }
-  const t = ((h >>> 0) % 1000) / 1000;
-  return (t * 5 - 2.5).toFixed(2);
+
+  return (
+    <svg
+      className={styles.matrix}
+      viewBox={`0 0 ${px} ${px}`}
+      width={px}
+      height={px}
+      aria-hidden="true"
+    >
+      {dots}
+    </svg>
+  );
 }
 
 export default function BookLogCarousel() {
   const total = ARTICLES.length;
+  const [hoveredId, setHoveredId] = useState(null);
+  const tooltipRef = useRef(null);
+  const rafRef = useRef(0);
+  const pendingRef = useRef({ x: 0, y: 0 });
+
+  /* Mouse-follower. We track the latest pointer position in a ref
+     and apply it to the tooltip via direct style writes inside an
+     rAF tick — no React re-renders during cursor movement, only
+     when the hovered article changes. The tooltip is offset down
+     and to the right of the cursor so it doesn't sit under the
+     pointer itself, and clamped to the viewport so it never falls
+     off the right edge of the screen. */
+  useEffect(() => {
+    if (!hoveredId) return;
+
+    const apply = () => {
+      const el = tooltipRef.current;
+      if (!el) return;
+      const { x, y } = pendingRef.current;
+      const tw = el.offsetWidth;
+      const th = el.offsetHeight;
+      const margin = 16;
+      let left = x + 18;
+      let top = y + 18;
+      if (left + tw + margin > window.innerWidth) {
+        /* Flip to the left of the cursor if the tooltip would
+           overflow the viewport on the right. */
+        left = x - tw - 18;
+      }
+      if (top + th + margin > window.innerHeight) {
+        top = y - th - 18;
+      }
+      el.style.transform = `translate(${left}px, ${top}px)`;
+      rafRef.current = 0;
+    };
+
+    const onMove = (e) => {
+      pendingRef.current = { x: e.clientX, y: e.clientY };
+      if (!rafRef.current) rafRef.current = requestAnimationFrame(apply);
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+
+    /* Seed an initial position so the tooltip lands at the cursor
+       on first paint of the hovered article, not at (0,0). */
+    apply();
+
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = 0;
+    };
+  }, [hoveredId]);
+
+  const hovered = hoveredId ? ARTICLES.find((a) => a.id === hoveredId) : null;
 
   return (
-    <div className={styles.root}>
+    <section className={styles.root} aria-label="My thoughts">
       <div className="section__head">
         <span className="section__label">My thoughts</span>
         <span className="section__rule" aria-hidden="true" />
         <span className="section__count">{total} articles</span>
       </div>
 
-      <nav className={styles.bookGrid} aria-label="Reading notes">
-        {ARTICLES.map((a) => (
-          <Link
-            key={a.id}
-            href={`/reading/${a.id}`}
-            className={styles.bookGridLink}
-            style={{ "--book-tilt": `${tiltFor(a.id)}deg` }}
-            aria-label={`${a.title} by ${a.author}`}
-          >
-            <Cover article={a} />
-          </Link>
+      <ul className={styles.list}>
+        {ARTICLES.map((a, i) => (
+          <li key={a.id} className={styles.row}>
+            <Link
+              href={`/reading/${a.id}`}
+              className={styles.link}
+              aria-label={`${a.title} — ${a.subtitle || ""}`.trim()}
+              onPointerEnter={(e) => {
+                pendingRef.current = { x: e.clientX, y: e.clientY };
+                setHoveredId(a.id);
+              }}
+              onPointerLeave={() => setHoveredId(null)}
+              onFocus={() => setHoveredId(a.id)}
+              onBlur={() => setHoveredId(null)}
+            >
+              <div className={styles.matrixWrap}>
+                {/* Each article gets one of the five animations.
+                    startFrame=i staggers their phases so the row
+                    of matrices doesn't blink in unison. */}
+                <DotMatrix animation={i} startFrame={i} />
+              </div>
+              <div className={styles.body}>
+                <div className={styles.head}>
+                  <span className={styles.title}>{a.title}</span>
+                  <span className={styles.date}>{a.date}</span>
+                </div>
+              </div>
+            </Link>
+          </li>
         ))}
-      </nav>
-    </div>
+      </ul>
+
+      {/* Floating description tooltip. Mounted in the DOM only when
+          an article row is being hovered/focused; its absolute
+          position is updated via direct transform writes inside an
+          rAF tick so cursor tracking stays smooth. */}
+      {hovered && (
+        <div
+          ref={tooltipRef}
+          className={styles.tooltip}
+          role="tooltip"
+          aria-hidden="true"
+        >
+          {hovered.subtitle || hovered.excerpt}
+        </div>
+      )}
+    </section>
   );
 }

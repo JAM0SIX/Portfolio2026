@@ -19,7 +19,7 @@ export const metadata = {
 
 // Inline boot script: read the stored theme and write it to <html> before
 // React hydrates, so there's no light/dark flash on first paint.
-const themeBootScript = `(function(){try{var t=localStorage.getItem('harrys-theme');if(t!=='onyx'&&t!=='paper')t='paper';document.documentElement.dataset.theme=t;}catch(e){document.documentElement.dataset.theme='paper';}})();`;
+const themeBootScript = `(function(){try{var t=localStorage.getItem('harrys-theme');if(t!=='onyx'&&t!=='paper')t='paper';document.documentElement.dataset.theme=t;var s=location.search;if(s.indexOf('embed=1')!==-1)document.documentElement.dataset.embed='1';if(s.indexOf('hero=1')!==-1)document.documentElement.dataset.hero='1';}catch(e){document.documentElement.dataset.theme='paper';}})();`;
 
 export default function RootLayout({ children }) {
   return (

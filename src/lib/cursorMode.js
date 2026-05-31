@@ -6,7 +6,10 @@
    choice across reloads. */
 
 const KEY = "harrys-cursor-mode";
-export const CURSOR_MODES = ["dot", "plus", "off"];
+/* Mode order matters — it's also the cycle order for the
+   CursorToggle button. Adding a mode here automatically adds it to
+   the cycle and to the persisted-value allowlist. */
+export const CURSOR_MODES = ["dot", "plus", "tick", "off"];
 const DEFAULT_MODE = "dot";
 
 const listeners = new Set();

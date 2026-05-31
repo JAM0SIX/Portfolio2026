@@ -1,6 +1,7 @@
 import Link from "next/link";
 import styles from "./page.module.css";
 import { EXPERIMENTS as EXPERIMENT_META } from "@/lib/experiments";
+import LivePreview from "./LivePreview";
 
 export const metadata = {
   title: "Experiments — Harry Spawforth",
@@ -265,38 +266,16 @@ export default function ExperimentsPage() {
 
         <ul className={styles.list}>
           {EXPERIMENTS.map((e) => {
-            const Thumb = e.Thumbnail;
             return (
               <li key={e.href}>
                 <Link href={e.href} className={styles.entry}>
                   <div className={styles.entryGrid}>
-                    <div className={styles.thumb} aria-hidden="true">
-                      <Thumb />
-                    </div>
+                    <LivePreview slug={e.slug} />
                     <div className={styles.entryBody}>
                       <div className={styles.entryHead}>
-                        <span className={styles.entryTag}>{e.tag}</span>
                         <h2 className={styles.entryTitle}>{e.title}</h2>
                         {e.meta && <span className={styles.entryMeta}>{e.meta}</span>}
                       </div>
-                      <p className={styles.entryDesc}>{e.description}</p>
-                      <span className={styles.entryArrow}>
-                        Open experiment
-                        <svg
-                          viewBox="0 0 16 16"
-                          width="12"
-                          height="12"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.8"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          aria-hidden="true"
-                        >
-                          <line x1="3" y1="8" x2="13" y2="8" />
-                          <polyline points="9 4 13 8 9 12" />
-                        </svg>
-                      </span>
                     </div>
                   </div>
                 </Link>
