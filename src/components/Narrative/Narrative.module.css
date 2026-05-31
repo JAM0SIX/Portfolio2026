@@ -527,14 +527,18 @@
    between the image's aspect and the device's aspect becomes
    letterboxing, with the plate backdrop (or page background)
    showing through. */
-.imagePlaceholder.bleed .imageMedia {
+/* `:global(.bleed)` because `bleed` is the global hook class
+   added by the figure JSX, not a module-scoped class. Without
+   the :global wrapper CSS Modules rewrote the selector to a
+   private class name that never matched. */
+.imagePlaceholder:global(.bleed) .imageMedia {
   object-fit: contain;
 }
 /* Drop the slot's solid fill when a real bleed image is inside,
    so the letterbox bars show the backdrop (e.g. Nexis+AI's
    Unicorn shader, PP's blurred architectural image) rather than
    a paper-deep panel. */
-.imagePlaceholder.bleed .imageSlot:has(.imageMedia) {
+.imagePlaceholder:global(.bleed) .imageSlot:has(.imageMedia) {
   background: transparent;
   border: 0;
 }

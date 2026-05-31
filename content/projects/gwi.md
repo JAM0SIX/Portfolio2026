@@ -71,11 +71,17 @@ narrative:
   - kind: imagePlaceholder
     caption: Hero image
     bleed: true
-    # Match the PhilpotPearce hero device size.
-    height: 770
+    # Device aspect matches the source PNG (7156 × 4712 ≈ 1.52)
+    # so the image fills the frame exactly with no letterbox.
+    aspect: 7156 / 4712
     image:
       src: /projects/gwi/hero.png
       alt: GWI homepage with the agentic draw concept
+    backdrop:
+      src: /projects/gwi/plate-bg.jpg
+      # PP keeps the soft blur on its plate; GWI shows the glass
+      # photograph crisp instead.
+      blur: false
 
   - kind: lede
     paragraphs:
@@ -132,8 +138,6 @@ narrative:
       things to remember… the fact that everything lives in a different
       place is really frustrating.
     source: Research operator, GWI
-  - kind: imagePlaceholder
-    caption: Quote wall screenshot
   - kind: quoteWall
     items:
       - quote: Everything lives in a different place

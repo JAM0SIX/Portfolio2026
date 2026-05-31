@@ -389,8 +389,9 @@ const nexisNarrative = [
     kind: "imagePlaceholder",
     caption: "Hero image",
     bleed: true,
-    /* Match the PhilpotPearce hero device size. */
-    height: 770,
+    /* Device aspect matches the Q2 poster (1440 × 1080 = 4:3)
+       so the image fills the frame with no letterbox. */
+    aspect: "1440 / 1080",
     image: {
       src: "/prototypes/q2-elaboration/poster.png",
       alt: "Nexis+AI response page — Chevron capital expenditure briefing",
