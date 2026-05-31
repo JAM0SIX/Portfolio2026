@@ -17,7 +17,7 @@ export const ARTICLES = [
     subtitle: "On the long arc of finishing what you start",
     author: "Marguerite Vale",
     issue: "VOL.07 / ISSUE 04",
-    date: "2026.04.18",
+    date: "Apr, 2026",
     readtime: "11 MIN",
     section: "ESSAY",
     excerpt:
@@ -43,7 +43,7 @@ export const ARTICLES = [
     subtitle: "Why the second pass is the only one that matters",
     author: "Idris Okafor",
     issue: "VOL.07 / ISSUE 04",
-    date: "2026.04.11",
+    date: "Apr, 2026",
     readtime: "08 MIN",
     section: "FIELD NOTES",
     excerpt:
@@ -67,7 +67,7 @@ export const ARTICLES = [
     subtitle: "What the book remembers that you forgot",
     author: "Helena Crisp",
     issue: "VOL.07 / ISSUE 03",
-    date: "2026.03.27",
+    date: "Mar, 2026",
     readtime: "14 MIN",
     section: "LONGFORM",
     excerpt:
@@ -92,7 +92,7 @@ export const ARTICLES = [
     subtitle: "Where friction does its quiet work",
     author: "Tomás Reinhard",
     issue: "VOL.07 / ISSUE 03",
-    date: "2026.03.14",
+    date: "Mar, 2026",
     readtime: "09 MIN",
     section: "ARGUMENT",
     excerpt:
@@ -117,7 +117,7 @@ export const ARTICLES = [
     subtitle: "What our shelves say when no one is reading them",
     author: "Saoirse Lin",
     issue: "VOL.07 / ISSUE 02",
-    date: "2026.02.28",
+    date: "Feb, 2026",
     readtime: "06 MIN",
     section: "ESSAY",
     excerpt:

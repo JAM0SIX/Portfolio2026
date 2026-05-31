@@ -691,6 +691,10 @@ function makeHelix() {
    Takes an array of { variant, eyebrow, title, body, label } items
    and lays them out in alternating rows (visual left → right → left). */
 export default function PhilosophyVisuals({ items = [] }) {
+  /* Cards stay inside the reading column so they line up with the
+     prose either side of them. (Earlier this section bleeded to fit
+     a 3-up grid; now that the layout is a vertical stack each card
+     reads fine at reading-column width.) */
   return (
     <div className={styles.section}>
       {items.map((it, i) => (

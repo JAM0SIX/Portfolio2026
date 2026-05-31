@@ -1,42 +1,79 @@
 "use client";
 
 /* MediaPlate — wraps a hero media element (video, image, iframe) in
-   a fixed-height plate with a soft backdrop and inset shadow, so the
-   media reads as a "device" floating on a colored ground (à la the
-   Vodafone reference). Used by the bleed branches of Video,
-   ImagePlaceholder and PrototypeEmbed.
+   a sidebar-tall plate with a soft backdrop, so the media reads as
+   a "device" floating on a coloured ground (à la the Vodafone
+   reference). Used by the bleed branches of Video, ImagePlaceholder
+   and PrototypeEmbed.
 
-   Backdrop sources, in priority order:
-     1. backdrop.src   — explicit image
-     2. backdrop.color — flat colour
-     3. poster         — fallback: a blurred copy of the media's
-                         poster (so each hero's own palette becomes
-                         its plate without needing a separate asset)
-     4. neutral gradient — last resort when nothing else is available
+   Backdrop sources (opt-in via the `backdrop` prop):
+     - backdrop.src      → an image
+     - backdrop.color    → a flat colour
+     - backdrop.unicorn  → a Unicorn.Studio project ID (animated
+                           shader/gradient). Loads the unicorn
+                           runtime once per page, then mounts the
+                           embed div the runtime hydrates.
+   With none of those the plate is just a tall transparent band.
 
-   The blurred-poster fallback is the most common path. Filter +
-   scale produce a soft color smear of the hero's own palette, so
-   the plate matches the media without needing per-project artwork. */
+   `backdrop.blur` — explicit on/off override. Images default to
+   blurred (so a photo reads as ambience, not content); unicorn
+   embeds default to no blur (the embed is the artwork). */
 
+import { useEffect } from "react";
 import styles from "./Narrative.module.css";
+
+/* The Unicorn.Studio loader is idempotent — it stores a flag on
+   window so calling init() repeatedly is safe. We replicate the
+   official snippet here so MediaPlate doesn't need a global
+   <Script> in layout.js; the loader only runs when a unicorn
+   backdrop is actually mounted. */
+function ensureUnicornStudio() {
+  if (typeof window === "undefined") return;
+  const u = window.UnicornStudio;
+  if (u && u.init) {
+    u.init();
+    return;
+  }
+  window.UnicornStudio = { isInitialized: false };
+  const existing = document.querySelector(
+    'script[data-mediaplate-unicorn-loader="1"]'
+  );
+  if (existing) return; // another MediaPlate already kicked the loader off
+  const s = document.createElement("script");
+  s.src =
+    "https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v2.1.12/dist/unicornStudio.umd.js";
+  s.dataset.mediaplateUnicornLoader = "1";
+  s.onload = () => {
+    if (window.UnicornStudio && window.UnicornStudio.init) {
+      window.UnicornStudio.init();
+    }
+  };
+  document.head.appendChild(s);
+}
 
 export default function MediaPlate({
   children,
   backdrop,
   poster,
-  /* Padding on all four sides of the device so the backdrop
-     shows as a frame around it. Same value on every edge keeps
-     the device centred. */
+  /* Padding on left + right so the backdrop shows as a frame
+     around the device. Vertical centering is by flex (the plate
+     itself is sized to the sidebar height in CSS). */
   inset = 100,
 }) {
-  /* Decide what the backdrop layer looks like. Explicit src wins;
-     a flat colour is a one-line override; otherwise blur the
-     poster. If none of those are available we render nothing at
-     all (no gradient fallback) — the plate just becomes a tall
-     transparent band that lets the page background show. */
   const explicitSrc = backdrop?.src;
   const explicitColor = backdrop?.color;
-  const blurredPoster = !explicitSrc && !explicitColor ? poster : null;
+  const unicornId = backdrop?.unicorn;
+  /* Default blur differs by backdrop type: photos read better as
+     soft ambience, animated unicorn embeds are themselves the
+     visual so they shouldn't be blurred unless asked. */
+  const blurDefault = !unicornId;
+  const blurBackdrop = backdrop?.blur ?? blurDefault;
+
+  useEffect(() => {
+    if (unicornId) ensureUnicornStudio();
+  }, [unicornId]);
+
+  const blurredClass = blurBackdrop ? ` ${styles.mediaPlateBackdropBlurred}` : "";
 
   return (
     <div
@@ -45,7 +82,11 @@ export default function MediaPlate({
     >
       {explicitSrc && (
         /* eslint-disable-next-line @next/next/no-img-element */
-        <img className={styles.mediaPlateBackdrop} src={explicitSrc} alt="" />
+        <img
+          className={`${styles.mediaPlateBackdrop}${blurredClass}`}
+          src={explicitSrc}
+          alt=""
+        />
       )}
       {explicitColor && (
         <div
@@ -53,12 +94,11 @@ export default function MediaPlate({
           style={{ background: explicitColor }}
         />
       )}
-      {blurredPoster && (
-        /* eslint-disable-next-line @next/next/no-img-element */
-        <img
-          className={`${styles.mediaPlateBackdrop} ${styles.mediaPlateBackdropBlurred}`}
-          src={blurredPoster}
-          alt=""
+      {unicornId && (
+        <div
+          className={`${styles.mediaPlateBackdrop}${blurredClass}`}
+          data-us-project={unicornId}
+          aria-hidden="true"
         />
       )}
       <div className={styles.mediaPlateInner}>{children}</div>

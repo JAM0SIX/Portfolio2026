@@ -82,14 +82,13 @@ main.page {
   flex-direction: column;
 }
 /* Reading column with bleed-escape grid.
-   The .col is a 3-track grid: a fixed left gutter, a 576px reading
+   The .col is a 3-track grid: a fixed left gutter, a 600px reading
    column, and a flexible right gutter that absorbs the remaining
-   shell-main width. Non-bleed children sit in the reading track and
-   reproduce the previous column position exactly (576px wide,
-   128px from the left edge of the main column). Anything marked
-   `.bleed` spans all three tracks and extends to the full width of
-   .shell__main, which is what the hero figures will opt into for a
-   visually striking, edge-to-edge treatment.
+   shell-main width. Non-bleed children sit in the reading track
+   (600px wide, 128px from the left edge of the main column).
+   Anything marked `.bleed` spans all three tracks and extends to
+   the full width of .shell__main, which is what the hero figures
+   opt into for a visually striking, edge-to-edge treatment.
 
    The named lines `bleed-start / bleed-end` and `reading-start /
    reading-end` are exposed via subgrid on .narrative so blocks
@@ -99,7 +98,7 @@ main.page {
   display: grid;
   grid-template-columns:
     [bleed-start] 128px
-    [reading-start] minmax(0, 576px) [reading-end]
+    [reading-start] minmax(0, 600px) [reading-end]
     minmax(56px, 1fr) [bleed-end];
   width: 100%;
   max-width: none;
@@ -521,6 +520,15 @@ main.page { position: relative; z-index: 1; }
   margin-left: 0;
   margin-right: 0;
 }
+/* "Background" label above the cursor-field keypad. Sentence case
+   — no uppercase / letter-spacing — to keep it quiet and read as
+   prose rather than a chip. Smaller than body, soft ink colour. */
+.local-clock__heading {
+  font-size: var(--text-xs);
+  color: var(--ink-mute);
+  letter-spacing: 0;
+  text-transform: none;
+}
 /* On mobile, the LocalClock (theme toggle + location/time) lifts
    up to the top-right of the page so it sits in the header area
    alongside the H logo. Layout flips from column to row, with
@@ -812,7 +820,19 @@ main.page { position: relative; z-index: 1; }
 }
 .avatar {
   width: 36px; height: 36px;
-  background: var(--tile);
+  /* Headshot fills the tile via background-image — no markup
+     change needed, and the file (public/me.jpg) is served as-is.
+     `background-size: 200%` zooms the image to 2× its cover size
+     so the face fills the square more tightly. Position 50% 7%
+     centres the face inside the square (the face sits at roughly
+     50% horizontal / 23% vertical of the source; the 7% Y is the
+     CSS background-position math for that target with the 2×
+     scale — see the deriv comment below).
+       face_at_normalized_y * 160 - 30 = bg_pos_y_percent
+       0.23 * 160 - 30 = 6.8 ≈ 7%
+     If the headshot is ever swapped, recompute Y using the new
+     face position; the formula stays the same. */
+  background: var(--tile) url("/me.jpg") 50% 7% / 200% no-repeat;
   border: var(--border-default) solid var(--rule);
   display: inline-block;
   flex: 0 0 36px;
@@ -830,12 +850,19 @@ main.page { position: relative; z-index: 1; }
 .hero-identity:has(.avatar:hover) .name { transform: translateX(24px); }
 .id-meta {
   display: inline-flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-end;
   gap: var(--space-1);
   color: var(--ink-mute);
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
   margin-left: auto;
+  line-height: 1.2;
+}
+.id-meta__row {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
 }
 .id-location {
   display: inline-flex;

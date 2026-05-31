@@ -373,15 +373,38 @@ const nexisNarrative = [
       { name: "EY" },
       { name: "Deloitte" },
     ],
+    /* Only the first scope paragraph lives in the Hook itself —
+       the second is moved below the hero so the page reads:
+         intro paragraph → hero → "I led product design…" prose. */
     scope: [
       "Nexis+AI is a conversational research tool that identifies the nuanced signals from the noise. Through specialised intent detection, contextually aware responses leveraged on user attributes and innovative navigation techniques, users gain an elevated experience that EY, KPMG and more use.",
+    ],
+  },
+  /* Hero — full-width bleed placeholder, sits between the first
+     body paragraph (in the Hook) and the second body paragraph
+     (the prose block below). The image shows the Chevron response
+     page from the Q2 elaboration prototype, backed by the live
+     Unicorn.Studio plate. */
+  {
+    kind: "imagePlaceholder",
+    caption: "Hero image",
+    bleed: true,
+    /* Match the PhilpotPearce hero device size. */
+    height: 770,
+    image: {
+      src: "/prototypes/q2-elaboration/poster.png",
+      alt: "Nexis+AI response page — Chevron capital expenditure briefing",
+    },
+    backdrop: { unicorn: "CG6kXhsgUfb0qvTFyxmY" },
+  },
+  /* Second scope paragraph, lifted out of the Hook so it lands
+     under the hero rather than above it. */
+  {
+    kind: "prose",
+    paragraphs: [
       "I led product design for Nexis+AI, an AI research platform built for consultants at firms like KPMG and EY. The work covered product strategy, interaction design, design systems, research, and art direction. My task was to surface the signals that matter from inside an overwhelming amount of news, filings, and reports, so consultants can move faster and decide better.",
     ],
   },
-  /* Hero — full-width bleed placeholder, sits directly under the
-     first body paragraph. Swap for a video block once a recording
-     of the live Nexis+AI tool exists. */
-  { kind: "imagePlaceholder", caption: "Hero image", bleed: true },
   {
     kind: "outcomes",
     items: [
@@ -400,8 +423,6 @@ const nexisNarrative = [
       "The generic AI chat interfaces consultants were already leaning on limit that work in two specific ways. They flatten a depth-of-research task into a single confident answer, so the user loses the ability to scope, weight, and shape their own investigation. And they hide the sources behind the answer, which for a consultant whose recommendation will be acted on is not a usability complaint, it's a serious concern.",
     ],
   },
-  { kind: "imagePlaceholder", caption: "The problem" },
-
   // 03 · The experience I built
   {
     kind: "sectionHeader",
@@ -565,13 +586,6 @@ const nexisNarrative = [
 
   // 05 · Success benchmarks
   { kind: "sectionHeader", chapter: "05", title: "Success benchmarks" },
-  {
-    kind: "prose",
-    paragraphs: [
-      "Two pieces of research carried the methodology, and the numbers backed them up.",
-    ],
-  },
-  { kind: "imagePlaceholder", caption: "Success benchmarks" },
   { kind: "subsectionHeader", title: "Answer Quality Testing" },
   {
     kind: "prose",
@@ -596,6 +610,11 @@ const nexisNarrative = [
       "For every collaborator there is a shared language. Find it, and you've found the key. I'd invest in that language earlier and more explicitly on every cross-functional project I lead.",
     ],
   },
+
+  /* Closing image — plain bleed slot at the foot of the page just
+     above the global footer. Drop an `image: { src }` once the
+     asset is ready. */
+  { kind: "imagePlaceholder", bleed: true, plain: true, caption: "" },
 ];
 
 /* (philpotpearceProjectLayers removed — unused dead code.) */

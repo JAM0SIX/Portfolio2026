@@ -66,7 +66,9 @@ export default function AboutPage() {
                 stack that&apos;s 10x&apos;d my output and lets me
                 ship, not just design. I work end-to-end: designing,
                 vibe-coding, and deploying as a single product
-                designer.
+                designer. Increasingly an AX designer as much as a
+                UX one, since the surface I&apos;m shaping is just
+                as often an agent as a person.
               </p>
               <p>Thanks for stopping by,</p>
             </div>

@@ -134,7 +134,8 @@ export default function ReferencesSection() {
       <div className="section__head">
         <span className="section__label">References</span>
         <span className="section__rule" aria-hidden="true" />
-        <span className="section__count">{total} voices</span>
+        {/* Count removed — the row of tabs already advertises how
+            many references there are. */}
       </div>
 
       <div
@@ -153,11 +154,18 @@ export default function ReferencesSection() {
           const depth = (i - active + total) % total;
           const isActive = depth === 0;
 
-          /* Tabs lay out in a row across the card's top edge:
-             each tab takes 1/total of the card width and starts
-             where the previous tab ended. */
-          const tabW = `${100 / total}%`;
-          const tabX = `${(i * 100) / total}%`;
+          /* Tabs lay out in a row across the card's top edge: each
+             tab takes 1/total of the card width. With the card's
+             outline drawn via inset box-shadow (not `border`),
+             absolute positioning is now relative to the border-box,
+             so left:0 / width:100% align with the card edges
+             pixel-perfectly. Tabs 2..n still extend 1 px to the
+             left so adjacent left/right "borders" share a single
+             pixel column (no doubled-up 2 px seam between them). */
+          const naturalX = `${(i * 100) / total}%`;
+          const naturalW = `${100 / total}%`;
+          const tabX = i === 0 ? naturalX : `calc(${naturalX} - 1px)`;
+          const tabW = i === 0 ? naturalW : `calc(${naturalW} + 1px)`;
           return (
             <article
               key={r.name}
@@ -189,6 +197,21 @@ export default function ReferencesSection() {
               </button>
 
               <div className={styles.body}>
+                {/* Square avatar for the person giving the reference.
+                    Shows their portrait when r.avatar is set, otherwise
+                    a quiet placeholder with their initial so the slot
+                    still reads as "a person said this" even before the
+                    portrait drops in. */}
+                <figure className={styles.avatar} aria-hidden="true">
+                  {r.avatar ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img src={r.avatar} alt="" className={styles.avatarImg} />
+                  ) : (
+                    <span className={styles.avatarInitial}>
+                      {r.name?.[0] || ""}
+                    </span>
+                  )}
+                </figure>
                 <p className={styles.quote}>&ldquo;{r.quote}&rdquo;</p>
                 <p className={styles.meta}>
                   <span className={styles.role}>{r.role}</span>

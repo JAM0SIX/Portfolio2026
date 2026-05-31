@@ -11,10 +11,12 @@
   margin-top: 240px;
 }
 
+/* Stack — adds 60px of internal height so the cards have more
+   room to breathe in their resting/peek positions. */
 .stack {
   position: relative;
   padding-top: var(--stack-peek);
-  min-height: 320px;
+  min-height: 380px;
   /* Perspective makes the pull-out animation read in 3D — when a
      card lifts forward (translateZ) and tilts (rotateX) it looks
      physically pulled toward the viewer rather than just bigger. */
@@ -47,7 +49,13 @@
      stays at space-5. */
   padding: var(--space-7) var(--space-5);
   background: var(--paper-deep);
-  border: 1px solid var(--rule);
+  /* Card outline: left, right and bottom only — the top border
+     is split into two segments via ::before / ::after so a gap
+     can sit under this card's active tab, letting the tab's
+     bottom edge merge with the card outline at clean L corners.
+     The card has no real `border`, so absolutely-positioned tabs
+     are anchored to the border-box (not padding-box) and align
+     pixel-perfectly with the card edges. */
   color: inherit;
   font: inherit;
   transform: translate3d(0, calc(var(--depth) * var(--stack-offset) * -1), 0);
@@ -57,7 +65,33 @@
   transition:
     box-shadow var(--dur-base) var(--ease-default),
     background var(--dur-base) var(--ease-default);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    inset 1px 0 0 var(--rule),
+    inset -1px 0 0 var(--rule),
+    inset 0 -1px 0 var(--rule),
+    0 1px 2px rgba(0, 0, 0, 0.05);
+}
+/* Top border, split into two pieces around the card's tab slot.
+   ::before draws from the card's left edge to the tab's left edge;
+   ::after picks up at the tab's right edge and runs to the card's
+   right edge. For the first tab (tab-x = 0%) ::before has width 0;
+   for the last tab (tab-x + tab-w = 100%) ::after has width 0. */
+.card::before,
+.card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  height: 1px;
+  background: var(--rule);
+  pointer-events: none;
+}
+.card::before {
+  left: 0;
+  width: var(--tab-x);
+}
+.card::after {
+  left: calc(var(--tab-x) + var(--tab-w));
+  right: 0;
   /* Each card establishes its own 3D context so rotateX inside
      the keyframes renders independently per card. */
   transform-style: preserve-3d;
@@ -65,11 +99,17 @@
 }
 .cardActive {
   box-shadow:
+    inset 1px 0 0 var(--rule),
+    inset -1px 0 0 var(--rule),
+    inset 0 -1px 0 var(--rule),
     0 6px 18px rgba(0, 0, 0, 0.12),
     0 2px 4px rgba(0, 0, 0, 0.06);
 }
 :global([data-theme="onyx"]) .cardActive {
   box-shadow:
+    inset 1px 0 0 var(--rule),
+    inset -1px 0 0 var(--rule),
+    inset 0 -1px 0 var(--rule),
     0 6px 18px rgba(0, 0, 0, 0.5),
     0 2px 4px rgba(0, 0, 0, 0.3);
 }
@@ -90,11 +130,10 @@
 .tab {
   position: absolute;
   bottom: 100%;
+  /* Tabs sit flush in their slot — no overhang. Each tab takes
+     exactly 1/total of the row width and abuts its neighbours
+     cleanly. */
   left: var(--tab-x);
-  /* Fixed width = 1/total of the card width. Tabs abut each
-     other across the top edge — no gaps, no overlaps — and
-     since every card sets --tab-w to the same fraction, the
-     tabs from the five cards line up as a continuous row. */
   width: var(--tab-w);
   display: flex;
   align-items: center;
@@ -103,10 +142,37 @@
      stack tightly while tabs stay legible. */
   height: var(--tab-h);
   padding: 0 var(--space-3);
-  background: var(--paper-deep);
-  border: 1px solid var(--rule);
-  border-bottom: 0;
-  margin-bottom: -2px;
+  /* "Borders" drawn as background gradients rather than a real
+     `border`, layered bottom-up:
+       1. top edge       (1 px tall, full width)
+       2. left edge      (1 px wide, anchored top, height = --tab-side-h)
+       3. right edge     (1 px wide, anchored top, height = --tab-side-h)
+       4. solid fill     (--tab-fill)
+     The two side-edge heights are driven by a custom property so
+     each tab can decide whether its left/right border extends to
+     the bottom or stops 1 px short. Default = stops short, so
+     interior tab edges don't visibly poke into the card body.
+     The first tab's LEFT edge and last tab's RIGHT edge override
+     this to full height so they merge cleanly with the card's
+     left/right outline at the corner.
+     The fill is a custom property too so `:hover` only swaps that
+     layer — the border gradients stay intact. */
+  --tab-fill: var(--paper-deep);
+  /* Side borders run full height so they merge with the card
+     outline at clean L corners. The card no longer draws a top
+     border under this tab (split via ::before/::after with a gap
+     at the tab slot), so a full-height side border can't visually
+     "eat" into the card top — there's nothing there to clash with. */
+  background:
+    linear-gradient(var(--rule), var(--rule)) top    left  / 100% 1px no-repeat,
+    linear-gradient(var(--rule), var(--rule)) top    left  / 1px 100% no-repeat,
+    linear-gradient(var(--rule), var(--rule)) top    right / 1px 100% no-repeat,
+    var(--tab-fill);
+  /* Pull the tab down by 1 px so its bottom edge sits inside the
+     card's top-border row — the tab fill covers the 1 px gap
+     between the card's left/right inset shadows so the L-junctions
+     read as a single continuous line. */
+  margin-bottom: -1px;
   overflow: hidden;
   /* Tab is the click target — pointer cursor, normal font, no
      default button chrome (handled by the styles above). */
@@ -115,8 +181,11 @@
   font: inherit;
   transition: background var(--dur-base) var(--ease-default);
 }
+/* Hover swaps only the fill layer (--tab-fill) so the three
+   border gradients above it stay rendered. Setting `background`
+   here would otherwise wipe the whole layered stack. */
 .tab:hover {
-  background: color-mix(in srgb, var(--ink) 4%, var(--paper-deep));
+  --tab-fill: color-mix(in srgb, var(--ink) 4%, var(--paper-deep));
 }
 .tabText {
   font-family: var(--font-sans);
@@ -129,7 +198,7 @@
   text-overflow: ellipsis;
 }
 
-/* Body — quote + meta. Visible on the active card only. */
+/* Body — avatar + quote + meta. Visible on the active card only. */
 .body {
   display: flex;
   flex-direction: column;
@@ -137,6 +206,38 @@
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--dur-base) var(--ease-default);
+}
+/* Square portrait of the person giving the reference. Sits at the
+   top of the body so the reader knows who's speaking before the
+   quote starts. Fixed 64px square with the project's standard
+   panel chrome (paper-deep ground, rule border, square corners). */
+.avatar {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  margin: 0;
+  background: var(--paper-deep);
+  border: 1px solid var(--rule);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* Placeholder initial shown when no `avatar` URL is supplied. Quiet
+   enough that it doesn't compete with the quote, recognisable
+   enough to read as a stand-in face. */
+.avatarInitial {
+  font-family: var(--font-sans);
+  font-size: 22px;
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-tight);
+  color: var(--ink-mute);
 }
 .cardActive .body {
   opacity: 1;

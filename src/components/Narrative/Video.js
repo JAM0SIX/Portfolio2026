@@ -14,7 +14,7 @@
    has the right markup for the common case, and we swap to the
    poster after mount if reduce matches. */
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import MediaPlate from "./MediaPlate";
 import styles from "./Narrative.module.css";
 
@@ -40,8 +40,14 @@ export default function Video({
      becomes its backdrop without per-project artwork.
      Pass { src }, { color } or false to override. */
   backdrop,
+  /* Per-instance height override for bleed videos — useful when
+     a single hero wants a slightly different device size from
+     the 650px default (e.g. PhilpotPearce at 680). Ignored when
+     `aspect` is set or when the video is in-line (non-bleed). */
+  height,
 }) {
   const [reduced, setReduced] = useState(false);
+  const videoRef = useRef(null);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -51,6 +57,35 @@ export default function Video({
     return () => mq.removeEventListener("change", update);
   }, []);
 
+  /* Pause the loop when the video scrolls out of view, resume when
+     it comes back. Keeps the decode/render cost off the GPU when
+     the reader is elsewhere on the page and stops the audio-free
+     loop from chewing battery on long case studies.
+     Threshold 0.05 means "as soon as a sliver is visible play"; the
+     guard against the reduced-motion / poster fallback means we
+     don't try to play() on an <img>. */
+  useEffect(() => {
+    if (reduced) return; // poster is rendered instead — nothing to gate
+    const el = videoRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            /* play() returns a promise that can reject when the
+               element is already paused/aborted — swallow it. */
+            el.play().catch(() => {});
+          } else {
+            el.pause();
+          }
+        }
+      },
+      { threshold: 0.05 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [reduced]);
+
   /* The actual media element — same JSX whether bleed or in-line.
      For bleed it sits inside the MediaPlate wrapper; for in-line
      it sits directly in the bordered frame. */
@@ -59,6 +94,7 @@ export default function Video({
     <img src={poster} alt={caption || ""} className={styles.videoMedia} />
   ) : (
     <video
+      ref={videoRef}
       src={src}
       poster={poster}
       autoPlay
@@ -71,13 +107,13 @@ export default function Video({
     />
   );
 
-  /* Bleed (hero) heights match the pre-backdrop default of 650px
-     so the device lands at the same size it did before MediaPlate
-     was introduced. An explicit `aspect` on the block restores
-     aspect-ratio sizing for cases that need it. */
+  /* Bleed (hero) heights default to 650px so heroes land at the
+     same size they did before MediaPlate was introduced. `height`
+     overrides that default per-instance; `aspect` overrides both
+     and restores aspect-ratio sizing. */
   const bleedFrameStyle =
     bleed && !aspect
-      ? { height: 650 }
+      ? { height: height ?? 650 }
       : { aspectRatio: aspect ?? "16 / 9" };
 
   return (

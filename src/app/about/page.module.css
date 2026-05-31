@@ -150,6 +150,13 @@
     ),
     var(--paper);
 }
+/* Zoom the headshot into its slot — `object-fit: cover` already
+   crops to the slot's 4:5 portrait, the scale pushes the subject
+   closer so we read the face, not the wider scene. overflow:hidden
+   on the slot above clips the extra. */
+.photoSlot img {
+  transform: scale(1.6875);
+}
 
 /* ──────────────────────────────────────────────────────────────
    PHOTO GALLERY

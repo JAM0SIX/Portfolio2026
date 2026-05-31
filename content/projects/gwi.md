@@ -65,12 +65,17 @@ narrative:
         business risks and inefficiencies to designing the whole new
         internal product tool and finally managing the development
         of the tool itself.
-  # Hero — full-width bleed placeholder, sits directly under the
-  # first body paragraph. Swap for a video block once a recording
-  # of the live GWI tool exists.
+  # Hero — full-width bleed device above the first body paragraph.
+  # Shows the GWI homepage / agent-draw concept; sits inside the
+  # MediaPlate at the project's standard hero height.
   - kind: imagePlaceholder
     caption: Hero image
     bleed: true
+    # Match the PhilpotPearce hero device size.
+    height: 770
+    image:
+      src: /projects/gwi/hero.png
+      alt: GWI homepage with the agentic draw concept
 
   - kind: lede
     paragraphs:
@@ -351,4 +356,11 @@ narrative:
         legacy ways are the baseline, the harder it is to argue for new
         foundations. The sandbox prototype eventually moved leadership;
         I should have built it sooner and shown it wider.
+
+  # Closing image — plain bleed slot just above the global footer.
+  # Drop an `image: { src }` once the asset is ready.
+  - kind: imagePlaceholder
+    bleed: true
+    plain: true
+    caption: ""
 ---

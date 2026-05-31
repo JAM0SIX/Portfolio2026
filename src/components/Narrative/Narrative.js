@@ -296,6 +296,51 @@ function DecisionList({ intro, decisions, closer }) {
                   <figcaption className={styles.imageCaption}>{d.image.caption}</figcaption>
                 )}
               </figure>
+            ) : d.images && d.images.length > 0 ? (
+              /* Image grid — same 2-col vocabulary as the About page
+                 gallery (wide spans both, square forces 1:1, default
+                 is 4:5 portrait). Used when one decision needs to be
+                 carried by a small group of photographs rather than
+                 a single image / gif. */
+              <div className={styles.decisionImageGrid}>
+                {d.images.map((img, i) => {
+                  const cellClass = [
+                    styles.decisionImageCell,
+                    img.wide && styles.decisionImageCellWide,
+                    img.square && styles.decisionImageCellSquare,
+                  ].filter(Boolean).join(" ");
+                  /* Per-image aspect override — when set, takes
+                     priority over the wide/square defaults so a
+                     single cell can be sized off-pattern (e.g.
+                     "make restraint-1 slightly taller"). */
+                  const mountStyle = img.aspect
+                    ? { aspectRatio: img.aspect }
+                    : undefined;
+                  return (
+                    <figure key={img.src || i} className={cellClass}>
+                      <div
+                        className={styles.decisionImageMount}
+                        style={mountStyle}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={img.src}
+                          alt={img.alt || img.caption || ""}
+                          className={styles.imageMedia}
+                          /* Per-image crop anchor — when the image
+                             aspect doesn't match the cell, this
+                             decides which part of the source stays
+                             visible. Defaults to center via CSS. */
+                          style={img.position ? { objectPosition: img.position } : undefined}
+                        />
+                      </div>
+                      {img.caption && (
+                        <figcaption className={styles.imageCaption}>{img.caption}</figcaption>
+                      )}
+                    </figure>
+                  );
+                })}
+              </div>
             ) : d.image && (
               <figure className={styles.imagePlaceholder}>
                 <div
@@ -353,36 +398,78 @@ function StatusList({ items }) {
   );
 }
 
-function ImagePlaceholder({ caption, bleed = false, aspect, backdrop, poster }) {
-  /* In-line placeholders use a 16:9 dashed slot. Bleed (hero)
-     placeholders sit inside a MediaPlate at the original 650px
-     hero height — same as the Video hero treatment, just with a
-     dashed inner instead of real video. */
+function ImagePlaceholder({
+  caption,
+  bleed = false,
+  aspect,
+  backdrop,
+  poster,
+  /* Optional real image inside the slot. When { src } is set the
+     dashed placeholder pattern is suppressed (via the imageSlot's
+     :has(.imageMedia) rule) and the img fills the frame. Used by
+     Nexis+AI to show Q1's first-step prototype poster as the
+     hero "device" inside the MediaPlate. */
+  image,
+  /* `plain: true` opts the bleed image out of the MediaPlate
+     treatment — the slot just fills the bleed track edge-to-edge
+     instead of sitting as a floating device on a sidebar-tall
+     backdrop. Used for the closing image on each project page,
+     which wants to read as a final beat rather than another hero. */
+  plain = false,
+  /* Per-instance height override for bleed (non-plain) hero slots
+     — useful when one hero needs a different device size from
+     the 650px default. Matches the Video component's `height`
+     prop. Ignored when `aspect` is set or when plain/inline. */
+  height,
+}) {
+  /* Plate-wrapped bleed inherits the 650px hero height by default,
+     overridable per-instance via `height`. Plain bleed (no plate)
+     and inline both lean on aspect-ratio sizing so the slot is
+     sized by its content's natural shape rather than a fixed band. */
   const slotStyle =
-    bleed && !aspect
-      ? { height: 650 }
+    bleed && !plain && !aspect
+      ? { height: height ?? 650 }
       : { aspectRatio: aspect ?? "16 / 9" };
-  if (bleed) {
+  const slot = image?.src ? (
+    <div className={styles.imageSlot} style={slotStyle}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={image.src}
+        alt={image.alt || caption || ""}
+        className={styles.imageMedia}
+      />
+    </div>
+  ) : (
+    <div
+      className={styles.imageSlot}
+      style={slotStyle}
+      aria-hidden="true"
+    />
+  );
+  if (bleed && !plain) {
     return (
       <figure className={`${styles.imagePlaceholder} bleed`}>
         <MediaPlate backdrop={backdrop} poster={poster}>
-          <div
-            className={styles.imageSlot}
-            style={slotStyle}
-            aria-hidden="true"
-          />
+          {slot}
         </MediaPlate>
+        {caption && <figcaption className={styles.imageCaption}>{caption}</figcaption>}
+      </figure>
+    );
+  }
+  if (bleed) {
+    /* Plain bleed — slot fills the bleed track edge-to-edge with
+       no plate, no horizontal inset. Used for the closing image
+       on each project page. */
+    return (
+      <figure className={`${styles.imagePlaceholder} bleed`}>
+        {slot}
         {caption && <figcaption className={styles.imageCaption}>{caption}</figcaption>}
       </figure>
     );
   }
   return (
     <figure className={styles.imagePlaceholder}>
-      <div
-        className={styles.imageSlot}
-        style={slotStyle}
-        aria-hidden="true"
-      />
+      {slot}
       {caption && <figcaption className={styles.imageCaption}>{caption}</figcaption>}
     </figure>
   );

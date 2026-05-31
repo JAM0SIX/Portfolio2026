@@ -381,6 +381,52 @@
   padding: var(--space-7) 0;
 }
 
+/* DecisionList image grid — used when a decision is illustrated
+   by a small set of photos instead of a single gif/image. Mirrors
+   the About page gallery vocabulary so the two pages feel like
+   siblings: 2-col grid, wide spans both columns, square forces
+   1:1, default is 4:5 portrait. */
+.decisionImageGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+.decisionImageCell {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+}
+.decisionImageCellWide {
+  grid-column: 1 / -1;
+}
+.decisionImageMount {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--paper-deep);
+  border: var(--border-default) solid var(--rule);
+}
+.decisionImageCellWide .decisionImageMount {
+  aspect-ratio: 16 / 9;
+}
+/* Square overrides both the 4:5 default and the wide 16:9. */
+.decisionImageCellSquare .decisionImageMount,
+.decisionImageCellWide.decisionImageCellSquare .decisionImageMount {
+  aspect-ratio: 1 / 1;
+}
+@media (max-width: 720px) {
+  .decisionImageGrid {
+    grid-template-columns: 1fr;
+  }
+  .decisionImageCellWide {
+    grid-column: auto;
+  }
+  .decisionImageCellWide .decisionImageMount {
+    aspect-ratio: 4 / 5;
+  }
+}
+
 /* StatusList — three stacked status rows for "where the work is". */
 .statusList {
   list-style: none;
@@ -476,6 +522,22 @@
   display: block;
   object-fit: cover;
 }
+/* Hero images use `contain` instead of `cover` so the entire image
+   is visible — no cropping to fill the device. Any difference
+   between the image's aspect and the device's aspect becomes
+   letterboxing, with the plate backdrop (or page background)
+   showing through. */
+.imagePlaceholder.bleed .imageMedia {
+  object-fit: contain;
+}
+/* Drop the slot's solid fill when a real bleed image is inside,
+   so the letterbox bars show the backdrop (e.g. Nexis+AI's
+   Unicorn shader, PP's blurred architectural image) rather than
+   a paper-deep panel. */
+.imagePlaceholder.bleed .imageSlot:has(.imageMedia) {
+  background: transparent;
+  border: 0;
+}
 .imageCaption {
   font-family: var(--font-sans);
   font-size: var(--text-xs);
@@ -569,8 +631,8 @@
      ambient colour smear that matches the media without needing
      a separate asset. transform: scale > 1 hides the blur's edge
      fade outside the plate. */
-  filter: blur(80px) saturate(1.35);
-  transform: scale(1.25);
+  filter: blur(6px) saturate(1.35);
+  transform: scale(1.02);
 }
 .mediaPlateInner {
   position: relative;

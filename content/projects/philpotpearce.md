@@ -35,6 +35,11 @@ narrative:
     poster: /projects/philpotpearce/hero-poster.png
     caption: Hero — philpottpearce.com
     bleed: true
+    # 80px taller than the 650px bleed default — only the device
+    # changes; the plate keeps its sidebar-matched height.
+    height: 730
+    backdrop:
+      src: /projects/philpotpearce/plate-bg.png
 
   # 02 · The problem
   - kind: sectionHeader
@@ -46,9 +51,6 @@ narrative:
         The founders had recently started their own studio. They didn't
         know how to successfully pull off a build that could match their
         identity. They needed a way to stand out from all the noise.
-  - kind: imagePlaceholder
-    caption: The problem
-
   # 03 · What I designed
   - kind: sectionHeader
     chapter: "03"
@@ -62,10 +64,19 @@ narrative:
     decisions:
       - name: Restraint as the brand
         summary: The visual system as a statement of values, not decoration.
-        image:
-          src: /projects/philpotpearce/restraint.gif
-          caption: Brand system
-          alt: Animated walkthrough of PhilpotPearce's restrained visual system
+        images:
+          - src: /projects/philpotpearce/restraint-1.png
+            wide: true
+            # Aspect tuned so the wide cell lands ~30px taller than
+            # the default 16:9 at reading-column width (576/354).
+            aspect: 576 / 354
+            alt: Restraint in the brand system — overview frame
+          - src: /projects/philpotpearce/restraint-2.png
+            square: true
+            alt: Restraint in the brand system — square detail
+          - src: /projects/philpotpearce/restraint-3.png
+            square: true
+            alt: Restraint in the brand system — second square detail
         body:
           - >
             Most agencies dress up their identities. PhilpotPearce strips
@@ -91,27 +102,28 @@ narrative:
             By the time the visitor reaches the work, they've already
             absorbed the studio's philosophy. The work doesn't have to
             justify itself, it just has to land.
-      - name: Work as the hero
-        summary: Project pages built to showcase, not narrate.
-        image:
-          src: /projects/philpotpearce/work-as-hero.gif
-          caption: Work showcase
-          alt: Project pages designed to put the work first
-        body:
-          - >
-            Project pages are designed as exhibitions. Large imagery,
-            sparing captions, no marketing scaffolding around the work.
-            The visitor's job is to look; the studio's job is to give
-            them something worth looking at.
-          - >
-            This is the moment where the brand has to disappear and the
-            work has to carry the weight.
       - name: Editorial typography
         summary: A single rhythm from hero to component states.
-        image:
-          src: /projects/philpotpearce/editorial.gif
-          caption: Type system
-          alt: Editorial typography running through the whole site
+        images:
+          - src: /projects/philpotpearce/editorial-1.png
+            wide: true
+            # ~20px taller than the wide default at reading-column
+            # width (576/344 vs 576/324 for the stock 16:9).
+            aspect: 576 / 344
+            alt: Editorial typography running through the whole site
+          - src: /projects/philpotpearce/editorial-4.png
+            wide: true
+            # Pin the crop to the left edge — the meaningful detail
+            # in this image sits on the left, and the default
+            # centre-anchored object-fit was hiding it.
+            position: left center
+            alt: Editorial typography — second detail
+          - src: /projects/philpotpearce/editorial-6.png
+            wide: true
+            # Anchor the crop to the left so the meaningful detail
+            # stays visible (same fix as editorial-4).
+            position: left center
+            alt: Editorial typography — third detail
         body:
           - >
             One typographic system runs from hero through navigation
@@ -122,6 +134,36 @@ narrative:
             The system was designed so new pages ship without new CSS
             exceptions, which keeps the studio's site as disciplined as
             its work.
+      - name: Work as the hero
+        summary: Project pages built to showcase, not narrate.
+        images:
+          - src: /projects/philpotpearce/work-as-hero.gif
+            wide: true
+            # ~20px taller than the wide default (576/344 vs 576/324).
+            aspect: 576 / 344
+            alt: Project pages designed to put the work first
+          - src: /projects/philpotpearce/work-as-hero-1.png
+            wide: true
+            alt: Project page detail
+        body:
+          - >
+            Project pages are designed as exhibitions. Large imagery,
+            sparing captions, no marketing scaffolding around the work.
+            The visitor's job is to look; the studio's job is to give
+            them something worth looking at.
+          - >
+            This is the moment where the brand has to disappear and the
+            work has to carry the weight.
+
+  # Closing image — large, full-bleed-width slot that sits at the
+  # foot of the page just above the global footer. Plain bleed
+  # (no plate / no backdrop) so it reads as a final beat rather
+  # than another hero. Drop an `image: { src }` once the asset
+  # is ready.
+  - kind: imagePlaceholder
+    bleed: true
+    plain: true
+    caption: ""
 ---
 
 # PhilpotPearce

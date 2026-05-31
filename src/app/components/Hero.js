@@ -30,14 +30,18 @@ export default function Hero() {
         <span className="avatar" aria-hidden="true" />
         <span className="name">Harry Spawforth</span>
         <div className="id-meta">
-          <span className="id-location">
-            <span className="dot" aria-hidden="true" />
-            <span>London</span>
+          {/* Top row — live location + clock; bottom row — the
+              last-updated stamp. Stacked so each line reads on its
+              own, no inline separators. */}
+          <span className="id-meta__row">
+            <span className="id-location">
+              <span className="dot" aria-hidden="true" />
+              <span>London</span>
+            </span>
+            <span className="id-sep" aria-hidden="true">,</span>
+            <span className="id-time">{time || "--:--"}</span>
           </span>
-          <span className="id-sep" aria-hidden="true">,</span>
-          <span className="id-time">{time || "--:--"}</span>
-          <span className="id-sep" aria-hidden="true">·</span>
-          <span className="updated">Updated {LAST_UPDATED}</span>
+          <span className="id-meta__row updated">Updated {LAST_UPDATED}</span>
         </div>
       </div>
 
@@ -51,16 +55,19 @@ export default function Hero() {
         </h1>
 
         <p className="hc-body">
-          I&apos;ve been designing AI software before the hype and even
-          co-founded an AI start-up. I specialise in data-rich systems and
-          platforms, boosting user efficiency and productivity through
-          design and philosophy.
+          I&apos;ve been a Human-AI interaction designer before the
+          hype, and even co-founded an AI start-up along the way. I
+          specialise in data-rich systems and platforms, boosting user
+          efficiency and productivity through design and philosophy.
         </p>
         <p className="hc-body">
           The smarter AI becomes, knowing what not to build with human
-          judgement matters more than ever. The best way to keep that
-          judgement sharp is being creative and to push the boundaries of
-          what a designer is capable of. Check out some of the{" "}
+          judgement matters more than ever. A lot of that judgement
+          comes from being a conversation designer first. The most
+          important UI we ship now is the one made of words. The best
+          way to keep that judgement sharp is being creative and to
+          push the boundaries of what a designer is capable of. Check
+          out some of the{" "}
           <Link href="/experiments" className="link link--ink">experiments</Link>{" "}
           I&apos;ve made.
         </p>
