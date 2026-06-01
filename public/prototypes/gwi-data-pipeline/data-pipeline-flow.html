@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data pipeline — agent and MCPs</title>
+<style>
+  /* THEME VARIABLES — light (paper) defaults, tuned to the host site's
+     palette. Neutrals match the portfolio's paper + onyx tokens; the
+     green --accent (the "data stream" colour, see legend) is kept. */
+  :root {
+    --bg: #F5F5F5;
+    --surface: #EBEBEB;
+    --border: #1A1815;
+    --border-soft: rgba(26,24,21,0.5);
+    --text: #1A1815;
+    --text-muted: rgba(26,24,21,0.62);
+    --accent: #1D9E75;
+    --accent-soft: #E1F5EE;
+    --neutral: #1A1815;
+    --comms: #BA7517;
+
+    --agent-fill: #E1F5EE;
+    --store-fill: #EEEDFE;
+    --task-fill: #FBEAF0;
+    --source-fill: #FAEEDA;
+    --comms-fill: #FAEEDA;
+    --screen-fill: #ffffff;
+  }
+  :root.is-dark {
+    --bg: #1C1C22;
+    --surface: #26262E;
+    --border: #F5F3EE;
+    --border-soft: rgba(245,243,238,0.5);
+    --text: #F5F3EE;
+    --text-muted: rgba(245,243,238,0.62);
+    --accent: #5DCAA5;
+    --accent-soft: #0F6E56;
+    --neutral: #F5F3EE;
+    --comms: #EF9F27;
+
+    --agent-fill: #145E4A;
+    --store-fill: #3C3489;
+    --task-fill: #72243E;
+    --source-fill: #5A3A12;
+    --comms-fill: #5A3A12;
+    --screen-fill: #2E2E38;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not(.is-light) {
+      --bg: #1C1C22;
+      --surface: #26262E;
+      --border: #F5F3EE;
+      --border-soft: rgba(245,243,238,0.5);
+      --text: #F5F3EE;
+      --text-muted: rgba(245,243,238,0.62);
+      --accent: #5DCAA5;
+      --accent-soft: #0F6E56;
+      --neutral: #F5F3EE;
+      --comms: #EF9F27;
+
+      --agent-fill: #145E4A;
+      --store-fill: #3C3489;
+      --task-fill: #72243E;
+      --source-fill: #5A3A12;
+      --comms-fill: #5A3A12;
+      --screen-fill: #2E2E38;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  .wrap {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 24px 16px;
+  }
+  svg { display: block; width: 100%; height: auto; }
+  .lane-title { font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; fill: var(--text-muted); }
+  .node-title { font-size: 12px; font-weight: 600; letter-spacing: 0.01em; }
+  .node-sub { font-size: 10px; font-weight: 400; letter-spacing: 0.01em; }
+  .edge-label { font-size: 10px; font-weight: 500; letter-spacing: 0.01em; fill: var(--text-muted); }
+  .legend-text { font-size: 11px; letter-spacing: 0.01em; fill: var(--text-muted); }
+  .step-label { font-size: 14px; font-weight: 500; letter-spacing: 0.01em; fill: var(--text); }
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h2 class="sr-only">Vertical animated data pipeline. Google Drive and Salesforce feed MCP channels, which write to a RAG store. The agent pulls from both the live MCP stream and the RAG store to automate tasks, which notify users via Email, Jira, and Slack.</h2>
+
+  <!--
+    Vertical stack, 560 wide × 1180 tall.
+    Each row is a layer with its own band of nodes.
+    Routing channels run between layers in 40px gaps.
+    All copy widths verified to fit container widths.
+  -->
+
+  <svg id="flow" viewBox="0 0 560 990" role="img" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+    <title>Data pipeline — agent and MCPs</title>
+    <desc>Top-to-bottom pipeline: sources, ingestion, storage, agent, automation, and a communication layer.</desc>
+
+    <defs>
+      <marker id="arrow-accent" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M1 1L9 5L1 9Z" fill="var(--accent)" stroke="none"/>
+      </marker>
+      <marker id="arrow-comms" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M1 1L9 5L1 9Z" fill="var(--comms)" stroke="none"/>
+      </marker>
+    </defs>
+
+    <!-- ================ LAYER 1: SOURCES (y 20–116) ================ -->
+    <text x="20" y="30" text-anchor="start" dominant-baseline="central" class="lane-title">Sources</text>
+    <g>
+      <rect x="80" y="50" width="180" height="56" rx="4" fill="var(--source-fill)" stroke="var(--border)" stroke-width="1"/>
+      <text x="170" y="72" text-anchor="middle" dominant-baseline="central" class="node-title" fill="var(--text)">Google drive</text>
+      <text x="170" y="90" text-anchor="middle" dominant-baseline="central" class="node-sub" fill="var(--text-muted)">Briefs · decks · docs</text>
+    </g>
+    <g>
+      <rect x="300" y="50" width="180" height="56" rx="4" fill="var(--source-fill)" stroke="var(--border)" stroke-width="1"/>
+      <text x="390" y="72" text-anchor="middle" dominant-baseline="central" class="node-title" fill="var(--text)">Salesforce</text>
+      <text x="390" y="90" text-anchor="middle" dominant-baseline="central" class="node-sub" fill="var(--text-muted)">Accounts · projects</text>
+    </g>
+
+    <!-- Sources → MCP -->
+    <path id="s1" class="stream" d="M 170 106 L 170 150" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.65" marker-end="url(#arrow-accent)"/>
+    <path id="s2" class="stream" d="M 390 106 L 390 150" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.65" marker-end="url(#arrow-accent)"/>
+
+    <!-- ================ LAYER 2: MCP CHANNELS (y 150–246) ================ -->
+    <text x="20" y="166" text-anchor="start" dominant-baseline="central" class="lane-title">Ingestion</text>
+    <g>
+      <rect x="80" y="150" width="400" height="96" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.25" stroke-dasharray="4 3"/>
+      <text x="280" y="172" text-anchor="middle" dominant-baseline="central" class="node-title" fill="var(--text)">MCP channels</text>
+      <line x1="100" y1="186" x2="460" y2="186" stroke="var(--border-soft)" stroke-width="0.5"/>
+      <text x="170" y="206" text-anchor="middle" dominant-baseline="central" class="node-sub" fill="var(--text-muted)">Pull · normalize</text>
+      <text x="390" y="206" text-anchor="middle" dominant-baseline="central" class="node-sub" fill="var(--text-muted)">Authenticate</text>
+      <text x="170" y="226" text-anchor="middle" dominant-baseline="central" class="node-sub" fill="var(--text-muted)">Stream events</text>
+      <text x="390" y="226" text-anchor="middle" dominant-baseline="central" class="node-sub" fill="var(--text-muted)">Schema · embed</text>
+    </g>
+
+    <!-- MCP → RAG (left branch — writes to storage)
+         MCP → Agent (right branch — live stream, bypasses storage) -->
+    <path id="m1" class="stream" d="M 200 246 L 200 288" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.65" marker-end="url(#arrow-accent)"/>
+    <text x="210" y="268" text-anchor="start" dominant-baseline="central" class="edge-label" fill="var(--accent)">writes</text>
+
+    <path id="m2" class="stream" d="M 360 246 L 360 264 L 510 264 L 510 590 L 400 590" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.65" marker-end="url(#arrow-accent)"/>
+    <text x="520" y="420" text-anchor="start" dominant-baseline="central" class="edge-label" fill="var(--accent)" transform="rotate(90 520 420)">live stream</text>
+
+    <!-- ================ LAYER 3: RAG STORE (y 290–420) ================ -->
+    <text x="20" y="306" text-anchor="start" dominant-baseline="central" class="lane-title">Storage</text>
+    <g>
+      <ellipse cx="200" cy="304" rx="100" ry="16" fill="var(--store-fill)" stroke="var(--border)" stroke-width="1.25"/>
+      <path d="M 100 304 L 100 400 A 100 16 0 0 0 300 400 L 300 304" fill="var(--store-fill)" stroke="var(--border)" stroke-width="1.25"/>
+      <ellipse cx="200" cy="304" rx="100" ry="16" fill="var(--store-fill)" stroke="var(--border)" stroke-width="1.25"/>
+      <text x="200" y="338" text-anchor="middle" dominant-baseline="central" class="node-title" fill="var(--text)">RAG store</text>
+      <text x="200" y="360" text-anchor="middle" dominant-baseline="central" class="node-sub" fill="var(--text-muted)">Vectors · chunks</text>
+      <text x="200" y="378" text-anchor="middle" dominant-baseline="central" class="node-sub" fill="var(--text-muted)">Project history · internal</text>
+    </g>
+
+    <!-- RAG → Agent (context) — drops from cylinder bottom then runs into agent top -->
+    <path id="m3" class="stream" d="M 200 416 L 200 490 L 220 490 L 220 530" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.65" marker-end="url(#arrow-accent)"/>
+    <text x="210" y="460" text-anchor="start" dominant-baseline="central" class="edge-label" fill="var(--accent)">context</text>
+
+    <!-- ================ LAYER 4: AGENT (y 530–650) ================ -->
+    <text x="20" y="546" text-anchor="start" dominant-baseline="central" class="lane-title">Agent</text>
+    <g>
+      <rect x="160" y="530" width="240" height="120" rx="6" fill="var(--agent-fill)" stroke="var(--border)" stroke-width="1.25"/>
+      <text x="280" y="554" text-anchor="middle" dominant-baseline="central" class="node-title" fill="var(--text)">Agent</text>
+      <line x1="180" y1="568" x2="380" y2="568" stroke="var(--border-soft)" stroke-width="0.5"/>
+      <text x="280" y="588" text-anchor="middle" dominant-baseline="central" class="node-sub" fill="var(--text-muted)">Reads live MCP stream</text>
+      <text x="280" y="606" text-anchor="middle" dominant-baseline="central" class="node-sub" fill="var(--text-muted)">Pulls RAG context</text>
+      <text x="280" y="624" text-anchor="middle" dominant-baseline="central" class="node-sub" fill="var(--text-muted)">Reasons · plans · dispatches</text>
+    </g>
+
+    <!-- Agent → 5 task fan-out (one trunk down to y=690, then split to 5 tasks) -->
+    <path id="t-trunk" class="stream" d="M 280 650 L 280 690" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.65"/>
+
+    <!-- Horizontal bus at y=690 -->
+    <line x1="100" y1="690" x2="460" y2="690" stroke="var(--accent)" stroke-width="1.5" opacity="0.45"/>
+
+    <!-- 5 drops from bus into task tops at y=720 -->
+    <path id="t1" class="stream" d="M 100 690 L 100 720" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.65" marker-end="url(#arrow-accent)"/>
+    <path id="t2" class="stream" d="M 190 690 L 190 720" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.65" marker-end="url(#arrow-accent)"/>
+    <path id="t3" class="stream" d="M 280 690 L 280 720" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.65" marker-end="url(#arrow-accent)"/>
+    <path id="t4" class="stream" d="M 370 690 L 370 720" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.65" marker-end="url(#arrow-accent)"/>
+    <path id="t5" class="stream" d="M 460 690 L 460 720" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.65" marker-end="url(#arrow-accent)"/>
+
+    <!-- ================ LAYER 5: AUTOMATION TASKS (y 720–840) ================ -->
+    <text x="20" y="736" text-anchor="start" dominant-baseline="central" class="lane-title">Automation</text>
+    <!-- 5 task pills at 80px wide, gap 10px, totaling 5×80 + 4×10 = 440, starting at x=60 -->
+    <g>
+      <rect x="60" y="720" width="80" height="80" rx="4" fill="var(--task-fill)" stroke="var(--border)" stroke-width="1"/>
+      <text x="100" y="742" text-anchor="middle" dominant-baseline="central" class="node-title" fill="var(--text)">Set up</text>
+      <text x="100" y="758" text-anchor="middle" dominant-baseline="central" class="node-title" fill="var(--text)">project</text>
+      <text x="100" y="778" text-anchor="middle" dominant-baseline="central" class="node-sub" fill="var(--text-muted)">From brief</text>
+    </g>
+    <g>
+      <rect x="150" y="720" width="80" height="80" rx="4" fill="var(--task-fill)" stroke="var(--border)" stroke-width="1"/>
+      <text x="190" y="742" text-anchor="middle" dominant-baseline="central" class="node-title" fill="var(--text)">Draft</text>
+      <text x="190" y="758" text-anchor="middle" dominant-baseline="central" class="node-title" fill="var(--text)">survey</text>
+      <text x="190" y="778" text-anchor="middle" dominant-baseline="central" class="node-sub" fill="var(--text-muted)">From history</text>
+    </g>
+    <g>
+      <rect x="240" y="720" width="80" height="80" rx="4" fill="var(--task-fill)" stroke="var(--border)" stroke-width="1"/>
+      <text x="280" y="742" text-anchor="middle" dominant-baseline="central" class="node-title" fill="var(--text)">Translate</text>
+      <text x="280" y="758" text-anchor="middle" dominant-baseline="central" class="node-title" fill="var(--text)">survey</text>
+      <text x="280" y="778" text-anchor="middle" dominant-baseline="central" class="node-sub" fill="var(--text-muted)">Localize</text>
+    </g>
+    <g>
+      <rect x="330" y="720" width="80" height="80" rx="4" fill="var(--task-fill)" stroke="var(--border)" stroke-width="1"/>
+      <text x="370" y="742" text-anchor="middle" dominant-baseline="central" class="node-title" fill="var(--text)">Bench-</text>
+      <text x="370" y="758" text-anchor="middle" dominant-baseline="central" class="node-title" fill="var(--text)">mark</text>
+      <text x="370" y="778" text-anchor="middle" dominant-baseline="central" class="node-sub" fill="var(--text-muted)">Field-work</text>
+    </g>
+    <g>
+      <rect x="420" y="720" width="80" height="80" rx="4" fill="var(--task-fill)" stroke="var(--border)" stroke-width="1"/>
+      <text x="460" y="742" text-anchor="middle" dominant-baseline="central" class="node-title" fill="var(--text)">Insights</text>
+      <text x="460" y="778" text-anchor="middle" dominant-baseline="central" class="node-sub" fill="var(--text-muted)">Patterns</text>
+    </g>
+
+    <!-- ================ LEGEND ================ -->
+    <g transform="translate(20, 850)">
+      <rect x="0" y="0" width="520" height="48" rx="2" fill="var(--surface)" stroke="var(--border-soft)" stroke-width="0.75"/>
+      <line x1="20" y1="24" x2="56" y2="24" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="5 5"/>
+      <text x="68" y="24" dominant-baseline="central" class="legend-text">Data stream — flowing downstream</text>
+    </g>
+
+    <!-- ================ CAPTION ================ -->
+    <text x="280" y="940" text-anchor="middle" dominant-baseline="central" class="step-label">Sources flow through MCP into the RAG store —</text>
+    <text x="280" y="964" text-anchor="middle" dominant-baseline="central" class="step-label">the agent pulls from both to automate tasks</text>
+  </svg>
+</div>
+
+<!-- Host theme bridge + auto-height reporter. Separate from the stream
+     animation below; touches neither the SVG geometry nor its logic. -->
+<script>
+(function() {
+  var CHANNEL = 'gwi-data-pipeline:height';
+  var root = document.documentElement;
+  function reportHeight() {
+    var h = Math.ceil(Math.max(
+      root.scrollHeight,
+      document.body ? document.body.scrollHeight : 0
+    ));
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: CHANNEL, height: h }, '*');
+    }
+  }
+  window.addEventListener('message', function(e) {
+    var d = e.data;
+    if (!d || d.type !== 'embed-theme') return;
+    root.classList.toggle('is-dark', d.theme === 'onyx');
+    root.classList.toggle('is-light', d.theme === 'paper');
+    reportHeight();
+  });
+  if ('ResizeObserver' in window) {
+    new ResizeObserver(reportHeight).observe(root);
+  }
+  window.addEventListener('load', reportHeight);
+  reportHeight();
+})();
+</script>
+
+<script>
+(function() {
+  const streams = document.querySelectorAll('.stream');
+  let offset = 0;
+  let rafId = null;
+  let playing = true;
+
+  function frame() {
+    offset -= 0.6;
+    streams.forEach(el => el.setAttribute('stroke-dashoffset', offset));
+    if (playing) rafId = requestAnimationFrame(frame);
+  }
+
+  function start() {
+    if (!rafId && playing) rafId = requestAnimationFrame(frame);
+  }
+  function stop() {
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { playing = false; stop(); }
+    else { playing = true; start(); }
+  });
+
+  start();
+})();
+</script>
+</body>
+</html>

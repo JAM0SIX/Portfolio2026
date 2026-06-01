@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import ScrambleText from "@/components/ScrambleText/ScrambleText";
 
@@ -41,7 +40,7 @@ export default function Hero() {
             <span className="id-sep" aria-hidden="true">,</span>
             <span className="id-time">{time || "--:--"}</span>
           </span>
-          <span className="id-meta__row updated">Updated {LAST_UPDATED}</span>
+          <span className="id-meta__row updated">Updated: <span className="updated__date">{LAST_UPDATED}</span></span>
         </div>
       </div>
 
@@ -62,14 +61,9 @@ export default function Hero() {
         </p>
         <p className="hc-body">
           The smarter AI becomes, knowing what not to build with human
-          judgement matters more than ever. A lot of that judgement
-          comes from being a conversation designer first. The most
-          important UI we ship now is the one made of words. The best
-          way to keep that judgement sharp is being creative and to
-          push the boundaries of what a designer is capable of. Check
-          out some of the{" "}
-          <Link href="/experiments" className="link link--ink">experiments</Link>{" "}
-          I&apos;ve made.
+          judgement matters more than ever. The best way to keep that
+          judgement sharp is being creative and to push the boundaries
+          of what a designer is capable of.
         </p>
       </section>
     </>

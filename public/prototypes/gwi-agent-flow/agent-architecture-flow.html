@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent architecture flow</title>
+<style>
+  /* THEME VARIABLES — light (paper) defaults, tuned to the host site's
+     palette. Neutrals (bg/text/border/surface) match the portfolio's
+     paper + onyx tokens; the green --accent is kept intentionally — it
+     is the diagram's semantic "automated flow" colour (see legend). */
+  :root {
+    --bg: #F5F5F5;
+    --surface: #EBEBEB;
+    --border: #1A1815;
+    --border-soft: rgba(26,24,21,0.5);
+    --text: #1A1815;
+    --text-muted: rgba(26,24,21,0.62);
+    --accent: #1D9E75;
+    --accent-soft: #E1F5EE;
+    --neutral: #1A1815;
+
+    --agent-fill: #E1F5EE;
+    --screen-fill: #ffffff;
+    --decision-fill: #ECEAE3;
+    --mcp-fill: #FAEEDA;
+  }
+  /* Dark (onyx) — applied either by the host theme bridge (.is-dark on
+     <html>) or, when the widget is opened standalone, by the OS dark
+     preference (unless the host has pinned a light theme via .is-light). */
+  :root.is-dark {
+    --bg: #1C1C22;
+    --surface: #26262E;
+    --border: #F5F3EE;
+    --border-soft: rgba(245,243,238,0.5);
+    --text: #F5F3EE;
+    --text-muted: rgba(245,243,238,0.62);
+    --accent: #5DCAA5;
+    --accent-soft: #0F6E56;
+    --neutral: #F5F3EE;
+
+    --agent-fill: #145E4A;
+    --screen-fill: #2E2E38;
+    --decision-fill: #34343F;
+    --mcp-fill: #5A3A12;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not(.is-light) {
+      --bg: #1C1C22;
+      --surface: #26262E;
+      --border: #F5F3EE;
+      --border-soft: rgba(245,243,238,0.5);
+      --text: #F5F3EE;
+      --text-muted: rgba(245,243,238,0.62);
+      --accent: #5DCAA5;
+      --accent-soft: #0F6E56;
+      --neutral: #F5F3EE;
+
+      --agent-fill: #145E4A;
+      --screen-fill: #2E2E38;
+      --decision-fill: #34343F;
+      --mcp-fill: #5A3A12;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  .wrap {
+    width: 100%;
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 32px 24px;
+  }
+  svg { display: block; width: 100%; height: auto; }
+  .node-title { font-size: 13px; font-weight: 600; letter-spacing: 0.01em; }
+  .node-sub { font-size: 11px; font-weight: 400; letter-spacing: 0.01em; }
+  .mcp-label { font-size: 10px; font-weight: 500; letter-spacing: 0.01em; }
+  .edge-label { font-size: 11px; font-weight: 500; letter-spacing: 0.01em; fill: var(--text-muted); }
+  .legend-text { font-size: 11px; letter-spacing: 0.01em; fill: var(--text-muted); }
+  .step-label { font-size: 16px; font-weight: 500; letter-spacing: 0.01em; fill: var(--text); }
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h2 class="sr-only">Animated technical flow diagram showing the agent connected to MCP third-party tools, surfacing market data to the user via a landing page, and loops back to the market detail screen.</h2>
+
+  <svg id="flow" viewBox="0 0 720 820" role="img" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+    <title>Agent architecture flow</title>
+    <desc>Technical flow showing the loop between the agent, MCP connectors, the landing page, the user, and the market detail.</desc>
+
+    <defs>
+      <marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M1 1L9 5L1 9Z" fill="var(--neutral)" stroke="none"/>
+      </marker>
+      <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M1 1L9 5L1 9Z" fill="var(--accent)" stroke="none"/>
+      </marker>
+      <marker id="arrow-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M1 1L9 5L1 9Z" fill="#BA7517" stroke="none"/>
+      </marker>
+    </defs>
+
+    <!-- MCP CONNECTORS — fanned out above the agent -->
+    <g>
+      <text x="560" y="40" text-anchor="middle" dominant-baseline="central" class="edge-label" fill="var(--text-muted)">MCP channels</text>
+    </g>
+
+    <!-- MCP pills row at y=64..100, x=452..672 (agent width 240, 4 pills evenly spaced) -->
+    <g>
+      <rect id="mcp-email" x="452" y="64" width="44" height="36" rx="4" fill="var(--mcp-fill)" stroke="var(--border)" stroke-width="1"/>
+      <text x="474" y="82" text-anchor="middle" dominant-baseline="central" class="mcp-label" fill="var(--text)">Email</text>
+    </g>
+    <g>
+      <rect id="mcp-gdrive" x="514" y="64" width="44" height="36" rx="4" fill="var(--mcp-fill)" stroke="var(--border)" stroke-width="1"/>
+      <text x="536" y="78" text-anchor="middle" dominant-baseline="central" class="mcp-label" fill="var(--text)">Google</text>
+      <text x="536" y="90" text-anchor="middle" dominant-baseline="central" class="mcp-label" fill="var(--text)">drive</text>
+    </g>
+    <g>
+      <rect id="mcp-jira" x="576" y="64" width="44" height="36" rx="4" fill="var(--mcp-fill)" stroke="var(--border)" stroke-width="1"/>
+      <text x="598" y="82" text-anchor="middle" dominant-baseline="central" class="mcp-label" fill="var(--text)">Jira</text>
+    </g>
+    <g>
+      <rect id="mcp-slack" x="638" y="64" width="44" height="36" rx="4" fill="var(--mcp-fill)" stroke="var(--border)" stroke-width="1"/>
+      <text x="660" y="82" text-anchor="middle" dominant-baseline="central" class="mcp-label" fill="var(--text)">Slack</text>
+    </g>
+
+    <!-- MCP connector lines (amber, drop into agent top edge at y=160) -->
+    <line x1="474" y1="100" x2="474" y2="160" stroke="#BA7517" stroke-width="1" opacity="0.55"/>
+    <line x1="536" y1="100" x2="536" y2="160" stroke="#BA7517" stroke-width="1" opacity="0.55"/>
+    <line x1="598" y1="100" x2="598" y2="160" stroke="#BA7517" stroke-width="1" opacity="0.55"/>
+    <line x1="660" y1="100" x2="660" y2="160" stroke="#BA7517" stroke-width="1" opacity="0.55"/>
+
+    <!-- AGENT NODE (process, rounded rect) — top right, now at y=160 -->
+    <g>
+      <rect x="440" y="160" width="240" height="80" rx="6" fill="var(--agent-fill)" stroke="var(--border)" stroke-width="1.25"/>
+      <text x="560" y="192" text-anchor="middle" dominant-baseline="central" class="node-title" fill="var(--text)">Agent · Custodian</text>
+      <text x="560" y="214" text-anchor="middle" dominant-baseline="central" class="node-sub" fill="var(--text-muted)">Detect · package · mediate</text>
+    </g>
+
+    <!-- LANDING PAGE NODE (screen, sharp rect with header bar) — top left, at y=160 -->
+    <g>
+      <rect x="40" y="160" width="240" height="80" rx="2" fill="var(--screen-fill)" stroke="var(--border)" stroke-width="1.25"/>
+      <rect x="40" y="160" width="240" height="18" fill="var(--border)" stroke="none"/>
+      <circle cx="52" cy="169" r="2.5" fill="var(--bg)"/>
+      <circle cx="60" cy="169" r="2.5" fill="var(--bg)"/>
+      <circle cx="68" cy="169" r="2.5" fill="var(--bg)"/>
+      <text x="160" y="203" text-anchor="middle" dominant-baseline="central" class="node-title" fill="var(--text)">Landing page</text>
+      <text x="160" y="224" text-anchor="middle" dominant-baseline="central" class="node-sub" fill="var(--text-muted)">Alerts · queries · to-do</text>
+    </g>
+
+    <!-- USER DECISION (diamond) — middle -->
+    <g>
+      <polygon points="360,310 500,390 360,470 220,390" fill="var(--decision-fill)" stroke="var(--border)" stroke-width="1.25"/>
+      <text x="360" y="378" text-anchor="middle" dominant-baseline="central" class="node-title" fill="var(--text)">User</text>
+      <text x="360" y="400" text-anchor="middle" dominant-baseline="central" class="node-sub" fill="var(--text-muted)">Offload or act?</text>
+    </g>
+
+    <!-- MARKET DETAIL NODE (screen) — bottom center -->
+    <g>
+      <rect x="240" y="600" width="240" height="80" rx="2" fill="var(--screen-fill)" stroke="var(--border)" stroke-width="1.25"/>
+      <rect x="240" y="600" width="240" height="18" fill="var(--border)" stroke="none"/>
+      <circle cx="252" cy="609" r="2.5" fill="var(--bg)"/>
+      <circle cx="260" cy="609" r="2.5" fill="var(--bg)"/>
+      <circle cx="268" cy="609" r="2.5" fill="var(--bg)"/>
+      <text x="360" y="643" text-anchor="middle" dominant-baseline="central" class="node-title" fill="var(--text)">Market detail</text>
+      <text x="360" y="664" text-anchor="middle" dominant-baseline="central" class="node-sub" fill="var(--text-muted)">Quota metrics · resolve</text>
+    </g>
+
+    <!-- CONNECTORS -->
+    <!-- p1: Market detail → Agent (pulls data) — right loop -->
+    <path id="p1" d="M 480 620 L 640 620 L 640 240" fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arrow-green)" opacity="0.18"/>
+    <text x="656" y="430" text-anchor="start" dominant-baseline="central" class="edge-label" fill="var(--accent)" opacity="0.85" transform="rotate(90 656 430)">pulls data</text>
+
+    <!-- p2: Agent process · package (self-loop, now sits between MCP row and agent) -->
+    <path id="p2" d="M 460 160 L 460 130 L 420 130 L 420 200 L 440 200" fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arrow-green)" opacity="0.18"/>
+    <text x="380" y="130" text-anchor="middle" dominant-baseline="central" class="edge-label" fill="var(--accent)" opacity="0.85">process · package</text>
+
+    <!-- p3: Agent → Landing page -->
+    <path id="p3" d="M 440 200 L 280 200" fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arrow-green)" opacity="0.18"/>
+
+    <!-- p4: Landing page → User (decision) -->
+    <path id="p4" d="M 160 240 L 160 390 L 220 390" fill="none" stroke="var(--neutral)" stroke-width="1.5" marker-end="url(#arrow-gray)" opacity="0.18"/>
+
+    <!-- p5: User → Agent (offload) — from top point of diamond -->
+    <path id="p5" d="M 360 310 L 360 280 L 500 280 L 500 240" fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arrow-green)" opacity="0.18"/>
+    <text x="430" y="270" text-anchor="middle" dominant-baseline="central" class="edge-label" fill="var(--accent)" opacity="0.85">offload</text>
+
+    <!-- p6: Agent → Market detail (carry out task) — parallel to p1 -->
+    <path id="p6" d="M 580 240 L 580 660 L 480 660" fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arrow-green)" opacity="0.18"/>
+    <text x="596" y="430" text-anchor="start" dominant-baseline="central" class="edge-label" fill="var(--accent)" opacity="0.85" transform="rotate(90 596 430)">carry out task</text>
+
+    <!-- p7: User → Market detail (user acts manually) — straight down -->
+    <path id="p7" d="M 360 470 L 360 600" fill="none" stroke="var(--neutral)" stroke-width="1.5" marker-end="url(#arrow-gray)" opacity="0.18"/>
+    <text x="376" y="535" text-anchor="start" dominant-baseline="central" class="edge-label" fill="var(--text-muted)" opacity="0.85">user acts</text>
+
+    <!-- Pulse -->
+    <circle id="pulse" r="6" fill="var(--accent)" opacity="0"/>
+
+    <!-- LEGEND -->
+    <g transform="translate(40, 710)">
+      <rect x="0" y="0" width="640" height="76" rx="2" fill="var(--surface)" stroke="var(--border-soft)" stroke-width="0.75"/>
+      <line x1="20" y1="20" x2="56" y2="20" stroke="var(--accent)" stroke-width="1.5"/>
+      <text x="68" y="20" dominant-baseline="central" class="legend-text">Agent flow — automated</text>
+      <line x1="20" y1="40" x2="56" y2="40" stroke="var(--neutral)" stroke-width="1.5"/>
+      <text x="68" y="40" dominant-baseline="central" class="legend-text">User flow — manual</text>
+      <line x1="20" y1="60" x2="56" y2="60" stroke="#BA7517" stroke-width="1"/>
+      <text x="68" y="60" dominant-baseline="central" class="legend-text">MCP channel — third-party tool</text>
+    </g>
+
+    <!-- STEP LABEL -->
+    <text id="stepLabel" x="360" y="800" text-anchor="middle" dominant-baseline="central" class="step-label">Step 1 of 7 — Agent pulls information from market detail</text>
+  </svg>
+</div>
+
+<!-- Host theme bridge + auto-height reporter. Separate from the animation
+     logic below; touches neither the SVG geometry nor the step loop. The
+     embedding page posts { type:'embed-theme', theme:'paper'|'onyx' }; the
+     widget reports its rendered height back on the channel below. -->
+<script>
+(function() {
+  var CHANNEL = 'gwi-agent-flow:height';
+  var root = document.documentElement;
+  function reportHeight() {
+    var h = Math.ceil(Math.max(
+      root.scrollHeight,
+      document.body ? document.body.scrollHeight : 0
+    ));
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: CHANNEL, height: h }, '*');
+    }
+  }
+  window.addEventListener('message', function(e) {
+    var d = e.data;
+    if (!d || d.type !== 'embed-theme') return;
+    root.classList.toggle('is-dark', d.theme === 'onyx');
+    root.classList.toggle('is-light', d.theme === 'paper');
+    reportHeight();
+  });
+  if ('ResizeObserver' in window) {
+    new ResizeObserver(reportHeight).observe(root);
+  }
+  window.addEventListener('load', reportHeight);
+  reportHeight();
+})();
+</script>
+
+<script>
+(function() {
+  const steps = [
+    { path: 'p1', label: 'Step 1 of 7 — Agent pulls information from market detail', from: [480, 620], to: [640, 240], waypoints: [[640, 620]] },
+    { path: 'p2', label: 'Step 2 of 7 — Agent processes data into alerts and severity', from: [460, 160], to: [440, 200], waypoints: [[460, 130], [420, 130], [420, 200]] },
+    { path: 'p3', label: 'Step 3 of 7 — Agent sends alerts to the user landing page', from: [440, 200], to: [280, 200] },
+    { path: 'p4', label: 'Step 4 of 7 — User gathers intel and weighs next action', from: [160, 240], to: [220, 390], waypoints: [[160, 390]] },
+    { path: 'p5', label: 'Step 5 of 7 — User offloads the work back to the agent', from: [360, 310], to: [500, 240], waypoints: [[360, 280], [500, 280]] },
+    { path: 'p6', label: 'Step 6 of 7 — Agent carries the task down to market detail', from: [580, 240], to: [480, 660], waypoints: [[580, 660]] },
+    { path: 'p7', label: 'Step 7 of 7 — Or user takes control and acts on market detail', from: [360, 470], to: [360, 600] },
+  ];
+
+  const pulse = document.getElementById('pulse');
+  const stepLabel = document.getElementById('stepLabel');
+  let current = 0;
+  let timer = null;
+  let rafId = null;
+  let playing = true;
+
+  function setActive(idx) {
+    steps.forEach((s, i) => {
+      const el = document.getElementById(s.path);
+      if (el) el.setAttribute('opacity', i === idx ? '1' : '0.18');
+    });
+    if (stepLabel) stepLabel.textContent = steps[idx].label;
+    animatePulse(steps[idx]);
+  }
+
+  function animatePulse(step) {
+    if (rafId) cancelAnimationFrame(rafId);
+    const points = [step.from, ...(step.waypoints || []), step.to];
+    const segs = [];
+    let total = 0;
+    for (let i = 0; i < points.length - 1; i++) {
+      const dx = points[i+1][0] - points[i][0];
+      const dy = points[i+1][1] - points[i][1];
+      const len = Math.hypot(dx, dy);
+      segs.push({ a: points[i], b: points[i+1], len });
+      total += len;
+    }
+    pulse.setAttribute('opacity', '0');
+    const start = performance.now();
+    const duration = 1800;
+    function frame(now) {
+      const t = Math.min(1, (now - start) / duration);
+      let opacity = 1;
+      if (t < 0.08) opacity = t / 0.08;
+      else if (t > 0.92) opacity = (1 - t) / 0.08;
+      pulse.setAttribute('opacity', opacity);
+      const target = t * total;
+      let acc = 0;
+      for (const seg of segs) {
+        if (acc + seg.len >= target) {
+          const local = (target - acc) / seg.len;
+          const x = seg.a[0] + (seg.b[0] - seg.a[0]) * local;
+          const y = seg.a[1] + (seg.b[1] - seg.a[1]) * local;
+          pulse.setAttribute('cx', x);
+          pulse.setAttribute('cy', y);
+          break;
+        }
+        acc += seg.len;
+      }
+      if (t < 1 && playing) rafId = requestAnimationFrame(frame);
+    }
+    rafId = requestAnimationFrame(frame);
+  }
+
+  function tick() {
+    setActive(current);
+    current = (current + 1) % steps.length;
+  }
+
+  function start() {
+    if (timer) clearInterval(timer);
+    tick();
+    timer = setInterval(tick, 2400);
+  }
+
+  function stop() {
+    if (timer) { clearInterval(timer); timer = null; }
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { playing = false; stop(); }
+    else { playing = true; start(); }
+  });
+
+  start();
+})();
+</script>
+</body>
+</html>

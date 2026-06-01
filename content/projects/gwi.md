@@ -7,7 +7,7 @@
 slug: gwi
 name: GWI
 initial: G
-date: 2025-ongoing
+date: "2025-2026"
 role: Senior Product Designer · Internal data system
 tags: [Agents, Data, Efficiency]
 blurb: >
@@ -48,10 +48,16 @@ narrative:
     company:
       name: GWI
     clients:
-      - name: Meta
       - name: Amazon
-      - name: Omnicom
-      - name: Chelsea FC
+        logo: /projects/gwi/logos/amazon.png
+      - name: Meta
+        logo: /projects/gwi/logos/meta.png
+      - name: FIFA
+        logo: /projects/gwi/logos/fifa.png
+      - name: Uber
+        logo: /projects/gwi/logos/uber.png
+      - name: TikTok
+        logo: /projects/gwi/logos/tiktok.png
     scope:
       - >
         An agentic platform that takes the mundane work off
@@ -71,16 +77,16 @@ narrative:
   - kind: imagePlaceholder
     caption: Hero image
     bleed: true
-    # Device aspect matches the source PNG (7156 × 4712 ≈ 1.52)
+    # Device aspect matches the source PNG (3456 × 2234 ≈ 1.55)
     # so the image fills the frame exactly with no letterbox.
-    aspect: 7156 / 4712
+    aspect: 3456 / 2234
     image:
-      src: /projects/gwi/hero.png
-      alt: GWI homepage with the agentic draw concept
+      src: /projects/gwi/landing-page.png
+      alt: GWI landing page
     backdrop:
-      src: /projects/gwi/plate-bg.jpg
-      # PP keeps the soft blur on its plate; GWI shows the glass
-      # photograph crisp instead.
+      # Static designed background for the hero plate ground —
+      # shown crisp (it's the artwork, not ambience).
+      src: /projects/gwi/plate-bg.png
       blur: false
 
   - kind: lede
@@ -190,7 +196,7 @@ narrative:
     caption: Homepage — ranked attention
 
   - kind: subsectionHeader
-    title: "What is the clear distinction between agents and researchers?"
+    title: "What is an agentic architecture that fits user needs?"
   - kind: prose
     paragraphs:
       - >
@@ -204,8 +210,30 @@ narrative:
     text: >
       The line of responsibility is clear — the agent does the
       work, the researcher owns the decisions.
-  - kind: imagePlaceholder
-    caption: Agent surface
+  # Live data-pipeline diagram — vertical, self-contained SVG widget.
+  # Auto-heights via its channel; fills the reading column up to a
+  # 600px max width.
+  - kind: htmlEmbed
+    src: /prototypes/gwi-data-pipeline/data-pipeline-flow.html
+    title: Data pipeline — agent and MCPs
+    channel: gwi-data-pipeline:height
+    aspect: 560 / 1040
+    maxWidth: 600px
+    caption: >-
+      How project data flows through the system — sources feed the RAG
+      store and the agent in parallel, and the agent dispatches automation
+      tasks built on that context.
+  # Live architecture diagram — a self-contained, responsive SVG widget
+  # embedded via iframe. Auto-heights via its channel; the 720×820 canvas
+  # plus wrap padding renders ~690px tall in the reading column.
+  - kind: htmlEmbed
+    src: /prototypes/gwi-agent-flow/agent-architecture-flow.html
+    title: Agent architecture flow
+    channel: gwi-agent-flow:height
+    aspect: 1 / 1.05
+    caption: >-
+      An interactive view of the agent's runtime loop — automated flows in
+      green, user-driven flows in black, MCP tool channels in amber.
 
   - kind: subsectionHeader
     title: "How do operators move from alert to action?"
@@ -360,11 +388,4 @@ narrative:
         legacy ways are the baseline, the harder it is to argue for new
         foundations. The sandbox prototype eventually moved leadership;
         I should have built it sooner and shown it wider.
-
-  # Closing image — plain bleed slot just above the global footer.
-  # Drop an `image: { src }` once the asset is ready.
-  - kind: imagePlaceholder
-    bleed: true
-    plain: true
-    caption: ""
 ---

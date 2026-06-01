@@ -104,7 +104,26 @@ function ProjectCard({ p }) {
           date have moved out of the image area. */}
       <div className="project__image-frame" ref={frameRef}>
         <div className="project__image" aria-hidden="true">
-          <div className="project__image-placeholder" />
+          {p.cardImage ? (
+            <>
+              <img
+                className="project__image-img project__image-img--default"
+                src={p.cardImage.default}
+                alt=""
+                loading="lazy"
+                draggable="false"
+              />
+              <img
+                className="project__image-img project__image-img--hover"
+                src={p.cardImage.hover}
+                alt=""
+                loading="lazy"
+                draggable="false"
+              />
+            </>
+          ) : (
+            <div className="project__image-placeholder" />
+          )}
         </div>
         {p.badge && (
           <span

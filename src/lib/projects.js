@@ -369,9 +369,10 @@ const nexisNarrative = [
     headline: "Signals within the noise",
     company: { name: "LexisNexis" },
     clients: [
-      { name: "KPMG" },
-      { name: "EY" },
-      { name: "Deloitte" },
+      { name: "KPMG", logo: "/projects/lexisnexis/logos/kpmg.png" },
+      { name: "EY", logo: "/projects/lexisnexis/logos/ey.png" },
+      { name: "ABC", logo: "/projects/lexisnexis/logos/abc.png" },
+      { name: "Kroll", logo: "/projects/lexisnexis/logos/kroll.png" },
     ],
     /* Only the first scope paragraph lives in the Hook itself —
        the second is moved below the hero so the page reads:
@@ -389,14 +390,14 @@ const nexisNarrative = [
     kind: "imagePlaceholder",
     caption: "Hero image",
     bleed: true,
-    /* Device aspect matches the Q2 poster (1440 × 1080 = 4:3)
+    /* Device aspect matches the hero image (2880 × 2160 = 4:3)
        so the image fills the frame with no letterbox. */
     aspect: "1440 / 1080",
     image: {
-      src: "/prototypes/q2-elaboration/poster.png",
+      src: "/projects/lexisnexis/hero.png",
       alt: "Nexis+AI response page — Chevron capital expenditure briefing",
     },
-    backdrop: { unicorn: "CG6kXhsgUfb0qvTFyxmY" },
+    backdrop: { src: "/projects/lexisnexis/plate-bg.png", blur: false },
   },
   /* Second scope paragraph, lifted out of the Hook so it lands
      under the hero rather than above it. */
@@ -421,7 +422,10 @@ const nexisNarrative = [
     kind: "prose",
     paragraphs: [
       "Consultants are paid to identify root causes to business problems and make big calls. Whether the task is competitive intelligence, M&A, market analysis, or strategy and advisory, the work turns on the same thing: pulling the few signals that matter out of a vast and growing wall of news, filings, and reports, then shaping them into a recommendation that holds up in a partner review.",
-      "The generic AI chat interfaces consultants were already leaning on limit that work in two specific ways. They flatten a depth-of-research task into a single confident answer, so the user loses the ability to scope, weight, and shape their own investigation. And they hide the sources behind the answer, which for a consultant whose recommendation will be acted on is not a usability complaint, it's a serious concern.",
+      "The generic AI chat interfaces consultants were already leaning on limit that work in two specific ways. First, they flatten a depth-of-research task into a single confident answer, so the user loses the ability to scope, weight, and shape their own investigation.",
+      "{{strong:The business risk}}: [Lost control over scope and weighting — describe the business risk when consultants can't shape their own investigation.]",
+      "Second, they hide the sources behind the answer, which for a consultant whose recommendation will be acted on is not a usability complaint, it's a serious concern.",
+      "{{strong:The business risk}}: [Hidden sources — describe the business risk when a confident answer can't be traced back to what it's built on.]",
     ],
   },
   // 03 · The experience I built
@@ -469,6 +473,28 @@ const nexisNarrative = [
        Captured from the prototype's opening frame; refresh by
        running scripts/capture-prototype-posters.sh. */
     poster: "/prototypes/q1-contextual-search/poster.png",
+  },
+  /* Search intent / skills picker — interactive widget showing how each
+     "skill" reshapes the underlying search parameters (topics, sources,
+     timeframe, geography, scope + lens). Self-contained Vite/motion
+     bundle in public/prototypes/q1-skills-explorer; `bare` drops the
+     embed frame chrome (the widget carries its own flat card — no radius
+     or shadow) and `channel` lets the iframe auto-size to its height. */
+  {
+    kind: "prose",
+    paragraphs: [
+      "The demo below is a simplified look at how picking a skill completely changes the scope and results of a search — the same question, routed through a different lens, reshapes which topics, sources, timeframes, and geographies the engine reaches for. Getting this right took a huge amount of collaboration with the ML team, alongside my own research and design.",
+    ],
+  },
+  {
+    kind: "htmlEmbed",
+    src: "/prototypes/q1-skills-explorer/index.html",
+    title: "Search intent — skills picker",
+    caption:
+      "Pick a skill to see how the same question reshapes the search engine's parameters",
+    bare: true,
+    channel: "q1-skills-explorer:height",
+    aspect: "600 / 864",
   },
 
   { kind: "subsectionHeader", title: "How can consultants elaborate on a response without typing?" },
@@ -611,11 +637,6 @@ const nexisNarrative = [
       "For every collaborator there is a shared language. Find it, and you've found the key. I'd invest in that language earlier and more explicitly on every cross-functional project I lead.",
     ],
   },
-
-  /* Closing image — plain bleed slot at the foot of the page just
-     above the global footer. Drop an `image: { src }` once the
-     asset is ready. */
-  { kind: "imagePlaceholder", bleed: true, plain: true, caption: "" },
 ];
 
 /* (philpotpearceProjectLayers removed — unused dead code.) */
@@ -747,6 +768,10 @@ export const projects = [
        is derived from the narrative's sectionHeader blocks. */
     ...gwiFromMarkdown,
     sections: narrativeTOC(gwiFromMarkdown.narrative),
+    cardImage: {
+      default: "/projects/gwi/card-default.png",
+      hover: "/projects/gwi/card-hover.png",
+    },
   },
   {
     slug: "lexisnexis",
@@ -765,6 +790,10 @@ export const projects = [
     ],
     narrative: nexisNarrative,
     sections: narrativeTOC(nexisNarrative),
+    cardImage: {
+      default: "/projects/lexisnexis/card-default.png",
+      hover: "/projects/lexisnexis/card-hover.png",
+    },
   },
   {
     /* PhilpotPearce sourced from /content/projects/philpotpearce.md.
@@ -774,6 +803,10 @@ export const projects = [
     ...philpotpearceFromMarkdown,
     sections: narrativeTOC(philpotpearceFromMarkdown.narrative),
     tokens: { principle: philpotpearcePrincipleBodies },
+    cardImage: {
+      default: "/projects/philpotpearce/card-default.png",
+      hover: "/projects/philpotpearce/card-hover.png",
+    },
   },
   {
     slug: "soundtrends",
@@ -785,6 +818,10 @@ export const projects = [
     blurb: "A music intelligence platform — turning streaming data into clear, useful signals for artists, labels, and curators.",
     badge: "Coming soon",
     comingSoon: true,
+    cardImage: {
+      default: "/projects/soundtrends/card-default.png",
+      hover: "/projects/soundtrends/card-hover.png",
+    },
     /* Visual-only on the home grid — hidden from the sidebar
        menu because the case-study page isn't ready yet. */
     excludeFromMenu: true,
