@@ -12,7 +12,7 @@
    pointer-event drag. */
 
 import { useEffect, useRef, useState } from "react";
-import { motion } from "motion/react";
+import { motion, useMotionValue } from "motion/react";
 
 const THEME_KEY = "harrys-theme";
 
@@ -35,6 +35,13 @@ function SunIcon() {
 export default function ThemeToggle() {
   const [theme, setTheme] = useState("paper");
   const trackRef = useRef(null);
+  /* Drag offset only. The knob's resting side is driven entirely by
+     CSS keyed on html[data-theme] (see .skeuo-theme-knob in globals)
+     — this build's Motion `animate` prop does not apply transforms,
+     so we never rely on it for positioning. The motion value here is
+     used purely so a drag can be reset to the resting position with
+     an instant x.set(0) on release. */
+  const x = useMotionValue(0);
 
   useEffect(() => {
     const t = document.documentElement.dataset.theme || "paper";
@@ -76,23 +83,16 @@ export default function ThemeToggle() {
       <div ref={trackRef} className="skeuo-theme-track">
         <motion.div
           className="skeuo-theme-knob"
+          style={{ x }}
           drag="x"
           dragConstraints={trackRef}
           dragElastic={0}
           dragMomentum={false}
-          /* `x: "0%"` puts the knob at the left edge; `x: "100%"`
-             translates by the knob's own width — since the knob
-             is 50% of the track wide, that lands it on the right
-             half. */
-          /* initial={false} prevents the entrance animation. On
-             first render `theme` defaults to "paper"; if the real
-             theme (read in useEffect) is "onyx", we'd otherwise
-             see the knob slide from left to right and visibly
-             pass through the middle on page load. */
-          initial={false}
-          animate={{ x: theme === "paper" ? "0%" : "100%" }}
-          transition={{ type: "spring", stiffness: 500, damping: 35 }}
           onDragEnd={(_, info) => {
+            /* Snap the drag transform back to 0 instantly; the knob's
+               resting side then follows from CSS as soon as the theme
+               (and therefore html[data-theme]) updates. */
+            x.set(0);
             if (!trackRef.current) return;
             const rect = trackRef.current.getBoundingClientRect();
             const midpoint = rect.left + rect.width / 2;

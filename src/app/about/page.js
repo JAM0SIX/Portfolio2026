@@ -54,11 +54,12 @@ export default function AboutPage() {
 
             <div className={styles.letterBody}>
               <p>
-                I&apos;m a native AI designer, who&apos;s been creating
-                AI software for over 6 years. In that time I&apos;ve
-                co-founded an AI medical app and have worked across
-                some fascinating industries most notably, finance,
-                professional services and health.
+                I&apos;m a native AI designer and BIMA Rising Star
+                award winner, who&apos;s been creating AI software for
+                over 6 years. In that time I&apos;ve co-founded an AI
+                medical app and have worked across some fascinating
+                industries — most notably finance, professional
+                services and health.
               </p>
               <p>
                 My workflow now runs on V0, Claude, Cursor, Vercel,

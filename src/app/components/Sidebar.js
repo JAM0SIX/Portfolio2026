@@ -263,6 +263,13 @@ export default function Sidebar() {
     if (activeNote) setNotesOpen(true);
   }, [activeProject, activeNote]);
 
+  /* Collapse the mobile/tablet menu whenever the route changes, so
+     tapping a nav row closes the overlay and reveals the page the
+     user just navigated to. */
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
   return (
     <aside className={`sidebar${mobileOpen ? " is-open" : ""}`} aria-label="Navigation">
       <div className="sidebar-inner">

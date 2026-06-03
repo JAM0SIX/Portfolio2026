@@ -68,6 +68,17 @@ export default function PrototypeEmbed({
   /* Plate backdrop config for bleed heroes. Defaults to a
      blurred copy of the poster. */
   backdrop,
+  /* Optional cap on the frame's rendered width (e.g. "600px").
+     The frame still shrinks below this on narrow viewports; it's
+     centred in the column. Useful for desktop-native prototypes
+     that shouldn't blow up past the reading measure. */
+  maxWidth,
+  /* When true, hide the prototype's in-app dev chrome (the loop /
+     stepper control panel it tags with `data-rmp-dev`). The embed
+     is same-origin, so we inject a scoped style into the iframe
+     document on load rather than editing the copied bundle — that
+     way a re-exported prototype stays hidden automatically. */
+  hideDevChrome = false,
 }) {
   const frameRef = useRef(null);
   const iframeRef = useRef(null);
@@ -84,6 +95,24 @@ export default function PrototypeEmbed({
      block. */
   const focusX = focus?.[0] ?? nativeWidth / 2;
   const focusY = focus?.[1] ?? nativeHeight / 2;
+
+  /* Inject a style hiding the prototype's dev chrome once the iframe
+     loads. Same-origin only; wrapped in try/catch so a cross-origin
+     embed (which we can't touch) just no-ops. A CSS rule in <head>
+     applies to the panel even though React mounts it after load. */
+  const handleIframeLoad = (e) => {
+    if (!hideDevChrome) return;
+    try {
+      const doc = e.currentTarget.contentDocument;
+      if (!doc || doc.getElementById("rmp-hide-dev-chrome")) return;
+      const st = doc.createElement("style");
+      st.id = "rmp-hide-dev-chrome";
+      st.textContent = "[data-rmp-dev]{display:none!important}";
+      doc.head.appendChild(st);
+    } catch {
+      /* cross-origin frame — cannot inject; ignore */
+    }
+  };
 
   /* Track the reduced-motion preference. */
   useEffect(() => {
@@ -186,11 +215,22 @@ export default function PrototypeEmbed({
      doesn't shift on first intersection. */
   const showPoster = reduced || !hasEnteredView;
 
+  /* Cap + centre the frame when maxWidth is given. Mirrors the
+     pattern HtmlEmbedFrame uses: set the width to the cap, keep
+     maxWidth:100% so it still shrinks on narrow viewports, and
+     auto inline margins to centre it in the column. */
+  const frameStyle = { aspectRatio: aspect };
+  if (maxWidth) {
+    frameStyle.width = maxWidth;
+    frameStyle.maxWidth = "100%";
+    frameStyle.marginInline = "auto";
+  }
+
   const frame = (
     <div
       ref={frameRef}
       className={styles.prototypeFrame}
-      style={{ aspectRatio: aspect }}
+      style={frameStyle}
     >
       {showPoster && poster && (
         /* eslint-disable-next-line @next/next/no-img-element */
@@ -207,6 +247,7 @@ export default function PrototypeEmbed({
           title={caption || "Prototype"}
           sandbox="allow-scripts allow-same-origin"
           allow="autoplay"
+          onLoad={handleIframeLoad}
           className={styles.prototypeIframe}
           style={{ width: nativeWidth, height: nativeHeight }}
         />

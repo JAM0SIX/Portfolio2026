@@ -47,8 +47,8 @@
 
 .metricCard {
   flex: initial;
-  min-height: 104px;
-  height: 104px;
+  min-height: 84px;
+  height: 84px;
   background: transparent;
 }
 
@@ -311,7 +311,15 @@
 }
 
 .metricContent {
-  bottom: var(--space-5);
+  /* Pull the value + label tight to the top-left of the card. The
+     default .content insets (top/left/right space-6 = 28px) leave too
+     little room inside the 84px metric card, clipping the value and
+     label. Tightening top/left to space-4 (16px) and dropping bottom
+     to space-3 recovers the vertical headroom so nothing clips. */
+  top: var(--space-4);
+  left: var(--space-4);
+  right: var(--space-4);
+  bottom: var(--space-3);
   justify-content: flex-start;
   gap: var(--space-1);
   height: auto;
@@ -328,7 +336,10 @@
 }
 
 .metricHeading {
-  font-size: clamp(1rem, 1.4vw, 1.25rem);
+  /* Trimmed from clamp(1.6rem, 2.4vw, 2.1rem): the longest value
+     (£750,000) overflowed the metric card at the old max. This still
+     reads as the dominant figure but fits the container width. */
+  font-size: clamp(1.4rem, 2vw, 1.8rem);
   font-weight: var(--weight-bold);
   font-variant-numeric: tabular-nums;
   letter-spacing: var(--track-wide);
@@ -521,7 +532,15 @@
   }
 
   .metricHeading {
-    font-size: clamp(0.95rem, 3.5vw, 1.15rem);
+    font-size: clamp(1.5rem, 6vw, 1.9rem);
+  }
+
+  /* Metric cards only carry a value + a one-line label, so they
+     don't need the tall 240px body height the content cards use on
+     mobile. Keep them compact and let the content set the height. */
+  .metricCard {
+    min-height: 96px;
+    height: auto;
   }
 
   /* Frame: side-lines fully drawn, no transition. */

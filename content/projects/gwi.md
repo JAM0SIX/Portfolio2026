@@ -77,6 +77,9 @@ narrative:
   - kind: imagePlaceholder
     caption: Hero image
     bleed: true
+    # Fixed desktop hero height; below 721px the slot reverts to the
+    # aspect-ratio below so the mobile hero scales with the viewport.
+    height: 640
     # Device aspect matches the source PNG (3456 × 2234 ≈ 1.55)
     # so the image fills the frame exactly with no letterbox.
     aspect: 3456 / 2234
@@ -163,133 +166,9 @@ narrative:
           makes the audit significantly harder
         label: "Business risk: workarounds compound into audit liability"
 
-  # 03 · The experience I built
+  # 03 · Philosophy
   - kind: sectionHeader
     chapter: "03"
-    title: The experience I built
-    subtitle: >
-      Independent design work — research, design decisions, and UI
-      are all my own contribution.
-  - kind: prose
-    paragraphs:
-      - >
-        Five questions shaped where the researcher's attention
-        should go inside the platform. Each one led to a different
-        surface.
-
-  - kind: subsectionHeader
-    title: "How do researchers want to identify issues and act on them?"
-  - kind: prose
-    paragraphs:
-      - >
-        By opening into a ranked list of activities — only the
-        signals that need a human decision today. Critical
-        information surfaces at the top of the homepage and each
-        item is one click from resolution; if it isn't on this
-        screen, it doesn't need them.
-  - kind: outcomeNote
-    text: >
-      Researchers open their day knowing exactly where their
-      attention is needed — and can act on it without leaving the
-      homepage.
-  - kind: imagePlaceholder
-    caption: Homepage — ranked attention
-
-  - kind: subsectionHeader
-    title: "What is an agentic architecture that fits user needs?"
-  - kind: prose
-    paragraphs:
-      - >
-        The agent handles the mundane: chasing approvals,
-        formatting exports, surfacing alerts. The researcher
-        holds the judgement calls — the decisions that shape
-        the data and the recommendation. Agent authority is
-        bounded by reversibility × confidence: cheap and
-        certain, it acts; expensive or uncertain, it escalates.
-  - kind: outcomeNote
-    text: >
-      The line of responsibility is clear — the agent does the
-      work, the researcher owns the decisions.
-  # Live data-pipeline diagram — vertical, self-contained SVG widget.
-  # Auto-heights via its channel; fills the reading column up to a
-  # 600px max width.
-  - kind: htmlEmbed
-    src: /prototypes/gwi-data-pipeline/data-pipeline-flow.html
-    title: Data pipeline — agent and MCPs
-    channel: gwi-data-pipeline:height
-    aspect: 560 / 1040
-    maxWidth: 600px
-    caption: >-
-      How project data flows through the system — sources feed the RAG
-      store and the agent in parallel, and the agent dispatches automation
-      tasks built on that context.
-  # Live architecture diagram — a self-contained, responsive SVG widget
-  # embedded via iframe. Auto-heights via its channel; the 720×820 canvas
-  # plus wrap padding renders ~690px tall in the reading column.
-  - kind: htmlEmbed
-    src: /prototypes/gwi-agent-flow/agent-architecture-flow.html
-    title: Agent architecture flow
-    channel: gwi-agent-flow:height
-    aspect: 1 / 1.05
-    caption: >-
-      An interactive view of the agent's runtime loop — automated flows in
-      green, user-driven flows in black, MCP tool channels in amber.
-
-  - kind: subsectionHeader
-    title: "How do operators move from alert to action?"
-  - kind: prose
-    paragraphs:
-      - >
-        Fieldwork is built for navigation, not monitoring.
-        Search-first IA, with visualisations that act as
-        wayfinding rather than reporting. The agent does the
-        watching; the operator does the moving.
-  - kind: outcomeNote
-    text: >
-      Operators intervene in seconds rather than discovering
-      problems hours after they've started costing money.
-  - kind: imagePlaceholder
-    caption: Fieldwork wayfinding
-
-  - kind: subsectionHeader
-    title: "How can we save the business money?"
-  - kind: prose
-    paragraphs:
-      - >
-        By bringing the work GWI currently pays third parties
-        for back in-house. Translation is the clearest example:
-        an automated first pass handles the bulk, with human
-        review focused only on the questions that need judgement.
-        Every surface in the platform is sequenced to replace
-        another piece of outside spend.
-  - kind: outcomeNote
-    text: >
-      Translation moves from a multi-day third-party bottleneck
-      to a routine step inside the draft — and the same pattern
-      repeats across the stack.
-  - kind: imagePlaceholder
-    caption: In-tool translation flow
-
-  - kind: subsectionHeader
-    title: "How do researchers want to handle surveys?"
-  - kind: prose
-    paragraphs:
-      - >
-        With every draft grounded in GWI's own question library
-        (RAG) so consistency is enforced across questions and
-        languages, and stress-tested against simulated
-        respondents (synthetic data) to catch coverage gaps
-        before fieldwork.
-  - kind: outcomeNote
-    text: >
-      Drafts catch their own gaps before fieldwork starts —
-      fewer late-stage rewrites, less stress at the deadline.
-  - kind: imagePlaceholder
-    caption: Drafting with RAG + synthetic data
-
-  # 04 · Philosophy
-  - kind: sectionHeader
-    chapter: "04"
     title: Philosophy
   - kind: prose
     paragraphs:
@@ -375,6 +254,162 @@ narrative:
           matters, support the operator's decisions, and carry out
           the mundane work — chasing approvals, reformatting
           exports, queuing reminders.
+
+  # 04 · The experience I built
+  - kind: sectionHeader
+    chapter: "04"
+    title: The experience I built
+    subtitle: >
+      Independent design work — research, design decisions, and UI
+      are all my own contribution.
+  - kind: prose
+    paragraphs:
+      - >
+        Five questions shaped where the researcher's attention
+        should go inside the platform. Each one led to a different
+        surface.
+
+  - kind: subsectionHeader
+    title: "How do researchers want to identify issues and act on them?"
+  - kind: prose
+    paragraphs:
+      - >
+        By opening into a ranked list of activities — only the
+        signals that need a human decision today. Critical
+        information surfaces at the top of the homepage and each
+        item is one click from resolution; if it isn't on this
+        screen, it doesn't need them.
+  - kind: outcomeNote
+    text: >
+      Researchers open their day knowing exactly where their
+      attention is needed — and can act on it without leaving the
+      homepage.
+  # Q1 loop — fixed 1280×800 desktop prototype, native-sized and
+  # CSS-scaled to fit. Capped at the 600px reading measure; mounts
+  # only once it scrolls into view (IntersectionObserver in
+  # PrototypeEmbed), so the four loops don't all boot at once.
+  - kind: prototypeEmbed
+    src: /prototypes/gwi-prototype/index.html?flow=q1
+    aspect: 1280 / 800
+    nativeWidth: 1280
+    nativeHeight: 800
+    maxWidth: 600px
+    caption: "Q1 · Identify & act on issues"
+
+  - kind: subsectionHeader
+    title: "What is an agentic architecture that fits user needs?"
+  - kind: prose
+    paragraphs:
+      - >
+        The agent handles the mundane: chasing approvals,
+        formatting exports, surfacing alerts. The researcher
+        holds the judgement calls — the decisions that shape
+        the data and the recommendation. Agent authority is
+        bounded by reversibility × confidence: cheap and
+        certain, it acts; expensive or uncertain, it escalates.
+  - kind: outcomeNote
+    text: >
+      The line of responsibility is clear — the agent does the
+      work, the researcher owns the decisions.
+  - kind: subsectionHeader
+    title: "How data flows through the system"
+  # Live data-pipeline diagram — vertical, self-contained SVG widget.
+  # Auto-heights via its channel; fills the reading column up to a
+  # 600px max width.
+  - kind: htmlEmbed
+    src: /prototypes/gwi-data-pipeline/data-pipeline-flow.html
+    title: Data pipeline — agent and MCPs
+    channel: gwi-data-pipeline:height
+    aspect: 560 / 1040
+    maxWidth: 600px
+    caption: >-
+      How project data flows through the system — sources feed the RAG
+      store and the agent in parallel, and the agent dispatches automation
+      tasks built on that context.
+  - kind: subsectionHeader
+    title: "Designing agentic data flow"
+  # Live architecture diagram — a self-contained, responsive SVG widget
+  # embedded via iframe. Auto-heights via its channel; the 720×820 canvas
+  # plus wrap padding renders ~690px tall in the reading column.
+  - kind: htmlEmbed
+    src: /prototypes/gwi-agent-flow/agent-architecture-flow.html
+    title: Agent architecture flow
+    channel: gwi-agent-flow:height
+    aspect: 1 / 1.05
+    caption: >-
+      An interactive view of the agent's runtime loop — automated flows in
+      green, user-driven flows in black, MCP tool channels in amber.
+
+  - kind: subsectionHeader
+    title: "How do operators move from alert to action?"
+  - kind: prose
+    paragraphs:
+      - >
+        Fieldwork is built for navigation, not monitoring.
+        Search-first IA, with visualisations that act as
+        wayfinding rather than reporting. The agent does the
+        watching; the operator does the moving.
+  - kind: outcomeNote
+    text: >
+      Operators intervene in seconds rather than discovering
+      problems hours after they've started costing money.
+  # Q3 loop — same bundle, ?flow=q3.
+  - kind: prototypeEmbed
+    src: /prototypes/gwi-prototype/index.html?flow=q3
+    aspect: 1280 / 800
+    nativeWidth: 1280
+    nativeHeight: 800
+    maxWidth: 600px
+    caption: "Q3 · Alert to action"
+
+  - kind: subsectionHeader
+    title: "How do researchers want to handle surveys?"
+  - kind: prose
+    paragraphs:
+      - >
+        With every draft grounded in GWI's own question library
+        (RAG) so consistency is enforced across questions and
+        languages, and stress-tested against simulated
+        respondents (synthetic data) to catch coverage gaps
+        before fieldwork.
+  - kind: outcomeNote
+    text: >
+      Drafts catch their own gaps before fieldwork starts —
+      fewer late-stage rewrites, less stress at the deadline.
+  # Q5 loop — trimmed loop.html shell, ?flow=q5.
+  - kind: prototypeEmbed
+    src: /prototypes/gwi-prototype/loop.html?flow=q5
+    aspect: 1280 / 800
+    nativeWidth: 1280
+    nativeHeight: 800
+    maxWidth: 600px
+    caption: "Q5 · Create & draft a survey"
+
+  - kind: subsectionHeader
+    title: "How can we save the business money?"
+  - kind: prose
+    paragraphs:
+      - >
+        By bringing the work GWI currently pays third parties
+        for back in-house. Translation is the clearest example:
+        an automated first pass handles the bulk, with human
+        review focused only on the questions that need judgement.
+        Every surface in the platform is sequenced to replace
+        another piece of outside spend.
+  - kind: outcomeNote
+    text: >
+      Translation moves from a multi-day third-party bottleneck
+      to a routine step inside the draft — and the same pattern
+      repeats across the stack.
+  # Q4 loop — trimmed loop.html shell, ?flow=q4.
+  - kind: prototypeEmbed
+    src: /prototypes/gwi-prototype/loop.html?flow=q4
+    aspect: 1280 / 800
+    nativeWidth: 1280
+    nativeHeight: 800
+    maxWidth: 600px
+    caption: "Q4 · Coverage & translations"
+
   # 05 · What I'd do differently
   - kind: sectionHeader
     chapter: "05"

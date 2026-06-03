@@ -390,6 +390,9 @@ const nexisNarrative = [
     kind: "imagePlaceholder",
     caption: "Hero image",
     bleed: true,
+    /* Fixed desktop hero height; below 721px the slot reverts to the
+       aspect-ratio below so the mobile hero scales with the viewport. */
+    height: 740,
     /* Device aspect matches the hero image (2880 × 2160 = 4:3)
        so the image fills the frame with no letterbox. */
     aspect: "1440 / 1080",
@@ -494,7 +497,9 @@ const nexisNarrative = [
       "Pick a skill to see how the same question reshapes the search engine's parameters",
     bare: true,
     channel: "q1-skills-explorer:height",
-    aspect: "600 / 864",
+    // Fallback ratio used only until the widget posts its real height — sized
+    // to the responsive card so first paint doesn't clip before the message.
+    aspect: "600 / 1043",
   },
 
   { kind: "subsectionHeader", title: "How can consultants elaborate on a response without typing?" },
@@ -594,9 +599,9 @@ const nexisNarrative = [
       },
       {
         variant: "search-paths",
-        label: "Search paths",
+        label: "Branching",
         eyebrow: "Principle 02",
-        title: "Search Paths",
+        title: "Branching",
         body:
           "Research isn't a straight line. From a single question, the consultant branches into sub-threads, follows the rabbit holes that look promising, prunes the ones that don't. Every search is a tree the user can fork, return to, and shape — the investigative work stays legible rather than flattening into a chat log.",
       },

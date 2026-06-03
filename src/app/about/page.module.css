@@ -258,6 +258,15 @@
   .letter {
     padding: 36px 28px 32px;
   }
+  /* The signature + polaroid don't fit side-by-side in a phone-width
+     letter (the photo is a fixed ~194px frame), so they overflow the
+     card and push horizontal page scroll. Stack them instead: typed
+     sign-off first, photo tucked below and to the left. */
+  .signoff {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
   .grid {
     grid-template-columns: 1fr;
     gap: 20px;

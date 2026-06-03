@@ -267,11 +267,72 @@
 }
 .year { color: var(--ink-mute); font-variant-numeric: tabular-nums; }
 
-@media (max-width: 600px) {
-  .card {
-    padding: var(--space-4);
+/* ── Collapsed-header range: flat vertical list ──────────────────
+   The 5-across folder-tab metaphor only works at true desktop width.
+   Below the 880px sidebar-collapse boundary (the same point the nav
+   becomes the sticky mobile header) the staircase of tabs reads as
+   broken — names truncate on phones, and across the tablet/mobile
+   middle ground the offset tabs stagger awkwardly. So for the whole
+   collapsed-header range we drop the stack + tab interaction and lay
+   the references out as a plain vertical list: each card sits in
+   normal flow, fully expanded, the reference copy running full width
+   within the card, with the name as an in-flow header above the
+   quote. No truncation, no overlap, everything readable at once. The
+   folder-tab stack returns at ≥881px where the sidebar is present.
+
+   This is CSS-only: the JS still drives the WAAPI pull-out
+   animation, but `transform: none !important` wins over a WAAPI
+   `fill: forwards` value (important-author outranks animations in
+   the cascade), so the flattened layout holds even after a tap. */
+@media (max-width: 880px) {
+  .stack {
+    padding-top: 0;
+    min-height: 0;
+    perspective: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
   }
-  .tab { padding: 0 var(--space-2); }
-  .tabText { font-size: var(--text-xs); }
+  .card {
+    /* `relative` (not `static`) keeps each card a positioning context
+       so the absolutely-positioned top-border ::before anchors to the
+       card itself rather than escaping up to .stack. Cards still sit in
+       normal flow since relative doesn't remove them from it. */
+    position: relative !important;
+    transform: none !important;
+    padding: var(--space-5) var(--space-4);
+  }
+  /* The top border was split into ::before/::after to notch a gap
+     under the floating tab. With no floating tab on mobile, restore
+     a single continuous top rule. */
+  .card::before { width: 100% !important; }
+  .card::after { display: none !important; }
+
+  /* Tab → in-flow name header at the top of each card. Strip the
+     absolute positioning, the folder-edge border gradients and the
+     fixed slot width so the full name shows. */
+  .tab {
+    position: static !important;
+    left: auto !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 0 var(--space-3) !important;
+    padding: 0 !important;
+    justify-content: flex-start;
+    background: none !important;
+    cursor: default;
+  }
+  .tabText {
+    font-size: var(--text-md);
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+
+  /* No "active" card on mobile — reveal every card's body. */
+  .body {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
   .quote { font-size: var(--text-sm); }
 }

@@ -422,13 +422,17 @@ function ImagePlaceholder({
      prop. Ignored when `aspect` is set or when plain/inline. */
   height,
 }) {
-  /* Plate-wrapped bleed inherits the 650px hero height by default,
-     overridable per-instance via `height`. Plain bleed (no plate)
-     and inline both lean on aspect-ratio sizing so the slot is
-     sized by its content's natural shape rather than a fixed band. */
+  /* Plate-wrapped bleed heroes carry a fixed DESKTOP height via the
+     `--bleed-h` custom property (default 650px, overridable per
+     instance with `height`). That property is consumed by a
+     min-width:721px CSS rule; below it the mobile rules let the slot
+     fall back to the inline aspect-ratio so the hero scales with the
+     narrow viewport. The aspectRatio is still emitted here so it's
+     available for that mobile range. Plain bleed (no plate) and
+     inline both lean purely on aspect-ratio sizing. */
   const slotStyle =
-    bleed && !plain && !aspect
-      ? { height: height ?? 650 }
+    bleed && !plain
+      ? { "--bleed-h": `${height ?? 650}px`, aspectRatio: aspect ?? "16 / 9" }
       : { aspectRatio: aspect ?? "16 / 9" };
   const slot = image?.src ? (
     <div className={styles.imageSlot} style={slotStyle}>
