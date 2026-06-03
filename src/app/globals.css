@@ -111,22 +111,35 @@ main.page {
 .col > .bleed {
   grid-column: bleed;
 }
+/* Below the sidebar-collapse breakpoint the reading column gutter is
+   tuned so the body content's left edge lines up with the sticky
+   header's inner content (the logo / menu rows sit at shell-gutter +
+   sidebar-inner padding = +16px). Matching that here keeps the header
+   and content left-aligned and reclaims a little horizontal width.
+   16px bleed + shell-gutter (18px tablet / 12px mobile) lands content
+   at 34px / 28px — the same x as the sidebar-inner content. */
 @media (max-width: 880px) {
   .col {
     grid-template-columns:
-      [bleed-start] 32px
+      [bleed-start] 16px
       [reading-start] minmax(0, 1fr) [reading-end]
-      32px [bleed-end];
+      16px [bleed-end];
     padding: 56px 0 96px;
   }
 }
 @media (max-width: 720px) {
+  /* On phones the reading column runs edge-to-edge to the same width
+     as the sticky nav header: zero bleed gutter means content sits at
+     the shell-gutter (12px) on both sides — exactly the nav header's
+     left/right edges. The top padding drops to 12px so the first
+     content row (the location / updated meta bar) sits 12px beneath
+     the nav header rather than floating 48px below it. */
   .col {
     grid-template-columns:
-      [bleed-start] 24px
+      [bleed-start] 0
       [reading-start] minmax(0, 1fr) [reading-end]
-      24px [bleed-end];
-    padding: 48px 0 80px;
+      0 [bleed-end];
+    padding: 12px 0 80px;
   }
 }
 
@@ -160,8 +173,16 @@ main.page {
 }
 /* On mobile the cursor-field interaction (and its keypad
    toggle) doesn't make sense — no precise pointer to react to,
-   and the toggle UI eats valuable header space. Hide both. */
+   and the toggle UI eats valuable header space. Hide both at
+   the mobile breakpoint AND on any touch / coarse-pointer device
+   (so a wide tablet in touch mode never shows the magnet either). */
 @media (max-width: 720px) {
+  .dot-field,
+  .skeuo-keypad {
+    display: none !important;
+  }
+}
+@media (hover: none), (pointer: coarse) {
   .dot-field,
   .skeuo-keypad {
     display: none !important;
@@ -455,7 +476,10 @@ main.page { position: relative; z-index: 1; }
      no matter how far down the page the reader has scrolled. */
   .sidebar {
     position: sticky;
-    top: 0;
+    /* Keep a gap to the viewport top while pinned, matching the
+       LocalClock/theme-toggle pinned at the same offset so the two
+       read as one floating header bar rather than flush to the edge. */
+    top: var(--space-3);
     height: auto;
     overflow: visible;
     background: var(--paper);
@@ -541,7 +565,10 @@ main.page { position: relative; z-index: 1; }
   .local-clock {
     position: fixed;
     top: var(--space-3);
-    right: var(--space-4);
+    /* Sit clear of the sticky header's right border rather than
+       hard against it — the extra inset gives the theme toggle
+       breathing room inside the header bar. */
+    right: var(--space-7);
     bottom: auto;
     left: auto;
     flex-direction: row;
@@ -551,6 +578,16 @@ main.page { position: relative; z-index: 1; }
   }
   .local-clock > * {
     align-self: center;
+  }
+  /* The "Background" label and the cursor-field keypad only make
+     sense alongside the desktop magnet effect, which is hidden on
+     touch/compact layouts. Drop both so the header row carries just
+     the theme toggle. Scoped under .local-clock to out-specify the
+     base `.skeuo-keypad { display: inline-flex }` rule that's
+     declared later in this stylesheet. */
+  .local-clock .local-clock__heading,
+  .local-clock .skeuo-keypad {
+    display: none;
   }
 }
 /* ─── Skeuomorphic toggles — theme-aware tokens ────────────────────── */
@@ -659,17 +696,6 @@ main.page { position: relative; z-index: 1; }
 .skeuo-theme-icon:hover { color: var(--toggle-icon-hover); }
 .skeuo-theme-icon.is-active { color: var(--toggle-icon-active); }
 .skeuo-theme-icon svg { width: 14px; height: 14px; display: block; }
-.skeuo-theme-icon::after {
-  /* Tick from each icon down to the track. */
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 1px;
-  height: 4px;
-  background: var(--toggle-tick);
-}
 .skeuo-theme-icon:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
@@ -693,8 +719,14 @@ main.page { position: relative; z-index: 1; }
   position: absolute;
   top: 2px;
   bottom: 2px;
+  /* Resting side is driven here, not by Motion. Light → flush-left,
+     dark → flush-right. The knob is half the track wide, so the dark
+     resting position is left:50% (its right edge then lands ~2px from
+     the track's right edge). `left` is animated for a smooth slide on
+     theme change; drag movement rides on top via a transform. */
   left: 2px;
   width: calc(50% - 2px);
+  transition: left .28s cubic-bezier(.2, .8, .2, 1);
   border-radius: 0;
   background: linear-gradient(180deg, var(--toggle-knob-from) 0%, var(--toggle-knob-to) 100%);
   /* Same "raised" shadow stack as an inactive cursor key. */
@@ -710,6 +742,7 @@ main.page { position: relative; z-index: 1; }
   touch-action: none;
   user-select: none;
 }
+[data-theme="onyx"] .skeuo-theme-knob { left: 50%; }
 .skeuo-theme-knob:active { cursor: grabbing; }
 .skeuo-theme-knob::after {
   content: "";
@@ -805,6 +838,9 @@ main.page { position: relative; z-index: 1; }
   font-size: var(--text-xs);
   font-weight: var(--weight-medium);
 }
+.local-clock .updated__date {
+  font-weight: var(--weight-regular);
+}
 /* (Old 720px override that re-positioned .local-clock to the
    bottom-left has been removed — on mobile the clock now lives in
    the top-right header next to the sticky sidebar, positioned in
@@ -821,18 +857,12 @@ main.page { position: relative; z-index: 1; }
 .avatar {
   width: 36px; height: 36px;
   /* Headshot fills the tile via background-image — no markup
-     change needed, and the file (public/me.jpg) is served as-is.
-     `background-size: 200%` zooms the image to 2× its cover size
-     so the face fills the square more tightly. Position 50% 7%
-     centres the face inside the square (the face sits at roughly
-     50% horizontal / 23% vertical of the source; the 7% Y is the
-     CSS background-position math for that target with the 2×
-     scale — see the deriv comment below).
-       face_at_normalized_y * 160 - 30 = bg_pos_y_percent
-       0.23 * 160 - 30 = 6.8 ≈ 7%
-     If the headshot is ever swapped, recompute Y using the new
-     face position; the formula stays the same. */
-  background: var(--tile) url("/me.jpg") 50% 7% / 200% no-repeat;
+     change needed, and the file (public/me-header.png) is served
+     as-is. The source is a near-square (668×646) headshot already
+     framed tightly, so it's shown at `cover` centred — no extra
+     zoom. If swapped for a looser crop, reintroduce a >100%
+     background-size and tune the Y position to centre the face. */
+  background: var(--tile) url("/me-header.png") 50% 50% / cover no-repeat;
   border: var(--border-default) solid var(--rule);
   display: inline-block;
   flex: 0 0 36px;
@@ -864,6 +894,12 @@ main.page { position: relative; z-index: 1; }
   align-items: center;
   gap: var(--space-1);
 }
+/* The "Updated: <date>" line sits one notch lighter than the
+   live London/time row above it, so the location reads as the
+   primary metadata and the freshness stamp recedes. */
+.id-meta__row.updated {
+  font-weight: var(--weight-regular);
+}
 .id-location {
   display: inline-flex;
   align-items: center;
@@ -876,12 +912,51 @@ main.page { position: relative; z-index: 1; }
   box-shadow: 0 0 0 0 var(--live-green-ring);
   animation: lc-pulse 2s ease-out infinite;
 }
-.id-sep { margin-right: var(--space-1); }
+/* Pull the comma flush against "London" — the row's flex gap would
+   otherwise put a space before it ("London , 14:30"). The negative
+   left margin cancels that gap so it reads "London, 14:30", while the
+   row gap after the comma keeps the single space before the time. */
+.id-sep { margin-left: calc(-1 * var(--space-1)); }
 .id-time { font-variant-numeric: tabular-nums; }
 @keyframes lc-pulse {
   0%   { box-shadow: 0 0 0 0    var(--live-green-ring); }
   70%  { box-shadow: 0 0 0 10px rgba(74, 222, 128, 0); }
   100% { box-shadow: 0 0 0 0    rgba(74, 222, 128, 0); }
+}
+/* Mobile hero-identity: on a 375px column the name ("Harry
+   Spawforth") and the right-aligned id-meta compete for the same
+   row, squeezing both — the name wraps to two lines and the
+   "Updated: May 16, 2026" date breaks across lines with misaligned
+   baselines. Drop the meta onto its own line below the name so each
+   gets full width: the name stays single-line and every meta row
+   (location/time + updated stamp) stays nowrap. The meta is indented
+   to clear the avatar so it reads as hanging under the name. */
+@media (max-width: 720px) {
+  /* Lift the meta to a full-width bar pinned to the top of the hero,
+     just beneath the sticky header: live location/time on the LEFT,
+     "Updated" stamp on the RIGHT (order:-1 + flex-basis:100% floats
+     it onto its own first line, flex row + space-between splits the
+     two stamps to the column edges). The avatar + name then drop
+     below it, and the headline copy lifts up to close the gap. */
+  .hero-identity {
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .id-meta {
+    order: -1;
+    flex-basis: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-left: 0;
+    /* Extra breathing room below the bar so the avatar + name sit a
+       little lower, clear of the meta line. */
+    margin-bottom: 14px;
+  }
+  .id-meta__row { white-space: nowrap; }
+  /* Close the gap between the identity block and the headline so the
+     hero copy reads higher up the viewport. */
+  .hc-root { margin-top: 36px; }
 }
 
 .hc-root {
@@ -996,6 +1071,146 @@ main.page { position: relative; z-index: 1; }
   line-height: var(--leading-relaxed);
   color: var(--ink-soft);
   margin-top: 48px;
+  transition: color var(--dur-base) var(--ease-default);
+}
+
+/* ─── Hero body spotlight ────────────────────────────────────────
+   Inline annotation glyphs (.hc-glyph) mark key concepts in the
+   body copy. Hovering / focusing a glyph — or tapping it on touch —
+   sets data-active on the .hc-copy wrapper, which dims both
+   paragraphs and lifts the annotated phrase (.hc-mark.is-lit) back
+   to full ink, like a lens focusing on that idea. Colour-only, so
+   nothing reflows; gated by prefers-reduced-motion below. */
+.hc-mark {
+  color: inherit;
+  transition: color var(--dur-base) var(--ease-default);
+}
+.hc-copy[data-active] .hc-body {
+  color: var(--ink-faint);
+}
+.hc-copy[data-active] .hc-mark.is-lit {
+  color: var(--ink);
+}
+/* One emphasised word inside an annotated phrase. At rest it reads as
+   plain body copy; when its phrase is the active spotlight the word
+   turns accent and bold.
+
+   Zero-reflow bold: real bold glyphs are wider than regular, so simply
+   bolding the word would grow the box and push the surrounding copy.
+   Instead the key is an inline grid with two stacked layers in the same
+   cell — an always-bold but invisible ghost (.hc-key__ghost) and the
+   visible text (.hc-key__text). The ghost permanently reserves the bold
+   width, so when the visible text swaps to bold on spotlight the box
+   doesn't change size and nothing around it moves.
+
+   The text layer deliberately has NO color transition of its own: it
+   inherits the dim/lift colour from its parent .hc-mark (which does the
+   fading), and a child transition on an inheriting colour "chases" the
+   parent's in-flight value and freezes mid-way (≈0.63 instead of the
+   dim 0.42). Letting the accent/weight snap in keeps colour and weight
+   changing together and resolves inheritance cleanly. */
+.hc-key {
+  display: inline-grid;
+  cursor: pointer;
+}
+.hc-key__ghost,
+.hc-key__text {
+  grid-area: 1 / 1;
+}
+.hc-key__ghost {
+  font-weight: var(--weight-bold);
+  visibility: hidden;
+}
+.hc-mark.is-lit .hc-key__text {
+  color: var(--accent);
+  font-weight: var(--weight-bold);
+}
+
+/* The glyph itself — a quiet inline mark at rest, warming to the
+   accent when it (or its phrase) is the active spotlight. Padding +
+   negative margin enlarge the tap target on touch without disturbing
+   the line's metrics. */
+.hc-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: -0.16em;
+  width: 1.05em;
+  height: 1.05em;
+  margin: -0.4em 0.04em -0.4em 0.18em;
+  padding: 0.4em;
+  box-sizing: content-box;
+  border: 0;
+  background: none;
+  color: var(--ink-mute);
+  cursor: pointer;
+  transition: color var(--dur-base) var(--ease-default);
+}
+/* Dark-mode contrast. The glyphs are thin, stroke-only icons; on the
+   onyx ground a 62% (--ink-mute) light stroke reads faint, so lift the
+   resting tone to 82% (--ink-soft) in dark mode only. Paper mode keeps
+   62% — near-black strokes already have ample contrast on the light
+   ground. Declared BEFORE the accent rules below so that, at equal
+   specificity, hover / .is-lit still win and recolour to accent. */
+[data-theme="onyx"] .hc-glyph {
+  color: var(--ink-soft);
+}
+/* The glyph icons are Lottie animations rendered to inline SVG. They
+   ship stroke-only in pure black; recolour every stroke to currentColor
+   so each glyph inherits the .hc-glyph ink/accent tone (rest, hover,
+   spotlight-dim) and the light/dark theme. Lottie sizes its own <svg>,
+   so here we just fix the host box, force it to fill, and recolour. */
+.lottie-glyph {
+  display: block;
+  width: 100%;
+  height: 100%;
+  line-height: 0;
+}
+.lottie-glyph svg {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: visible;
+}
+.lottie-glyph svg path,
+.lottie-glyph svg ellipse,
+.lottie-glyph svg line,
+.lottie-glyph svg rect,
+.lottie-glyph svg circle,
+.lottie-glyph svg polyline,
+.lottie-glyph svg polygon {
+  stroke: currentColor !important;
+}
+.hc-glyph:hover,
+.hc-glyph:focus-visible,
+.hc-glyph.is-lit {
+  color: var(--accent);
+}
+.hc-glyph:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+/* While a spotlight is active, the OTHER glyphs recede with the copy
+   so only the active glyph + phrase hold attention. */
+.hc-copy[data-active] .hc-glyph {
+  color: var(--ink-faint);
+}
+.hc-copy[data-active] .hc-glyph.is-lit {
+  color: var(--accent);
+}
+
+/* Glyph motion lives inside the Lottie data and is driven from
+   Hero.js: each icon plays only while its spotlight is on (hover /
+   focus / tap) and rests on its first frame otherwise. Under
+   prefers-reduced-motion the component skips playback entirely, so the
+   glyph holds its first frame as a static icon. */
+@media (prefers-reduced-motion: reduce) {
+  .hc-body,
+  .hc-mark,
+  .hc-glyph {
+    transition: none;
+  }
 }
 
 /* hc-ink — tag-shaped inline word. Square at rest, chamfers on hover. */
@@ -1061,7 +1276,12 @@ main.page { position: relative; z-index: 1; }
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-6);
 }
-@media (max-width: 720px) {
+/* Stack project cards into a single column across the whole
+   mobile/tablet range (≤880px) — i.e. the same breakpoint at which
+   the sidebar collapses into the sticky header. Below that the cards
+   were splitting into two columns while the rest of the layout had
+   already gone to its mobile treatment. */
+@media (max-width: 880px) {
   .projects-grid { grid-template-columns: 1fr; }
 }
 .projects-col {
@@ -1237,6 +1457,25 @@ main.page { position: relative; z-index: 1; }
   width: 100%;
   height: 100%;
   background: var(--tile);
+}
+
+/* Card images. Both default + hover are stacked in the same frame;
+   the hover image sits on top at opacity 0 and crossfades in when
+   the card is hovered or focused. */
+.project__image-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.project__image-img--hover {
+  opacity: 0;
+  transition: opacity var(--dur-base) var(--ease-default);
+}
+.project:hover .project__image-img--hover,
+.project:focus-within .project__image-img--hover {
+  opacity: 1;
 }
 
 /* Status badge fits into the TL notch. Anchored flush to the TL
@@ -1421,7 +1660,57 @@ main.page { position: relative; z-index: 1; }
   padding: var(--space-1) var(--space-3);
   font-size: var(--text-sm);
 }
-.project--coming-soon { opacity: 0.7; pointer-events: none; }
+/* Coming-soon cards are hoverable (image swap + reveal) but expose
+   no CTA — the "View case"/"Live site" actions are omitted in the
+   markup for comingSoon projects, so there's no path to a project
+   page. Full opacity at rest, same as every other card. */
+
+/* Mobile: touch devices can't hover, so the reveal/lift would never
+   fire and the cards would read as inert. Instead every card rests
+   permanently in its "active" state — chamfered lift, hover image
+   shown, and the metrics/desc/actions reveal panel open — and the
+   sibling-dim is disabled so all cards stay fully legible. */
+@media (max-width: 720px) {
+  .project {
+    clip-path: polygon(
+      var(--chamfer-size) 0,
+      100% 0,
+      100% calc(100% - var(--chamfer-size)),
+      calc(100% - var(--chamfer-size)) 100%,
+      0 100%,
+      0 var(--chamfer-size)
+    );
+  }
+  .project::before {
+    background: var(--paper-deep);
+    clip-path: polygon(
+      var(--chamfer-inner) 0,
+      100% 0,
+      100% calc(100% - var(--chamfer-inner)),
+      calc(100% - var(--chamfer-inner)) 100%,
+      0 100%,
+      0 var(--chamfer-inner)
+    );
+  }
+  .project__image-img--hover { opacity: 1; }
+  .project__reveal { grid-template-rows: 1fr; }
+  .projects-grid:has(.project:hover) .project:not(:hover),
+  .projects-grid:has(.project:focus-within) .project:not(:focus-within) {
+    opacity: 1;
+  }
+}
+
+/* Touch targets — the compact card CTAs are only ~20px tall by
+   default. Give them a 32px minimum hit height across the whole
+   mobile/tablet range (≤880px, matching the sticky-header and
+   single-column breakpoints). 32px clears the WCAG 2.5.8 AA minimum
+   (24px) comfortably without the bulk of the 44px AAA target; the
+   label stays the same size, the padding just grows the tap area. */
+@media (max-width: 880px) {
+  .project__actions .btn {
+    min-height: 32px;
+  }
+}
 
 
 /* ─── Case study page ────────────────────────────────────────────────── */
@@ -1477,6 +1766,12 @@ main.page { position: relative; z-index: 1; }
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
+}
+/* Year sits last in the meta row, pushed to the right edge of the
+   column and right-aligned. */
+.case-study__meta dl:last-child {
+  margin-left: auto;
+  text-align: right;
 }
 .case-study__meta dt {
   font-size: var(--text-xs);

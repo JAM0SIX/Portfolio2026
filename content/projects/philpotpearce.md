@@ -2,11 +2,11 @@
 slug: philpotpearce
 name: PhilpotPearce
 initial: P
-date: "2024"
+date: "2026"
 role: "Brand identity & website"
 tags:
   - Brand
-  - Web design
+  - UI
 blurb: >
   Visual identity and web presence for a creative consultancy — balancing
   editorial craft with a clear, confident voice.
@@ -20,6 +20,7 @@ narrative:
       name: PhilpotPearce
     clients:
       - name: PhilpotPearce
+        logo: /projects/philpotpearce/logos/philpotpearce.png
     scope: >
       I designed in collaboration with the founders, guiding them through
       how users will flow through their space, how visual hierarchy can
@@ -35,9 +36,9 @@ narrative:
     poster: /projects/philpotpearce/hero-poster.png
     caption: Hero — philpottpearce.com
     bleed: true
-    # 80px taller than the 650px bleed default — only the device
+    # 10px shorter than the 650px bleed default — only the device
     # changes; the plate keeps its sidebar-matched height.
-    height: 730
+    height: 640
     backdrop:
       src: /projects/philpotpearce/plate-bg.png
 
@@ -154,16 +155,6 @@ narrative:
           - >
             This is the moment where the brand has to disappear and the
             work has to carry the weight.
-
-  # Closing image — large, full-bleed-width slot that sits at the
-  # foot of the page just above the global footer. Plain bleed
-  # (no plate / no backdrop) so it reads as a final beat rather
-  # than another hero. Drop an `image: { src }` once the asset
-  # is ready.
-  - kind: imagePlaceholder
-    bleed: true
-    plain: true
-    caption: ""
 ---
 
 # PhilpotPearce

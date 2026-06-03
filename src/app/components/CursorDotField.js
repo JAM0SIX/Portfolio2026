@@ -104,6 +104,15 @@ export default function CursorDotField() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    /* Touch / coarse-pointer devices: there's no precise cursor to
+       react to, so skip the whole field — no canvas paint, no RAF
+       loop, no touchmove listener. The CSS already hides .dot-field
+       on these devices; this stops it doing any work behind that. */
+    const coarse =
+      window.matchMedia("(hover: none)").matches ||
+      window.matchMedia("(pointer: coarse)").matches;
+    if (coarse) return;
+
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     let variant = document.documentElement.dataset.theme === "onyx" ? "ink" : "paper";

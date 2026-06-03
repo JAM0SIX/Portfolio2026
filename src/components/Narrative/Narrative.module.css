@@ -55,21 +55,22 @@
   border-top: 1px solid var(--rule);
   border-bottom: 1px solid var(--rule);
 }
+/* Each logo sits on a subtle light pill in BOTH themes for consistency.
+   This also keeps solid-black brand logos legible on the onyx
+   background, without hue-shifting colour logos the way a blanket
+   invert() filter would. */
 .clientChip {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-family: var(--font-sans);
-  font-size: var(--text-xs);
-  color: var(--ink-mute);
-  letter-spacing: var(--track-caps);
-  text-transform: uppercase;
+  background: #F5F5F5; /* matches light theme --paper, fixed across both themes */
+  border-radius: 5px;
+  padding: 6px 10px;
 }
 .clientLogo {
   height: 18px;
   width: auto;
   display: block;
-  opacity: 0.85;
+  opacity: 1;
 }
 .clientMark {
   display: inline-block;
@@ -79,7 +80,6 @@
   background: var(--paper-deep);
   border: 1px solid var(--rule);
 }
-.clientName { white-space: nowrap; }
 
 /* Company subhead — sits just above the project title. Subtle: an
    inline mark/logo plus the company name in small caps. */
@@ -127,16 +127,16 @@
 }
 
 /* Section header — numbered chapter ("02") above the section title.
-   The extra margin-top doubles the visual gap between sections
-   beyond the narrative's default row-gap, so each section reads
-   as its own beat on the page rather than blending into the
-   previous one. */
+   The extra margin-top adds to the narrative's default 36px row-gap
+   so the section-to-section break reads at 72px of base rhythm (plus
+   the chapter framing space), letting each section stand as its own
+   beat rather than blending into the previous one. */
 .sectionHeader {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: var(--space-2);
-  margin-top: calc(var(--space-6) * 2);
+  margin-top: calc(var(--space-6) * 2 + var(--space-7));
   padding-bottom: var(--space-3);
   border-bottom: var(--border-default) solid var(--rule);
 }
@@ -270,13 +270,25 @@
   font-weight: var(--weight-medium);
 }
 
-/* Pull-quote — a single quoted line with source. */
+/* Pull-quote — a single quoted line with source. Skeuomorphic
+   treatment: a hairline border on all sides (the accent stays as a
+   thicker left bar) plus a soft drop shadow so the quote reads as a
+   raised paper card lifted off the page. */
 .quote {
   margin: 0;
   padding: var(--space-4) var(--space-5);
+  border: var(--border-default) solid var(--rule);
   border-left: 2px solid var(--accent);
   background: var(--paper-deep);
   max-width: 64ch;
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.12),
+    0 2px 4px rgba(0, 0, 0, 0.06);
+}
+:global([data-theme="onyx"]) .quote {
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.5),
+    0 2px 4px rgba(0, 0, 0, 0.3);
 }
 .quoteBody {
   margin: 0 0 var(--space-2);
@@ -379,6 +391,13 @@
      viewports / large fonts. */
   min-height: 100vh;
   padding: var(--space-7) 0;
+}
+/* Decision-name link (the SidePanel inline trigger, e.g. "Restraint
+   as the brand") — bumped +2px over the body copy and bolded so the
+   tappable section links stand out from the trailing summary text. */
+.decisionRow :global(.link) {
+  font-size: calc(var(--text-sm) + 2px);
+  font-weight: var(--weight-bold);
 }
 
 /* DecisionList image grid — used when a decision is illustrated
@@ -537,10 +556,27 @@
 /* Drop the slot's solid fill when a real bleed image is inside,
    so the letterbox bars show the backdrop (e.g. Nexis+AI's
    Unicorn shader, PP's blurred architectural image) rather than
-   a paper-deep panel. */
+   a paper-deep panel. Keep the 1px rule so the hero device reads
+   as a framed plate — matching the PhilpotPearce video hero. */
 .imagePlaceholder:global(.bleed) .imageSlot:has(.imageMedia) {
   background: transparent;
-  border: 0;
+  border: var(--border-default) solid var(--rule);
+}
+/* Desktop: plate-wrapped bleed heroes size the device by the image's
+   own aspect-ratio (emitted inline as `aspect`) rather than a fixed
+   pixel height. Because each hero's inline `aspect` is set to match its
+   source image exactly, object-fit:contain then fills the device edge
+   to edge — the bordered frame hugs the image on all four sides with no
+   internal letterbox bands. The floating-device-on-backdrop treatment
+   is preserved: ambient backdrop still shows around the device within
+   the plate, just not inside its border. The `--bleed-h` custom
+   property is retained for any consumer that opts back into a fixed
+   height, but is no longer applied here. Capped to the plate's own
+   height so very wide viewports can't push the device past the plate. */
+@media (min-width: 721px) {
+  .mediaPlate .imageSlot {
+    max-height: calc(100vh - var(--shell-gutter) * 2);
+  }
 }
 .imageCaption {
   font-family: var(--font-sans);
@@ -603,6 +639,54 @@
   object-fit: cover;
 }
 
+/* HtmlEmbed — responsive static-HTML widget in a plain iframe. Same
+   caption rhythm + bordered frame vocabulary as prototypeEmbed, but
+   the iframe simply fills the frame (the widget is responsive on its
+   own) rather than being native-sized and transform-scaled. Height
+   is driven by the frame's inline aspect-ratio. */
+.htmlEmbed {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+}
+.htmlEmbedFrame {
+  position: relative;
+  width: 100%;
+  background: var(--paper-deep);
+  border: var(--border-default) solid var(--rule);
+  overflow: hidden;
+  /* Skeuomorphic lift — soft drop shadow so the agentic-flow diagram
+     containers read as raised cards, matching the pull-quotes. */
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.12),
+    0 2px 4px rgba(0, 0, 0, 0.06);
+}
+:global([data-theme="onyx"]) .htmlEmbedFrame {
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.5),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+}
+/* `bare` variant — drops the frame's border + fill so a widget that
+   carries its own surface (e.g. a self-contained card with its own
+   shadow) isn't double-framed. overflow stays visible so the widget's
+   shadow can spill past the frame box. */
+.htmlEmbedFrameBare {
+  background: transparent;
+  border: 0;
+  overflow: visible;
+  box-shadow: none;
+}
+.htmlEmbedIframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  display: block;
+}
+
 /* MediaPlate — hero treatment.
    The plate matches the left sidebar's visible height (viewport
    minus the shell gutters on top and bottom) so the hero band
@@ -620,6 +704,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  /* Horizontal frame padding. The inline `--plate-inset` (set by
+     MediaPlate from its `inset` prop, default 100px) is the desktop
+     value; the mobile media query below tightens it so the device
+     fills more of the narrow viewport. */
+  padding-left: var(--plate-inset, 100px);
+  padding-right: var(--plate-inset, 100px);
+}
+/* Mobile: tighten the frame so the hero device reads larger on
+   small screens (desktop keeps the roomy 100px inset). */
+@media (max-width: 720px) {
+  .mediaPlate {
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
 }
 .mediaPlateBackdrop {
   position: absolute;
@@ -691,4 +789,17 @@
   background: transparent;
   display: block;
   object-fit: cover;
+}
+/* Mobile: a bleed hero video carries a fixed pixel height inline
+   (e.g. PhilpotPearce at 640px). On a narrow viewport that tall box
+   no longer matches the device's wide desktop shape — it crops to a
+   near-portrait sliver. Drop the inline height and pin the frame to
+   the desktop ~3:2 ratio so the hero just scales down, same shape,
+   smaller. `!important` is needed to beat the inline height. Desktop
+   (>720px) keeps the inline pixel height untouched. */
+@media (max-width: 720px) {
+  .videoEmbed:global(.bleed) .videoFrame {
+    height: auto !important;
+    aspect-ratio: 3 / 2;
+  }
 }

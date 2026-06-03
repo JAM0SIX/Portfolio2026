@@ -29,6 +29,7 @@ import SidePanel from "@/components/SidePanel/SidePanel";
 import PillarScroll from "@/components/PillarScroll/PillarScroll";
 import ScrambleText from "@/components/ScrambleText/ScrambleText";
 import QuoteWall from "./QuoteWall";
+import HtmlEmbedFrame from "./HtmlEmbedFrame";
 import PrototypeEmbed from "./PrototypeEmbed";
 import MediaPlate from "./MediaPlate";
 import Video from "./Video";
@@ -120,7 +121,6 @@ function Hook({ eyebrow, headline, scope, heroImage, company, clients }) {
               ) : (
                 <span className={styles.clientMark} aria-hidden="true" />
               )}
-              <span className={styles.clientName}>{c.name}</span>
             </span>
           ))}
         </div>
@@ -422,13 +422,17 @@ function ImagePlaceholder({
      prop. Ignored when `aspect` is set or when plain/inline. */
   height,
 }) {
-  /* Plate-wrapped bleed inherits the 650px hero height by default,
-     overridable per-instance via `height`. Plain bleed (no plate)
-     and inline both lean on aspect-ratio sizing so the slot is
-     sized by its content's natural shape rather than a fixed band. */
+  /* Plate-wrapped bleed heroes carry a fixed DESKTOP height via the
+     `--bleed-h` custom property (default 650px, overridable per
+     instance with `height`). That property is consumed by a
+     min-width:721px CSS rule; below it the mobile rules let the slot
+     fall back to the inline aspect-ratio so the hero scales with the
+     narrow viewport. The aspectRatio is still emitted here so it's
+     available for that mobile range. Plain bleed (no plate) and
+     inline both lean purely on aspect-ratio sizing. */
   const slotStyle =
-    bleed && !plain && !aspect
-      ? { height: height ?? 650 }
+    bleed && !plain
+      ? { "--bleed-h": `${height ?? 650}px`, aspectRatio: aspect ?? "16 / 9" }
       : { aspectRatio: aspect ?? "16 / 9" };
   const slot = image?.src ? (
     <div className={styles.imageSlot} style={slotStyle}>
@@ -490,6 +494,44 @@ function OutcomeNote({ text, label = "User outcome" }) {
   );
 }
 
+/* HtmlEmbed — a self-contained static HTML widget dropped into the
+   narrative via a plain, responsive <iframe>. Unlike PrototypeEmbed
+   (which renders a fixed-viewport React SPA at native size and
+   CSS-scales it to *cover* the frame), an HtmlEmbed widget is itself
+   responsive — its internal layout (e.g. an SVG with width:100% +
+   preserveAspectRatio) fits whatever width the iframe is given. So we
+   just let the iframe fill the reading column and size its height by
+   `aspect` (no transform/scale machinery needed). `loading="lazy"`
+   defers the fetch until the frame nears the viewport; the widget is
+   responsible for pausing its own animation when hidden. */
+function HtmlEmbed({
+  src,
+  caption,
+  title,
+  aspect = "1 / 1.05",
+  bare = false,
+  channel,
+  maxWidth,
+  vhCap,
+}) {
+  return (
+    <figure className={styles.htmlEmbed}>
+      <HtmlEmbedFrame
+        src={src}
+        title={title || caption || "Embedded widget"}
+        aspect={aspect}
+        bare={bare}
+        channel={channel}
+        maxWidth={maxWidth}
+        vhCap={vhCap}
+      />
+      {caption && (
+        <figcaption className={styles.imageCaption}>{caption}</figcaption>
+      )}
+    </figure>
+  );
+}
+
 function Outcomes({ items = [] }) {
   return (
     <section className="case-study__outcomes" aria-label="Outcomes">
@@ -521,6 +563,7 @@ const RENDERERS = {
   statusList: StatusList,
   imagePlaceholder: ImagePlaceholder,
   prototypeEmbed: PrototypeEmbed,
+  htmlEmbed: HtmlEmbed,
   video: Video,
   outcomeNote: OutcomeNote,
   pillarScroll: PillarScroll,

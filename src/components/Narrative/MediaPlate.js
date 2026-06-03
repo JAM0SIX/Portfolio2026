@@ -57,7 +57,9 @@ export default function MediaPlate({
   poster,
   /* Padding on left + right so the backdrop shows as a frame
      around the device. Vertical centering is by flex (the plate
-     itself is sized to the sidebar height in CSS). */
+     itself is sized to the sidebar height in CSS). Kept tight so
+     the plate hugs the hero device rather than floating it inside
+     a wide band of backdrop. */
   inset = 100,
 }) {
   const explicitSrc = backdrop?.src;
@@ -78,7 +80,10 @@ export default function MediaPlate({
   return (
     <div
       className={styles.mediaPlate}
-      style={{ paddingLeft: inset, paddingRight: inset }}
+      /* Inset drives horizontal padding via a custom property so a
+         mobile media query can tighten it (wider device on small
+         screens) without `!important` fighting an inline style. */
+      style={{ "--plate-inset": `${inset}px` }}
     >
       {explicitSrc && (
         /* eslint-disable-next-line @next/next/no-img-element */
