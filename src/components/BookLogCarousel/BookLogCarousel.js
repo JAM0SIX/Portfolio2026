@@ -9,7 +9,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { ARTICLES } from "./articles";
+import { VISIBLE_ARTICLES as ARTICLES } from "./articles";
 import styles from "./BookLogCarousel.module.css";
 
 /* ── Animated dot matrix ───────────────────────────────────────
@@ -277,7 +277,10 @@ export default function BookLogCarousel() {
               </div>
               <div className={styles.body}>
                 <div className={styles.head}>
-                  <span className={styles.title}>{a.title}</span>
+                  <span className={styles.title}>
+                    {a.part ? `${a.part}: ` : ""}
+                    {a.title}
+                  </span>
                   <span className={styles.date}>{a.date}</span>
                 </div>
               </div>

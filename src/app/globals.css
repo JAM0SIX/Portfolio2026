@@ -1848,6 +1848,130 @@ main.page { position: relative; z-index: 1; }
   border: var(--border-default) solid var(--rule);
 }
 
+/* ─── Reading note (long-form article) ───────────────────────────────────
+   Scoped overrides so written articles read like an essay — larger body
+   text, a comfortable measure, and a clear lede — without disturbing the
+   denser project case-study layout that shares these base classes. */
+.reading-note .case-study__eyebrow {
+  text-transform: none;
+  letter-spacing: var(--track-tight);
+}
+.reading-note .case-study__title {
+  max-width: 20ch;
+  margin-bottom: var(--space-5);
+}
+.reading-note .case-study__lede {
+  font-size: clamp(17px, 1.6vw, 20px);
+  line-height: 1.5;
+  color: var(--ink);
+  max-width: 56ch;
+}
+.reading-note .case-study__meta {
+  padding-bottom: var(--space-6);
+  border-bottom: var(--border-default) solid var(--rule);
+}
+.reading-note .case-study__body {
+  margin-top: var(--space-7);
+}
+.reading-note .case-study__body .case-study__paragraph {
+  font-size: 17px;
+  line-height: 1.75;
+  color: var(--ink-soft);
+  max-width: 68ch;
+  margin-bottom: var(--space-6);
+}
+/* Opening paragraph lifts to full ink as a gentle lead-in. */
+.reading-note .case-study__body .case-study__paragraph:first-child {
+  color: var(--ink);
+  font-size: 19px;
+  line-height: 1.65;
+}
+
+/* "Continue reading" banner — links a multi-part piece to its next part.
+   Sits at the foot of the article, full reading-column width. */
+/* Layered chamfer (matches .project): the outer element's background is
+   the border colour, and a ::before inset by 1px carries the fill — so
+   the 1px outline is preserved on the chamfered diagonal too. */
+.reading-next {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "label arrow"
+    "title arrow";
+  align-items: center;
+  gap: var(--space-1) var(--space-5);
+  margin-top: var(--space-9);
+  padding: var(--space-5) var(--space-6);
+  max-width: 68ch;
+  background: var(--rule);
+  text-decoration: none;
+  /* Square at rest; chamfers the TL + BR corners on hover, matching
+     the tag/card primitive used elsewhere on the site. */
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 100% 100%, 0 100%, 0 0);
+  transition:
+    background var(--dur-base) var(--ease-default),
+    clip-path var(--dur-base) var(--ease-default);
+}
+.reading-next::before {
+  content: "";
+  position: absolute;
+  inset: var(--border-default);
+  z-index: -1;
+  background: var(--tile);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 100% 100%, 0 100%, 0 0);
+  transition:
+    background var(--dur-base) var(--ease-default),
+    clip-path var(--dur-base) var(--ease-default);
+}
+.reading-next:hover,
+.reading-next:focus-visible {
+  background: var(--ink-62);
+  clip-path: polygon(
+    var(--chamfer-size) 0,
+    100% 0,
+    100% calc(100% - var(--chamfer-size)),
+    calc(100% - var(--chamfer-size)) 100%,
+    0 100%,
+    0 var(--chamfer-size)
+  );
+}
+.reading-next:hover::before,
+.reading-next:focus-visible::before {
+  clip-path: polygon(
+    var(--chamfer-inner) 0,
+    100% 0,
+    100% calc(100% - var(--chamfer-inner)),
+    calc(100% - var(--chamfer-inner)) 100%,
+    0 100%,
+    0 var(--chamfer-inner)
+  );
+}
+.reading-next__label {
+  grid-area: label;
+  font-size: var(--text-xs);
+  color: var(--ink-mute);
+}
+.reading-next__title {
+  grid-area: title;
+  font-family: var(--font-sans);
+  font-size: 17px;
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-snug);
+  color: var(--ink);
+}
+.reading-next__arrow {
+  grid-area: arrow;
+  color: var(--ink-soft);
+  transition: transform var(--dur-base) var(--ease-default), color var(--dur-base) var(--ease-default);
+}
+.reading-next:hover .reading-next__arrow,
+.reading-next:focus-visible .reading-next__arrow {
+  color: var(--ink);
+  transform: translateX(3px);
+}
+
 /* Icon button — chrome-less hit target with a 1px outline. Used by
    PortfolioDial (▲ ▼ arrows) and BookLogExperiment (◀ ▶ pager). */
 .btn-icon {

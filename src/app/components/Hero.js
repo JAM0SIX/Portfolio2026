@@ -7,8 +7,6 @@ import databaseLottie from "./lottie/database.json";
 import percentLottie from "./lottie/percent.json";
 import codeLottie from "./lottie/code.json";
 
-const LAST_UPDATED = "May 16, 2026";
-
 /* Inline annotation glyphs for the hero body copy. Each marks a key
    concept; hovering/focusing one (or tapping on touch) spotlights the
    phrase it annotates — the surrounding copy dims and the phrase lifts
@@ -152,9 +150,7 @@ export default function Hero() {
         <span className="avatar" aria-hidden="true" />
         <span className="name">Harry Spawforth</span>
         <div className="id-meta">
-          {/* Top row — live location + clock; bottom row — the
-              last-updated stamp. Stacked so each line reads on its
-              own, no inline separators. */}
+          {/* Live location + clock. */}
           <span className="id-meta__row">
             <span className="id-location">
               <span className="dot" aria-hidden="true" />
@@ -163,7 +159,6 @@ export default function Hero() {
             <span className="id-sep" aria-hidden="true">,</span>
             <span className="id-time">{time || "--:--"}</span>
           </span>
-          <span className="id-meta__row updated">Updated: <span className="updated__date">{LAST_UPDATED}</span></span>
         </div>
       </div>
 

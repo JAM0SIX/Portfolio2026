@@ -180,7 +180,7 @@ function Decoration({ deco, seed }) {
 }
 
 export default function Cover({ article }) {
-  const { id, title, author, section, paper, decorations = [] } = article;
+  const { id, title, part, author, section, paper, decorations = [] } = article;
   const palette = PAPER_PALETTES[paper] || PAPER_PALETTES.slate;
   /* Stable numeric seed for filters that need one (rough-doodle). */
   const seed = parseInt(id, 10) || 1;
@@ -217,7 +217,10 @@ export default function Cover({ article }) {
         </div>
 
         <div className={styles.titleBlock}>
-          <p className={styles.title}>{title}</p>
+          <p className={styles.title}>
+            {part ? `${part}: ` : ""}
+            {title}
+          </p>
         </div>
 
         {overlays.map((deco, i) => (

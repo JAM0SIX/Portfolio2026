@@ -11,7 +11,7 @@ blurb: >
   Visual identity and web presence for a creative consultancy — balancing
   editorial craft with a clear, confident voice.
 badge: Shipped
-liveUrl: "#"
+liveUrl: "https://philpottpearce.com"
 narrative:
   # 01 · Hook
   - kind: hook

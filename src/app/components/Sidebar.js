@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import LogoMark from "./LogoMark";
 import { projects } from "@/lib/projects";
-import { ARTICLES } from "@/components/BookLogCarousel/articles";
+import { ARTICLES, VISIBLE_ARTICLES } from "@/components/BookLogCarousel/articles";
 import { EXPERIMENTS } from "@/lib/experiments";
 
 function Chev() {
@@ -215,7 +215,7 @@ function IndexSidebar({
         </button>
         <div className="children">
           <div className="children-list">
-            {ARTICLES.map((a) => (
+            {VISIBLE_ARTICLES.map((a) => (
               <FileRow
                 key={a.id}
                 href={`/reading/${a.id}`}

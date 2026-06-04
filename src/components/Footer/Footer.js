@@ -46,8 +46,8 @@ function ReadCvIcon() {
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
-  { href: "/#projects", label: "Work" },
-  { href: "/#writing", label: "Writing" },
+  { href: "/#work", label: "Work" },
+  { href: "/#reading", label: "Writing" },
   { href: "/experiments", label: "Experiments" },
   { href: "/about", label: "About" },
 ];
