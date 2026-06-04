@@ -17,7 +17,7 @@ const TAB_PADDING = 16;
    visible space to the right of the badge. */
 const NOTCH_SLANT_PX = 10;
 
-function ProjectCard({ p }) {
+function ProjectCard({ p, order }) {
   const frameRef = useRef(null);
   const badgeRef = useRef(null);
 
@@ -97,6 +97,12 @@ function ProjectCard({ p }) {
       role="article"
       aria-label={p.name}
       tabIndex={p.comingSoon ? -1 : 0}
+      /* `order` matches the card's index in the full projects array.
+         On desktop it's a no-op (values stay sequential within each
+         column); on mobile the column wrappers collapse to
+         `display: contents` and these orders sort all cards back into
+         array sequence (GWI, Nexis+AI, PhilpotPearce, SoundTrends). */
+      style={{ order }}
     >
       {/* Image frame holds the image (clipped with a TL notch for
           the badge only — the BR corner is sharp now) and the
@@ -181,8 +187,16 @@ function ProjectCard({ p }) {
 }
 
 export default function ProjectsGrid() {
-  const left = projects.filter((_, i) => i % 2 === 0);
-  const right = projects.filter((_, i) => i % 2 === 1);
+  /* Keep each card's original array index so it can be used as its
+     CSS `order` — that's what lets the mobile single-column stack
+     fall back to true array sequence (see ProjectCard + the
+     `display: contents` mobile rule in globals.css). */
+  const left = projects
+    .map((p, i) => ({ p, order: i }))
+    .filter((_, i) => i % 2 === 0);
+  const right = projects
+    .map((p, i) => ({ p, order: i }))
+    .filter((_, i) => i % 2 === 1);
 
   return (
     <section className="projects-section" id="work">
@@ -193,10 +207,14 @@ export default function ProjectsGrid() {
       </div>
       <div className="projects-grid">
         <div className="projects-col">
-          {left.map((p) => <ProjectCard key={p.slug} p={p} />)}
+          {left.map(({ p, order }) => (
+            <ProjectCard key={p.slug} p={p} order={order} />
+          ))}
         </div>
         <div className="projects-col">
-          {right.map((p) => <ProjectCard key={p.slug} p={p} />)}
+          {right.map(({ p, order }) => (
+            <ProjectCard key={p.slug} p={p} order={order} />
+          ))}
         </div>
       </div>
     </section>

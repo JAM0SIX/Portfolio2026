@@ -1283,6 +1283,12 @@ main.page { position: relative; z-index: 1; }
    already gone to its mobile treatment. */
 @media (max-width: 880px) {
   .projects-grid { grid-template-columns: 1fr; }
+  /* Collapse the two column wrappers so all cards become direct grid
+     items in one column. Each card carries an inline `order` equal to
+     its index in the projects array, so the stack falls back to true
+     array sequence (GWI, Nexis+AI, PhilpotPearce, SoundTrends) rather
+     than left-column-then-right-column. */
+  .projects-col { display: contents; }
 }
 .projects-col {
   display: flex;
