@@ -203,7 +203,6 @@ export default function ProjectsGrid() {
       <div className="section__head">
         <span className="section__label">Recent work</span>
         <span className="section__rule" aria-hidden="true" />
-        <span className="section__count">{projects.length} projects</span>
       </div>
       <div className="projects-grid">
         <div className="projects-col">

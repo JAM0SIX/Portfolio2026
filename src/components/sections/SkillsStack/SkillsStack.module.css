@@ -1,0 +1,162 @@
+/* Skills / Stack — portal carousel styles.
+   See SkillsStack.js for the z-index portal trick. */
+
+.section {
+  margin-top: 160px;
+}
+
+/* ── Viewport ──────────────────────────────────────────────────────
+   Clips the rows at its edges and establishes a fresh stacking context
+   (isolation) so the portal faces layer relative to the pills, not the
+   whole page. */
+.viewport {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: var(--space-8) 0;            /* taller portal */
+  /* Portal geometry + colours (theme-adaptive). */
+  --portal-w: 92px;                     /* narrower portal */
+  --portal-taper: 26px;
+  --portal-fill: var(--paper-deep);
+  --portal-border: var(--rule);
+}
+
+.rows {
+  position: relative;
+  z-index: 2;                 /* pills sit in front of the portals */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  /* Dissolve the pills into the portals: fully transparent at each edge,
+     fully solid by the middle of the portal (~half its width), so a pill
+     fades to reveal the trapezoid behind rather than being covered by an
+     overlay. The fade IS the portal colour, and the trapezoid border is
+     never covered. */
+  --fade-hidden: calc(var(--portal-w) * 0.4);
+  --fade-solid: calc(var(--portal-w) * 0.82);
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    transparent var(--fade-hidden),
+    #000 var(--fade-solid),
+    #000 calc(100% - var(--fade-solid)),
+    transparent calc(100% - var(--fade-hidden)),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    transparent var(--fade-hidden),
+    #000 var(--fade-solid),
+    #000 calc(100% - var(--fade-solid)),
+    transparent calc(100% - var(--fade-hidden)),
+    transparent 100%
+  );
+}
+
+/* ── Marquee row + track ───────────────────────────────────────────── */
+.row {
+  overflow: visible;
+}
+.track {
+  display: flex;
+  flex-wrap: nowrap;
+  width: max-content;         /* so scrollWidth measures the real length */
+  gap: var(--space-3);
+  cursor: grab;
+  user-select: none;
+  touch-action: pan-y;        /* vertical page scroll stays native; we own X */
+  will-change: transform;
+}
+.grabbing {
+  cursor: grabbing;
+}
+
+/* ── Pill ──────────────────────────────────────────────────────────
+   Rounded chip with a hairline border + icon slot. Plain text — not a
+   link or button — so the row reads as draggable, never clickable. */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 0 0 auto;
+  padding: 10px 16px;
+  border: var(--border-default) solid var(--rule);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-tight);
+  white-space: nowrap;
+}
+/* Each icon sits on a fixed light chip in BOTH themes (same trick as the
+   project pages): in light mode it blends into the pill, in onyx it keeps
+   solid-black brand logos legible without inverting colour logos. */
+.pillIcon {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  object-fit: contain;
+  padding: 4px;
+  box-sizing: border-box;
+  background: #f5f5f5;
+  border-radius: 5px;
+  pointer-events: none;
+}
+/* In dark mode the chip is visible (light on dark), so square it off. */
+:global([data-theme="onyx"]) .pillIcon {
+  border-radius: 0;
+}
+.pillLabel {
+  pointer-events: none;       /* drag never lands on the text node */
+}
+
+/* ── Portal ────────────────────────────────────────────────────────
+   One bordered trapezoid per side, sitting BEHIND the masked rows. Built
+   with the layered-fill border (the design system's proven pattern, no
+   fragile clip-path frame seams): the element is the border colour, and
+   the ::before — inset 1px on ALL sides and clipped to the same
+   trapezoid — is the fill, leaving a clean 1px rim on every edge.
+
+   Because it sits behind the pills, the outer edge + slants read clearly
+   (the pills are faded/absent there), while at the mouth the pills pass
+   in FRONT of the border — so the inner edge reads as an opening they
+   travel through, never a line drawn over them. Tall outer edge tapering
+   to a shorter inner edge. */
+.portal {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
+  width: var(--portal-w);
+  pointer-events: none;
+  background: var(--portal-border);
+}
+.portal::before {
+  content: "";
+  position: absolute;
+  inset: var(--border-default);
+  background: var(--portal-fill);
+}
+
+.portalLeft {
+  left: 0;
+  clip-path: polygon(0 0, 100% var(--portal-taper), 100% calc(100% - var(--portal-taper)), 0 100%);
+}
+.portalLeft::before {
+  clip-path: polygon(0 0, 100% var(--portal-taper), 100% calc(100% - var(--portal-taper)), 0 100%);
+}
+
+.portalRight {
+  right: 0;
+  clip-path: polygon(0 var(--portal-taper), 100% 0, 100% 100%, 0 calc(100% - var(--portal-taper)));
+}
+.portalRight::before {
+  clip-path: polygon(0 var(--portal-taper), 100% 0, 100% 100%, 0 calc(100% - var(--portal-taper)));
+}
+
+/* Smaller portals on small screens so they don't eat the row. */
+@media (max-width: 600px) {
+  .viewport { --portal-w: 72px; --portal-taper: 20px; }
+  .section { margin-top: 120px; }
+}

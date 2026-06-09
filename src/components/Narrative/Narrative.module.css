@@ -619,6 +619,17 @@
    frame and centre on a configurable focus point. Pure CSS can't
    do this because `scale()` requires a unitless number and
    `calc(<length> / <number>)` produces a length. */
+/* XL desktop: let an in-column (non-bleed) prototype fill the full
+   reading column rather than staying at its inline maxWidth cap. The
+   direct-child selector targets only non-bleed frames — bleed frames are
+   wrapped in a MediaPlate, so they're not a direct child here. */
+@media (min-width: 1440px) {
+  .prototypeEmbed > .prototypeFrame {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-inline: 0 !important;
+  }
+}
 .prototypeIframe {
   position: absolute;
   top: 0;
@@ -717,6 +728,55 @@
   .mediaPlate {
     padding-left: var(--space-4);
     padding-right: var(--space-4);
+  }
+}
+/* Desktop (≥881px): image hero plates stay FULL WIDTH (the backdrop spans
+   the whole bleed track), but the image inside is sized + aligned to the
+   READING COLUMN — its left edge lines up with the body copy and its width
+   matches the reading measure (600px; 700px at XL). The plate height hugs
+   the image with a little vertical backdrop, rather than a full-height band.
+   Scoped to image heroes (videos use a fixed-height model that shouldn't be
+   width-capped). Values mirror the .col grid gutter/reading widths. */
+@media (min-width: 881px) {
+  .imagePlaceholder:global(.bleed) .mediaPlate,
+  .videoEmbed:global(.bleed) .mediaPlate {
+    height: auto;
+    padding: var(--space-7) 0;
+    justify-content: flex-start;
+  }
+  .imagePlaceholder:global(.bleed) .mediaPlateInner,
+  .videoEmbed:global(.bleed) .mediaPlateInner {
+    justify-content: flex-start;
+    padding-left: 128px;
+  }
+  .imagePlaceholder:global(.bleed) .mediaPlateInner > *,
+  .videoEmbed:global(.bleed) .mediaPlateInner > * {
+    max-width: 600px;
+  }
+  /* Video heroes carry a fixed pixel height inline; swap it for the hero's
+     3:2 shape so the reading-column width drives a proportional height
+     (matching the image heroes) instead of a full-height band. */
+  .videoEmbed:global(.bleed) .videoFrame {
+    height: auto !important;
+    aspect-ratio: 3 / 2;
+    /* Trim 20px off the 3:2 height at the full reading width (600px →
+       400px → 380px), width unchanged. Narrower (squeezed) widths stay
+       proportional since their aspect height sits below this cap. */
+    max-height: 380px;
+  }
+}
+@media (min-width: 1440px) {
+  .imagePlaceholder:global(.bleed) .mediaPlateInner,
+  .videoEmbed:global(.bleed) .mediaPlateInner {
+    padding-left: 260px;
+  }
+  .imagePlaceholder:global(.bleed) .mediaPlateInner > *,
+  .videoEmbed:global(.bleed) .mediaPlateInner > * {
+    max-width: 700px;
+  }
+  /* 700px reading width: 467px at 3:2, 20px shorter. */
+  .videoEmbed:global(.bleed) .videoFrame {
+    max-height: 447px;
   }
 }
 .mediaPlateBackdrop {

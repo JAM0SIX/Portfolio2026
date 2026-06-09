@@ -204,6 +204,48 @@ export const ARTICLES = [
     ],
     sections: defaultSections,
   },
+  {
+    id: "007",
+    num: "007",
+    title: "The expensive cost of cheap thinking",
+    subtitle:
+      "We've spent two years celebrating how fast we can produce things, without asking what we lose by producing them so quickly. Some work is pure output. For the rest, the process was the gift.",
+    author: "Harry Spawforth",
+    issue: "VOL.07 / ISSUE 02",
+    date: "Jun, 2026",
+    readtime: "07 MIN",
+    section: "ESSAY",
+    excerpt:
+      "We've spent two years celebrating how fast we can produce things, without asking what we lose by producing them so quickly. Some work is pure output. For the rest, the process was the gift.",
+    body: [
+      "It is curious, I think, that we have spent the last two years celebrating the speed at which we can now produce things, without quite asking what we lose by producing them so quickly.",
+      "Consider the painter. A finished canvas, framed and hung, is often described as if the value lived in the image alone. The composition, the colour, the resemblance. But anyone who has watched a painter at work knows that the canvas is only the last layer of something much larger. The hours of looking. The thousand small decisions about what to leave out. The work that taught the painter how to see what they are now painting. The canvas is the visible part of a far longer, far less visible process, and the painter's hand at the end is steady because of everything that came before it.",
+      "That sounds, I imagine, like a rather genteel point about craft. Let me apply it somewhere less genteel.",
+      "A lawyer who has spent years reading judgments, drafting submissions, and being argued out of their first instinct by a senior partner does not, when they walk into a courtroom, hold a list of rules. They hold something more useful and harder to write down. A feel for which arguments will land, which precedents will be quietly distinguished, which way the case is leaning before they've spoken, and how to change the flow of the room when the moment demands it. None of that is retrievable from a brief read on the morning of the hearing. It is the residue of having done the work. And here is the difficulty. An AI summary, however good, delivers the information without the depth. The lawyer who relied on the summary walks into the courtroom holding little context. The lawyer who did the ground work walks into the courtroom holding everything the work made them.",
+      "I should be clear that no one is suggesting lawyers are about to outsource all their case preparation to a chatbot. The example is illustrative, not predictive. But the principle it makes visible is not confined to law. Over-reliance on AI in the wrong scenarios produces reduced performance, and most of the people experiencing it are doing so in less high-stakes settings where the cost is harder to see.",
+      "The question that helps, I find, is not \"can the AI do this?\" but \"what do I lose by not doing it myself?\" These are not the same question. The first asks whether the output will arrive. The second asks whether anything else will, too.",
+      "Some tasks are pure output. If I want to know the boiling point of water at altitude, or whether the trains are running into Waterloo this morning, the answer is the answer. I gain nothing by deriving the boiling point from first principles. The output is the whole of the gift, and outsourcing it costs me nothing because there is nothing else to lose.",
+      "Other tasks are nothing like that. They produce information that is genuinely useful, but the information arrives separated from the context that tells you what to do with it. AI can extract insights from a hundred interviews. It can summarise a market. It can produce a competent draft of almost anything you can describe to it. None of those outputs are wrong. They are, however, missing the depth around them that would tell you which insights to weigh, which parts of the market are about to shift, and which sentences in the draft are doing work the rest of the document is quietly leaning on. The document at the end is a kind of receipt for a process that has changed the person doing it. Take the receipt without the process and you have, quite literally, paid for nothing.",
+      "What happens, in practice, when one tries to take the receipt without the process is common, and rarely commented on. It usually goes one of two ways.",
+      "In the first, the document arrives, you read it, and you sit down to act on it. And you quickly realise that you cannot. The insights are there, but it is unclear which of them are real and which are artefacts of the way the question was posed. You end up, sheepishly, going back and doing some version of the work the AI was supposed to have spared you. The offload was illusory. The hours saved at the top end have to be paid back at the bottom, with interest, because the work is now being done in the wrong order.",
+      "In the second, which is by far the more expensive variety, you read the document and act on it anyway. The decisions you then make are, on average, slightly worse than the decisions you would have made if you had done the work yourself. Not catastrophically worse. Just steadily, imperceptibly, drifting in the wrong direction. The cost shows up later, usually somewhere you were not looking, and by the time it is visible, the cause is no longer easy to trace back to the document you half-read several months ago.",
+      "None of this, I should say, is an argument against using AI. AI is incredibly useful, and there are a great many things you would have to be slightly mad to do yourself when a model will do them more quickly and to a perfectly acceptable standard.",
+      "The argument is rather narrower than that. We have, in some sense, been blinded by the excitement that AI can do so much on the surface, and we have overlooked something underneath it that matters quite a lot. There are parts of our work where the output is the gift, and parts where the process was, and we have stopped distinguishing between the two. We are outsourcing both with the same enthusiasm, and we are paying for it in a slightly delayed way that is only now beginning to show.",
+      "This is, I think, where product designers carry a particular responsibility. We are the ones putting AI into the workflows that millions of people then live inside. Every time we put a button in a product that invites someone to skip a piece of context-building work, we are making a small decision on behalf of every user who will press it. Some of those decisions are kind. We are sparing them from drudgery they were never going to learn anything from. Other decisions, dressed in the same clothes, are quietly taking something from them, and we are the ones designing the moment in which it happens. The least we can do is know the difference.",
+      "My own work has, for some years now, been an attempt to design this difference into products on purpose. The aim has been to build features that take the drudgery and leave the depth, rather than the reverse. The principle is here. The detail is in my work.",
+    ],
+    cover: { hue: 18, chroma: 0.045, lightness: 0.6 },
+    coords: "51.50 N / 00.12 W",
+    field: "ESS_30",
+    revision: "R.07",
+    paper: "clay",
+    decorations: [
+      { type: "postit", color: "pink", style: { top: "43%", right: "8%" }, rotate: -4 },
+      { type: "doodle", shape: "heart", style: { bottom: "32%", left: "30%" }, rotate: 10 },
+      { type: "paper-out", side: "bottom", style: { left: "36%", width: "30%" }, rotate: 2 },
+    ],
+    sections: defaultSections,
+  },
 ];
 
 /* Articles shown in listings and given static routes. Anything with

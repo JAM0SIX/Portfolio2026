@@ -255,17 +255,14 @@
 
 .meta {
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   font-family: var(--font-sans);
   font-size: var(--text-sm);
-  color: var(--ink-mute);
 }
-.role,
-.company { color: var(--ink-soft); }
-.sep {
-  margin: 0 var(--space-2);
-  color: var(--ink-faint);
-}
-.year { color: var(--ink-mute); font-variant-numeric: tabular-nums; }
+.role { color: var(--ink); font-weight: var(--weight-medium); }
+.company { color: var(--ink-mute); }
 
 /* ── Collapsed-header range: flat vertical list ──────────────────
    The 5-across folder-tab metaphor only works at true desktop width.

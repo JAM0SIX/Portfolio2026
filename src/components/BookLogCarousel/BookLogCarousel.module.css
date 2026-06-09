@@ -7,7 +7,9 @@
    below it so the two sections read as a related pair. */
 
 .root {
-  margin-top: 240px;
+  /* Spacing is owned by the wrapping BookLogSection so the gap above
+     "My thoughts" can be tuned in one place. */
+  margin-top: 0;
 }
 
 .list {

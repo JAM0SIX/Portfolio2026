@@ -127,11 +127,9 @@ function Hook({ eyebrow, headline, scope, heroImage, company, clients }) {
       )}
       {company && (
         <div className={styles.companyLine}>
-          {company.logo ? (
+          {company.logo && (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img src={company.logo} alt="" className={styles.companyLogo} />
-          ) : (
-            <span className={styles.companyMark} aria-hidden="true" />
           )}
           <span className={styles.companyName}>{company.name}</span>
         </div>

@@ -125,6 +125,48 @@ export default function ReferencesSection() {
     prevActiveRef.current = active;
   }, [active, total]);
 
+  /* Equalise card heights in the folder-tab stack. Cards are bottom-
+     anchored and each tab sits at its card's top edge, so a shorter card
+     (a shorter quote) would drop its tab below the staircase. Measuring
+     the tallest card and matching the rest keeps every tab on the same
+     16px step, and adapts per viewport (quotes wrap more when narrower).
+     Skipped below 881px where the layout is a flat list. */
+  useEffect(() => {
+    const measure = () => {
+      const cards = [...cardRefs.current.values()];
+      if (!cards.length) return;
+      const stack = cards[0].parentElement;
+      cards.forEach((c) => {
+        c.style.minHeight = "";
+      });
+      if (stack) {
+        stack.style.minHeight = "";
+        stack.style.height = "";
+      }
+      if (window.innerWidth < 881) return;
+      let max = 0;
+      cards.forEach((c) => {
+        max = Math.max(max, c.offsetHeight);
+      });
+      cards.forEach((c) => {
+        c.style.minHeight = `${max}px`;
+      });
+      /* Size the stack to the tallest card + the tab peek + 12px, so the
+         top tab sits ~40px below the section subheading (28px head margin
+         + 12px) instead of floating below a fixed-height block. */
+      if (stack) {
+        const peek = (total - 1) * STACK_OFFSET + TAB_HEIGHT;
+        stack.style.minHeight = "0px";
+        stack.style.height = `${max + peek + 12}px`;
+      }
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    /* Re-measure once webfonts load, since they change wrap height. */
+    if (document.fonts?.ready) document.fonts.ready.then(measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [total]);
+
   return (
     <section
       id="references"
@@ -197,29 +239,20 @@ export default function ReferencesSection() {
               </button>
 
               <div className={styles.body}>
-                {/* Square avatar for the person giving the reference.
-                    Shows their portrait when r.avatar is set, otherwise
-                    a quiet placeholder with their initial so the slot
-                    still reads as "a person said this" even before the
-                    portrait drops in. */}
-                <figure className={styles.avatar} aria-hidden="true">
-                  {r.avatar ? (
-                    /* eslint-disable-next-line @next/next/no-img-element */
+                {/* Square avatar — only rendered once a real portrait is
+                    supplied via r.avatar. The placeholder is intentionally
+                    hidden for now (portraits to be added later). */}
+                {r.avatar && (
+                  <figure className={styles.avatar} aria-hidden="true">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={r.avatar} alt="" className={styles.avatarImg} />
-                  ) : (
-                    <span className={styles.avatarInitial}>
-                      {r.name?.[0] || ""}
-                    </span>
-                  )}
-                </figure>
-                <p className={styles.quote}>&ldquo;{r.quote}&rdquo;</p>
+                  </figure>
+                )}
                 <p className={styles.meta}>
-                  <span className={styles.role}>{r.role}</span>
-                  <span className={styles.sep} aria-hidden="true">·</span>
+                  {r.role && <span className={styles.role}>{r.role}</span>}
                   <span className={styles.company}>{r.company}</span>
-                  <span className={styles.sep} aria-hidden="true">·</span>
-                  <span className={styles.year}>{r.year}</span>
                 </p>
+                <p className={styles.quote}>&ldquo;{r.quote}&rdquo;</p>
               </div>
             </article>
           );

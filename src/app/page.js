@@ -1,6 +1,7 @@
 import Hero from "./components/Hero";
 import ProjectsGrid from "./components/ProjectsGrid";
 import BookLogSection from "@/components/sections/BookLogSection/BookLogSection";
+import SkillsStack from "@/components/sections/SkillsStack/SkillsStack";
 import ReferencesSection from "@/components/sections/ReferencesSection/ReferencesSection";
 
 export default function Home() {
@@ -10,6 +11,7 @@ export default function Home() {
         <Hero />
         <ProjectsGrid />
         <BookLogSection />
+        <SkillsStack />
         <ReferencesSection />
       </div>
     </main>

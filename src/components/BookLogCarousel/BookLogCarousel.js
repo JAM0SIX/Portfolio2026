@@ -190,7 +190,6 @@ function DotMatrix({ animation = 0, startFrame = 0, size = 5, cell = 6, dot = 2 
 }
 
 export default function BookLogCarousel() {
-  const total = ARTICLES.length;
   const [hoveredId, setHoveredId] = useState(null);
   const tooltipRef = useRef(null);
   const rafRef = useRef(0);
@@ -251,7 +250,6 @@ export default function BookLogCarousel() {
       <div className="section__head">
         <span className="section__label">My thoughts</span>
         <span className="section__rule" aria-hidden="true" />
-        <span className="section__count">{total} articles</span>
       </div>
 
       <ul className={styles.list}>
