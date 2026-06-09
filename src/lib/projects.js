@@ -2,7 +2,7 @@ import SidePanel from "@/components/SidePanel/SidePanel";
 import { narrativeTOC } from "@/components/Narrative/Narrative";
 import { loadProjectMarkdown } from "./loadProjectMarkdown";
 
-/* GWI is sourced from /content/projects/gwi.md — proof-of-concept
+/* GWI is sourced from /content/projects/gwi.md, proof-of-concept
    for the markdown CMS. The .md file's YAML frontmatter holds the
    metadata + the full narrative block array. Other projects still
    live inline in this file because they include JSX components
@@ -15,7 +15,7 @@ const philpotpearceFromMarkdown = loadProjectMarkdown("philpotpearce");
 // stages are short interactive nodes around a circle; clicking one
 // opens its body in the side panel.
 
-/* (gwiMethodologyStages removed — GWI now sources from
+/* (gwiMethodologyStages removed, GWI now sources from
    /content/projects/gwi.md and the narrative drives the page.) */
 
 const lexisnexisMethodologyStages = [
@@ -34,7 +34,7 @@ const lexisnexisMethodologyStages = [
     label: "Philosophy",
     title: "I design therefore I am",
     body:
-      "Business consultants face a unique challenge: they must process vast amounts of data to make informed decisions, yet showing all the information at once quickly clutters the screen. I applied progressive disclosure principles — structuring information in tier levels and enabling users to drill down only where needed.",
+      "Business consultants face a unique challenge: they must process vast amounts of data to make informed decisions, yet showing all the information at once quickly clutters the screen. I applied progressive disclosure principles, structuring information in tier levels and enabling users to drill down only where needed.",
     metaLabel: "Design north star",
     metaBody: "Evidence first, explanation second.",
     href: "#",
@@ -77,7 +77,7 @@ const philpotpearceMethodologyStages = [
     label: "Branding",
     title: "Synonymous brand language",
     body:
-      "Albert Einstein is famously reported to have said, 'If I had an hour to solve a problem I'd spend 55 minutes thinking about the problem and five minutes thinking about solutions.' This is how I spent most of my time with the founders — deeply exploring the core challenges before jumping into any design solutions.",
+      "Albert Einstein is famously reported to have said, 'If I had an hour to solve a problem I'd spend 55 minutes thinking about the problem and five minutes thinking about solutions.' This is how I spent most of my time with the founders, deeply exploring the core challenges before jumping into any design solutions.",
     metaLabel: "Primary insight",
     metaBody: "Credibility lives in restraint, not decoration.",
     href: "#",
@@ -117,7 +117,7 @@ const philpotpearceMethodologyStages = [
     label: "Atelier",
     title: "Portfolio architecture",
     body:
-      "The site is deliberately designed to be a showcase of the studio's work and not just a portfolio. It acts as both agency and design house — a cultural practice whose exhibitions, objects, writing, and commerce are all expressions of the same point of view.",
+      "The site is deliberately designed to be a showcase of the studio's work and not just a portfolio. It acts as both agency and design house, a cultural practice whose exhibitions, objects, writing, and commerce are all expressions of the same point of view.",
     metaLabel: "Iteration loop",
     metaBody: "Fortnightly token audits + chromatic thresholds.",
     href: "#",
@@ -160,7 +160,7 @@ const eventuringMethodologyStages = [
     label: "Diagnostics",
     title: "Diagnostic-led capture",
     body:
-      "The premise is that a buyer trusts a seller who diagnoses before prescribing — just as a patient trusts a doctor who examines before recommending treatment. The assessment is simultaneously a qualification tool.",
+      "The premise is that a buyer trusts a seller who diagnoses before prescribing, just as a patient trusts a doctor who examines before recommending treatment. The assessment is simultaneously a qualification tool.",
     metaLabel: "Rollout strategy",
     metaBody: "Launch with analytics on scroll depth, CTA clicks, and form starts.",
     href: "#",
@@ -170,7 +170,7 @@ const eventuringMethodologyStages = [
     label: "Branding",
     title: "Out with the old",
     body:
-      "This wasn't just about designing and building a website — it was about developing a brand that hadn't been given any love. I worked closely with eVenturing's CEO and senior members to help communicate how the brand should be represented.",
+      "This wasn't just about designing and building a website, it was about developing a brand that hadn't been given any love. I worked closely with eVenturing's CEO and senior members to help communicate how the brand should be represented.",
     metaLabel: "Iteration loop",
     metaBody: "Monthly pass on top exit pages and CRM-reported objections.",
     href: "#",
@@ -234,13 +234,13 @@ const draftMethodologyStages = [
   { id: "discover", label: "Discovery", title: "Frame the problem space", body: "Stakeholder interviews, desk research, and competitive passes to align on users, constraints, and what success means before pixels.", metaLabel: "Primary insight", metaBody: "Replace with the insight that steered the roadmap.", href: "#" },
   { id: "define", label: "Strategy", title: "Synthesise principles and scope", body: "Turned research into principles, journey maps, and a phased scope so teams could decide what to ship first without losing the long arc.", metaLabel: "Design north star", metaBody: "Add the north-star statement for this engagement.", href: "#" },
   { id: "prototype", label: "Design", title: "Prototype and test critical flows", body: "High-fidelity flows for the riskiest assumptions, moderated or unmoderated tests, and fast iteration on copy, density, and affordances.", metaLabel: "Validation focus", metaBody: "Name the risk you tested and what changed after.", href: "#" },
-  { id: "ship", label: "Delivery", title: "Ship with engineering and analytics", body: "Specs, edge states, and launch instrumentation so releases stay measurable — adoption, task success, or efficiency.", metaLabel: "Rollout strategy", metaBody: "Describe the launch slice or flag strategy.", href: "#" },
+  { id: "ship", label: "Delivery", title: "Ship with engineering and analytics", body: "Specs, edge states, and launch instrumentation so releases stay measurable, adoption, task success, or efficiency.", metaLabel: "Rollout strategy", metaBody: "Describe the launch slice or flag strategy.", href: "#" },
   { id: "iterate", label: "Impact", title: "Learn from usage and iterate", body: "Post-ship reviews with product and research, backlog grooming from telemetry, and design spikes on the top themes users still hit.", metaLabel: "Iteration loop", metaBody: "How often the team revisits the experience together.", href: "#" },
 ];
 
 
 // ─── Project layers presets (Problem / Value / Solution) ──────────────
-/* (gwiProjectLayers removed — GWI now sources from
+/* (gwiProjectLayers removed, GWI now sources from
    /content/projects/gwi.md.) */
 
 const lexisnexisProjectLayers = {
@@ -374,14 +374,14 @@ const nexisNarrative = [
       { name: "ABC", logo: "/projects/lexisnexis/logos/abc.png" },
       { name: "Kroll", logo: "/projects/lexisnexis/logos/kroll.png" },
     ],
-    /* Only the first scope paragraph lives in the Hook itself —
+    /* Only the first scope paragraph lives in the Hook itself,
        the second is moved below the hero so the page reads:
          intro paragraph → hero → "I led product design…" prose. */
     scope: [
       "Nexis+AI is a conversational research tool that identifies the nuanced signals from the noise. Through specialised intent detection, contextually aware responses leveraged on user attributes and innovative navigation techniques, users gain an elevated experience that EY, KPMG and more use.",
     ],
   },
-  /* Hero — full-width bleed placeholder, sits between the first
+  /* Hero, full-width bleed placeholder, sits between the first
      body paragraph (in the Hook) and the second body paragraph
      (the prose block below). The image shows the Chevron response
      page from the Q2 elaboration prototype, backed by the live
@@ -398,7 +398,7 @@ const nexisNarrative = [
     aspect: "1440 / 1080",
     image: {
       src: "/projects/lexisnexis/hero.png",
-      alt: "Nexis+AI response page — Chevron capital expenditure briefing",
+      alt: "Nexis+AI response page, Chevron capital expenditure briefing",
     },
     backdrop: { src: "/projects/lexisnexis/plate-bg.png", blur: false },
   },
@@ -426,9 +426,9 @@ const nexisNarrative = [
     paragraphs: [
       "Consultants are paid to identify root causes to business problems and make big calls. Whether the task is competitive intelligence, M&A, market analysis, or strategy and advisory, the work turns on the same thing: pulling the few signals that matter out of a vast and growing wall of news, filings, and reports, then shaping them into a recommendation that holds up in a partner review.",
       "The generic AI chat interfaces consultants were already leaning on limit that work in two specific ways. First, they flatten a depth-of-research task into a single confident answer, so the user loses the ability to scope, weight, and shape their own investigation.",
-      "{{strong:The business risk}}: [Lost control over scope and weighting — describe the business risk when consultants can't shape their own investigation.]",
+      "{{strong:The business risk}}: AI search tools lack specificity and depth. Getting this wrong means we just become another disappointing tool that consultants won't buy.",
       "Second, they hide the sources behind the answer, which for a consultant whose recommendation will be acted on is not a usability complaint, it's a serious concern.",
-      "{{strong:The business risk}}: [Hidden sources — describe the business risk when a confident answer can't be traced back to what it's built on.]",
+      "{{strong:The business risk}}: Confident answers don't mean anything unless the user is able to see the source of truth. One hallucination can lead to removal of trust and engagement, as the risk of a mistake for these users is too high.",
     ],
   },
   // 03 · The experience I built
@@ -437,12 +437,12 @@ const nexisNarrative = [
     chapter: "03",
     title: "The experience I built",
     subtitle:
-      "Independent product design — research, interaction, art direction, and design system are all my own contribution.",
+      "Independent product design, research, interaction, art direction, and design system are all my own contribution.",
   },
   {
     kind: "prose",
     paragraphs: [
-      "Four features did the heavy lifting. Each one answers a question consultants have about doing depth-of-research work inside an AI tool — and each one elevates their search ability past what a generic chat interface can offer.",
+      "Four features did the heavy lifting. Each one answers a question consultants have about doing depth-of-research work inside an AI tool, and each one elevates their search ability past what a generic chat interface can offer.",
     ],
   },
 
@@ -456,13 +456,13 @@ const nexisNarrative = [
   {
     kind: "outcomeNote",
     text:
-      "Search shapes itself to the consultant's job — not the other way around.",
+      "Search shapes itself to the consultant's job, not the other way around.",
   },
   {
     kind: "prototypeEmbed",
     src: "/prototypes/q1-contextual-search/index.html#/q1",
-    caption: "Contextual agentic search — interactive prototype",
-    /* 4:3 frame around a 16:9 native prototype — the iframe is
+    caption: "Contextual agentic search, interactive prototype",
+    /* 4:3 frame around a 16:9 native prototype, the iframe is
        scaled to *cover* the frame so the left and right edges of
        the prototype crop off and the central column (search input
        + intent tiles + welcome text) sits front and centre. */
@@ -477,27 +477,27 @@ const nexisNarrative = [
        running scripts/capture-prototype-posters.sh. */
     poster: "/prototypes/q1-contextual-search/poster.png",
   },
-  /* Search intent / skills picker — interactive widget showing how each
+  /* Search intent / skills picker, interactive widget showing how each
      "skill" reshapes the underlying search parameters (topics, sources,
      timeframe, geography, scope + lens). Self-contained Vite/motion
      bundle in public/prototypes/q1-skills-explorer; `bare` drops the
-     embed frame chrome (the widget carries its own flat card — no radius
+     embed frame chrome (the widget carries its own flat card, no radius
      or shadow) and `channel` lets the iframe auto-size to its height. */
   {
     kind: "prose",
     paragraphs: [
-      "The demo below is a simplified look at how picking a skill completely changes the scope and results of a search — the same question, routed through a different lens, reshapes which topics, sources, timeframes, and geographies the engine reaches for. Getting this right took a huge amount of collaboration with the ML team, alongside my own research and design.",
+      "The demo below is a simplified look at how picking a skill completely changes the scope and results of a search, the same question, routed through a different lens, reshapes which topics, sources, timeframes, and geographies the engine reaches for. Getting this right took a huge amount of collaboration with the ML team, alongside my own research and design.",
     ],
   },
   {
     kind: "htmlEmbed",
     src: "/prototypes/q1-skills-explorer/index.html",
-    title: "Search intent — skills picker",
+    title: "Search intent, skills picker",
     caption:
       "Pick a skill to see how the same question reshapes the search engine's parameters",
     bare: true,
     channel: "q1-skills-explorer:height",
-    // Fallback ratio used only until the widget posts its real height — sized
+    // Fallback ratio used only until the widget posts its real height, sized
     // to the responsive card so first paint doesn't clip before the message.
     aspect: "600 / 1043",
   },
@@ -506,7 +506,7 @@ const nexisNarrative = [
   {
     kind: "prose",
     paragraphs: [
-      "By selecting any part of a response and clicking elaborate. The platform widens the net on the existing search rather than starting a new one — no need to re-prompt, no need to pick the right words. This pattern shipped in Nexis+AI before Claude later popularised the same idea in their consumer interface.",
+      "By selecting any part of a response and clicking elaborate. The platform widens the net on the existing search rather than starting a new one, no need to re-prompt, no need to pick the right words.",
     ],
   },
   {
@@ -517,7 +517,7 @@ const nexisNarrative = [
   {
     kind: "prototypeEmbed",
     src: "/prototypes/q2-elaboration/index.html#/q2",
-    caption: "Elaboration — interactive prototype",
+    caption: "Elaboration, interactive prototype",
     /* Q2's native canvas is already 4:3 (1440x1080), so frame
        aspect matches native and the iframe fits without crop. */
     aspect: "4 / 3",
@@ -536,14 +536,14 @@ const nexisNarrative = [
   {
     kind: "outcomeNote",
     text:
-      "Consultants chase tangents without losing context — the investigation stays one continuous trail of thought.",
+      "Consultants chase tangents without losing context, the investigation stays one continuous trail of thought.",
   },
   {
     kind: "prototypeEmbed",
     src: "/prototypes/q3-branching/index.html#/q3",
-    caption: "Branching — interactive prototype",
+    caption: "Branching, interactive prototype",
     /* Q3's native canvas is 4:3 (1440x1080), matching the frame
-       aspect — fits without crop. */
+       aspect, fits without crop. */
     aspect: "4 / 3",
     nativeWidth: 1440,
     nativeHeight: 1080,
@@ -554,7 +554,7 @@ const nexisNarrative = [
   {
     kind: "prose",
     paragraphs: [
-      "By anchoring every signal to a source the consultant can drill into. I introduced Time to Validation — the seconds between reading an answer and trusting it enough to use — as a design metric, and tuned inline citations, hover drill-downs, and visible source weighting around it.",
+      "By anchoring every signal to a source the consultant can drill into. I introduced Time to Validation, the seconds between reading an answer and trusting it enough to use, as a design metric, and tuned inline citations, hover drill-downs, and visible source weighting around it.",
     ],
   },
   {
@@ -565,9 +565,9 @@ const nexisNarrative = [
   {
     kind: "prototypeEmbed",
     src: "/prototypes/q4-verification/index.html#/q4",
-    caption: "Sources and Time to Validation — interactive prototype",
+    caption: "Sources and Time to Validation, interactive prototype",
     /* Q4's native canvas is 4:3 (1440x1080), matching the frame
-       aspect — fits without crop. */
+       aspect, fits without crop. */
     aspect: "4 / 3",
     nativeWidth: 1440,
     nativeHeight: 1080,
@@ -579,7 +579,7 @@ const nexisNarrative = [
   {
     kind: "prose",
     paragraphs: [
-      "Before any pixels moved I built a set of principles: ways of approaching the problem that every following design had to earn its place against. They turned the brief from \"build an AI search tool\" into \"design for defensible answers, not impressive ones\" — and gave the team a shared yardstick when the trade-offs got tight.",
+      "Before any pixels moved I built a set of principles: ways of approaching the problem that every following design had to earn its place against. They turned the brief from \"build an AI search tool\" into \"design for defensible answers, not impressive ones\", and gave the team a shared yardstick when the trade-offs got tight.",
     ],
   },
   {
@@ -595,7 +595,7 @@ const nexisNarrative = [
         eyebrow: "Principle 01",
         title: "Constellation of Data",
         body:
-          "The same field of data points, read differently. How those points get connected is what tells the story — competitive intelligence draws one constellation, M&A draws another, market sizing draws a third. The interface makes those connections legible instead of collapsing them into a single confident answer.",
+          "The same field of data points, read differently. How those points get connected is what tells the story, competitive intelligence draws one constellation, M&A draws another, market sizing draws a third. The interface makes those connections legible instead of collapsing them into a single confident answer.",
       },
       {
         variant: "search-paths",
@@ -603,7 +603,7 @@ const nexisNarrative = [
         eyebrow: "Principle 02",
         title: "Branching",
         body:
-          "Research isn't a straight line. From a single question, the consultant branches into sub-threads, follows the rabbit holes that look promising, prunes the ones that don't. Every search is a tree the user can fork, return to, and shape — the investigative work stays legible rather than flattening into a chat log.",
+          "Research isn't a straight line. From a single question, the consultant branches into sub-threads, follows the rabbit holes that look promising, prunes the ones that don't. Every search is a tree the user can fork, return to, and shape, the investigative work stays legible rather than flattening into a chat log.",
       },
       {
         variant: "helix",
@@ -611,7 +611,7 @@ const nexisNarrative = [
         eyebrow: "Principle 03",
         title: "Progressive Disclosure",
         body:
-          "Answer first. Evidence second. Source on demand. Each turn of the helix earns the next — the consultant sees the recommendation, then the supporting points, then the citation, only when they ask for it. The interface stays calm at the top and still rewards the consultant who wants to go all the way down.",
+          "Answer first. Evidence second. Source on demand. Each turn of the helix earns the next, the consultant sees the recommendation, then the supporting points, then the citation, only when they ask for it. The interface stays calm at the top and still rewards the consultant who wants to go all the way down.",
       },
     ],
   },
@@ -644,7 +644,7 @@ const nexisNarrative = [
   },
 ];
 
-/* (philpotpearceProjectLayers removed — unused dead code.) */
+/* (philpotpearceProjectLayers removed, unused dead code.) */
 
 // ─── PhilpotPearce principle bodies (token registry) ──────────────────
 /* These stay in JS (not markdown) because the principle bodies are
@@ -696,7 +696,7 @@ const philpotpearcePrincipleBodies = {
   ),
 };
 
-/* (PhilpotPrincipleLink removed — Narrative now resolves
+/* (PhilpotPrincipleLink removed, Narrative now resolves
    {{principle:Name}} tokens against the tokens.principle map
    passed via the project record.) */
 
@@ -716,7 +716,7 @@ const sinaProjectLayers = {
 const soundtrendsProjectLayers = {
   problem: { body: "A long-running music discovery app with a loyal but ageing user base struggled to feel fresh; navigation and daily rituals had not kept pace with how people listen today." },
   value:   { body: "Re-engage listeners with audio-first flows, clearer discovery signals, and daily mixtape rituals that reward return visits without notification fatigue." },
-  solution:{ body: "Native iOS rethink: audio-native gestures and stacks, signal-first ranking and empty states, and a typography pass — shaping an experience tuned for retention and longer sessions." },
+  solution:{ body: "Native iOS rethink: audio-native gestures and stacks, signal-first ranking and empty states, and a typography pass, shaping an experience tuned for retention and longer sessions." },
 };
 
 
@@ -744,7 +744,7 @@ const defaultMethodologyOrbits = [
   {
     label: "Commerce",
     body:
-      "Placeholder body for the second methodology category. Use this slot for the commercial framing of the work — how I tied design decisions to revenue, retention, or whichever business metric mattered most.",
+      "Placeholder body for the second methodology category. Use this slot for the commercial framing of the work, how I tied design decisions to revenue, retention, or whichever business metric mattered most.",
   },
   {
     label: "Marketing",
@@ -754,13 +754,13 @@ const defaultMethodologyOrbits = [
   {
     label: "Fostering",
     body:
-      "Placeholder body for the fourth methodology category. Cover team-shaped work — how I coached, partnered, or built capability around the engagement so the team could keep moving once I rolled off.",
+      "Placeholder body for the fourth methodology category. Cover team-shaped work, how I coached, partnered, or built capability around the engagement so the team could keep moving once I rolled off.",
   },
 ];
 
 
 /* (gwiFailureModes, gwiDecisions, gwiPillars, and gwiNarrative removed
-   — GWI's narrative now lives in /content/projects/gwi.md and is
+  , GWI's narrative now lives in /content/projects/gwi.md and is
    loaded via loadProjectMarkdown at the top of this file.) */
 
 
@@ -785,7 +785,7 @@ export const projects = [
     date: "2023-2025",
     role: "Product design · AI research platform",
     tags: ["AI", "Convo search", "Enterprise"],
-    blurb: "An AI research tool for business consultants at firms like KPMG and EY. Built to surface the signals that matter from 12,000 publishers worth of noise.",
+    blurb: "An AI research tool for business consultants. Built to surface the signals that matter from 12,000 publishers worth of noise.",
     badge: "Shipped",
     liveUrl: "https://www.lexisnexis.com/en-gb/products/research-insights/nexis-plus-ai",
     metrics: [
@@ -820,14 +820,14 @@ export const projects = [
     date: "Coming soon",
     role: "Music intelligence platform",
     tags: ["Data", "Music", "Web design"],
-    blurb: "A music intelligence platform — turning streaming data into clear, useful signals for artists, labels, and curators.",
+    blurb: "Identifying the key performing sounds on TikTok and explaining step by step to creators how to use the sound to boost engagement. This is done through triangulating key data points and mapping out the sound's trending life cycle.",
     badge: "Coming soon",
     comingSoon: true,
     cardImage: {
       default: "/projects/soundtrends/card-default.png",
       hover: "/projects/soundtrends/card-hover.png",
     },
-    /* Visual-only on the home grid — hidden from the sidebar
+    /* Visual-only on the home grid, hidden from the sidebar
        menu because the case-study page isn't ready yet. */
     excludeFromMenu: true,
     metrics: [],

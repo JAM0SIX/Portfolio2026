@@ -213,16 +213,24 @@ function Slide({ n, data, fallbackTitle }) {
 }
 
 /* Convert markdown-sourced deep body into ReactNodes the SidePanel
-   can render. Accepts a single string, an array of paragraph
-   strings, or already-rendered JSX (pass-through). */
+   can render. Accepts a single string, an array of entries, or
+   already-rendered JSX (pass-through). Array entries may be a
+   paragraph string OR a sub-heading object `{ heading: "..." }`,
+   which lets the panel content be broken into labelled sections. */
 function renderDeepBody(body) {
   if (typeof body === "string") return <p>{body}</p>;
   if (Array.isArray(body)) {
     return (
       <>
-        {body.map((p, i) => (
-          <p key={i}>{p}</p>
-        ))}
+        {body.map((entry, i) =>
+          entry && typeof entry === "object" && entry.heading ? (
+            <h4 key={i} className="pl-deep-heading">
+              {entry.heading}
+            </h4>
+          ) : (
+            <p key={i}>{entry}</p>
+          )
+        )}
       </>
     );
   }

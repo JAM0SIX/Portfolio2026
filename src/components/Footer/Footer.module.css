@@ -326,6 +326,35 @@
 
 /* ─── Responsive ───────────────────────────────────────────────── */
 
+/* Tablet (721–880px): the 16:9 terrain band leaves the plates floating
+   at the bottom of a tall, mostly-empty footer. Switch to a compact,
+   natural-height footer with the terrain as a background plate (same
+   pattern as mobile, without the full-viewport height), and stack the
+   two plates so each fills the width cleanly. */
+@media (min-width: 721px) and (max-width: 880px) {
+  .footer {
+    display: flex;
+    flex-direction: column;
+  }
+  .media {
+    position: absolute;
+    inset: 0;
+    aspect-ratio: auto;
+  }
+  .inner {
+    position: relative;
+    inset: auto;
+    flex: 1;
+    padding: var(--space-6) var(--space-5);
+    gap: var(--space-5);
+  }
+  .columns {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    align-items: stretch;
+  }
+}
+
 @media (max-width: 720px) {
   /* Footer expands to a full-viewport-height exit ramp on mobile.
      The pixel terrain becomes an absolutely-positioned background

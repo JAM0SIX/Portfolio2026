@@ -8,7 +8,7 @@ tags:
   - Brand
   - UI
 blurb: >
-  Visual identity and web presence for a creative consultancy — balancing
+  Visual identity and web presence for a creative consultancy, balancing
   editorial craft with a clear, confident voice.
 badge: Shipped
 liveUrl: "https://philpottpearce.com"
@@ -26,7 +26,7 @@ narrative:
       how users will flow through their space, how visual hierarchy can
       effectively communicate their message and of course the web design
       and build.
-  # Hero — looping silent capture of the live philpottpearce.com
+  # Hero, looping silent capture of the live philpottpearce.com
   # site. Sits directly under the first body paragraph (the hook's
   # scope) so it reads as the visual answer to the question the
   # scope poses. Poster is the first frame, also used as the
@@ -34,9 +34,9 @@ narrative:
   - kind: video
     src: /projects/philpotpearce/hero.mov
     poster: /projects/philpotpearce/hero-poster.png
-    caption: Hero — philpottpearce.com
+    caption: Hero, philpottpearce.com
     bleed: true
-    # 10px shorter than the 650px bleed default — only the device
+    # 10px shorter than the 650px bleed default, only the device
     # changes; the plate keeps its sidebar-matched height.
     height: 640
     backdrop:
@@ -71,13 +71,13 @@ narrative:
             # Aspect tuned so the wide cell lands ~30px taller than
             # the default 16:9 at reading-column width (576/354).
             aspect: 576 / 354
-            alt: Restraint in the brand system — overview frame
+            alt: Restraint in the brand system, overview frame
           - src: /projects/philpotpearce/restraint-2.png
             square: true
-            alt: Restraint in the brand system — square detail
+            alt: Restraint in the brand system, square detail
           - src: /projects/philpotpearce/restraint-3.png
             square: true
-            alt: Restraint in the brand system — second square detail
+            alt: Restraint in the brand system, second square detail
         body:
           - >
             Most agencies dress up their identities. PhilpotPearce strips
@@ -114,17 +114,17 @@ narrative:
             alt: Editorial typography running through the whole site
           - src: /projects/philpotpearce/editorial-4.png
             wide: true
-            # Pin the crop to the left edge — the meaningful detail
+            # Pin the crop to the left edge, the meaningful detail
             # in this image sits on the left, and the default
             # centre-anchored object-fit was hiding it.
             position: left center
-            alt: Editorial typography — second detail
+            alt: Editorial typography, second detail
           - src: /projects/philpotpearce/editorial-6.png
             wide: true
             # Anchor the crop to the left so the meaningful detail
             # stays visible (same fix as editorial-4).
             position: left center
-            alt: Editorial typography — third detail
+            alt: Editorial typography, third detail
         body:
           - >
             One typographic system runs from hero through navigation

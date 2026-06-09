@@ -12,16 +12,15 @@ role: Senior Product Designer · Internal data system
 tags: [Agents, Data, Efficiency]
 blurb: >
   GWI's internal data system. Redesigned to make the research process
-  radically more efficient and save the business significant money, so
-  researchers can do more with less.
+  radically more efficient and save the business significant money.
 badge: New
 metrics:
   - ["Saved per year", "£750,000", ""]
-  - ["Fewer clicks to insights", "6", "x"]
-  - ["Increase in researcher capacity", "40", "%"]
+  - ["Fewer clicks to insights", "x6", ""]
+  - ["New revenue opportunities", "3", ""]
 
 # ────────────────────────────────────────────────────────────────────────
-# Narrative — the block-based case-study body. Each entry has a `kind`
+# Narrative, the block-based case-study body. Each entry has a `kind`
 # that maps to a component in the Narrative renderer.
 #
 # Supported kinds:
@@ -71,7 +70,7 @@ narrative:
         business risks and inefficiencies to designing the whole new
         internal product tool and finally managing the development
         of the tool itself.
-  # Hero — full-width bleed device above the first body paragraph.
+  # Hero, full-width bleed device above the first body paragraph.
   # Shows the GWI homepage / agent-draw concept; sits inside the
   # MediaPlate at the project's standard hero height.
   - kind: imagePlaceholder
@@ -87,7 +86,7 @@ narrative:
       src: /projects/gwi/landing-page.png
       alt: GWI landing page
     backdrop:
-      # Static designed background for the hero plate ground —
+      # Static designed background for the hero plate ground,
       # shown crisp (it's the artwork, not ambience).
       src: /projects/gwi/plate-bg.png
       blur: false
@@ -104,22 +103,22 @@ narrative:
   - kind: outcomes
     items:
       - ["Saved per year", "£750,000", ""]
-      - ["Fewer clicks to insights", "6", "x"]
-      - ["Increase in researcher capacity", "40", "%"]
+      - ["Fewer clicks to insights", "x6", ""]
+      - ["New revenue opportunities", "3", ""]
 
   # 02 · The problem
   - kind: sectionHeader
     chapter: "02"
     title: The problem
   - kind: subsectionHeader
-    title: "Problem 1 · current tool has become a Frankenstein"
+    title: "Problem 1 Current tool has become a Frankenstein"
   - kind: prose
     paragraphs:
       - >
         As GWI scaled, RMP grew features and tools the business
         demanded without enough thought for how they fit together.
         The result is a tool with no cohesion. Researchers carry
-        the load of that incoherence, and it causes human error —
+        the load of that incoherence, and it causes human error,
         a misplaced step in one feature breaks something three
         screens later, and the platform doesn't tell anyone.
       - >
@@ -128,12 +127,12 @@ narrative:
         takes the hit, and engineering capacity is spent patching
         legacy instead of building forward.
   - kind: subsectionHeader
-    title: "Problem 2 · No communication between tools"
+    title: "Problem 2 No communication between tools"
   - kind: prose
     paragraphs:
       - >
         The other six systems don't talk to each other and they
-        don't talk to RMP. Data doesn't move downstream — researchers
+        don't talk to RMP. Data doesn't move downstream, researchers
         re-type context at every handover, institutional knowledge
         gets blocked between stages, and the failure modes hide in
         the gaps.
@@ -173,35 +172,38 @@ narrative:
   - kind: prose
     paragraphs:
       - >
-        Three pillars sit on top of the shared state: a Project Hub
+        Three layers sit within the ecosystem: a Project Hub
         that holds the world, a Drafting workflow that changes it, and
         Fieldwork that runs it. An agent layer sits across all three,
-        not a fourth pillar, but the membrane that gives the platform
+        not a fourth layer, but the membrane that gives the platform
         continuous context from project creation to data delivery.
   - kind: philosophyLayers
     pillars:
       - title: Project Hub
         body: >
-          Holds the world. Every project, survey, wave, and fieldwork
-          state lives in one canonical place. The other tools read
-          from it and write back into it.
+          The centralised hub where data is collected and shared. Every
+          project, survey, wave, and fieldwork state lives in one
+          canonical place. The other tools read from it and write back
+          into it, creating a constantly updated cycle.
         deepBody:
+          - heading: Solution
           - >
             The Hub is the canonical source of truth that the rest of
             the stack reads from and writes to. Every project,
             survey, wave, and fieldwork status lives here, replacing
             the spread of Confluence pages, Salesforce records, and
             ad-hoc spreadsheets the team used to reconcile by hand.
+          - heading: Success response
           - >
-            The homepage opens into a ranked list of activities — only
+            The homepage opens into a ranked list of activities, only
             the signals that need a human decision today. If it isn't
             on this screen, it doesn't need you. The promise: the Hub
             holds the world so researchers don't have to.
       - title: Drafting workflow
         body: >
-          Changes the world. Where surveys are authored, translated,
-          and approved. The agent sits on the same canvas as the
-          draft so authorship and AI suggestions stay legible.
+          A co-creation of surveys where researchers leverage GWI's
+          database to build and optimise surveys, ensuring the highest
+          possible data output for the client at speed.
         deepBody:
           - >
             Drafting is grounded by RAG against GWI's own question
@@ -213,13 +215,13 @@ narrative:
           - >
             Translation runs in-tool with an automated first pass
             and human review focused only on the questions that
-            need judgement — replacing the third-party translation
+            need judgement, replacing the third-party translation
             agencies that previously ran every project.
       - title: Fieldwork
         body: >
-          Runs the world. In-field monitoring, quota management, and
-          respondent-facing delivery. Built for navigation and
-          intervention, not passive dashboards.
+          Designed for navigation and intervention. Allowing users to
+          run in-field monitoring, quota management and respondent
+          facing delivery without being overwhelmed.
         deepBody:
           - >
             Fieldwork is where the work runs and the survey reaches
@@ -234,14 +236,14 @@ narrative:
     membrane:
       title: Agent membrane
       body: >
-        Across all three. One agent with continuous context that
-        carries learning between the Hub, drafting, and fieldwork —
-        not a fourth pillar but the layer that connects them.
+        Across all three layers. An agent that can handle output
+        specific tasks, reducing the friction of specific use cases
+        through the data workflow.
       deepBody:
         - >
           The membrane isn't a fourth pillar. It's one agent with
           continuous context that flows between the Hub, Drafting,
-          and Fieldwork — carrying what it learned during drafting
+          and Fieldwork, carrying what it learned during drafting
           into fieldwork monitoring, and what it sees in fieldwork
           back into the Hub's status model.
         - >
@@ -252,7 +254,7 @@ narrative:
         - >
           Its job is to surface critical information the moment it
           matters, support the operator's decisions, and carry out
-          the mundane work — chasing approvals, reformatting
+          the mundane work, chasing approvals, reformatting
           exports, queuing reminders.
 
   # 04 · The experience I built
@@ -260,31 +262,30 @@ narrative:
     chapter: "04"
     title: The experience I built
     subtitle: >
-      Independent design work — research, design decisions, and UI
+      Independent design work, research, design decisions, and UI
       are all my own contribution.
   - kind: prose
     paragraphs:
       - >
         Five questions shaped where the researcher's attention
-        should go inside the platform. Each one led to a different
-        surface.
+        should go inside the platform.
 
   - kind: subsectionHeader
     title: "How do researchers want to identify issues and act on them?"
   - kind: prose
     paragraphs:
       - >
-        By opening into a ranked list of activities — only the
-        signals that need a human decision today. Critical
-        information surfaces at the top of the homepage and each
-        item is one click from resolution; if it isn't on this
-        screen, it doesn't need them.
+        The landing page immediately orientates the user and sizes
+        the priority of developing issues, so the user can make
+        confident, informed decisions with little to no support or
+        wasted time.
   - kind: outcomeNote
     text: >
       Researchers open their day knowing exactly where their
-      attention is needed — and can act on it without leaving the
-      homepage.
-  # Q1 loop — fixed 1280×800 desktop prototype, native-sized and
+      attention is needed. They can act on it, via the agent, never
+      having to leave the homepage, completely removing critical issues
+      that were initially a needle in a haystack to find.
+  # Q1 loop, fixed 1280×800 desktop prototype, native-sized and
   # CSS-scaled to fit. Capped at the 600px reading measure; mounts
   # only once it scrolls into view (IntersectionObserver in
   # PrototypeEmbed), so the four loops don't all boot at once.
@@ -303,32 +304,34 @@ narrative:
       - >
         The agent handles the mundane: chasing approvals,
         formatting exports, surfacing alerts. The researcher
-        holds the judgement calls — the decisions that shape
-        the data and the recommendation. Agent authority is
-        bounded by reversibility × confidence: cheap and
-        certain, it acts; expensive or uncertain, it escalates.
+        holds the judgement calls, the decisions that shape
+        the data and the recommendation. In order to design this
+        experience, one must understand the flow of information
+        through the data workflow. Understanding what data is
+        available and when, to then serve the correct output at
+        conveniently the right time.
   - kind: outcomeNote
     text: >
-      The line of responsibility is clear — the agent does the
+      The line of responsibility is clear, the agent does the
       work, the researcher owns the decisions.
   - kind: subsectionHeader
     title: "How data flows through the system"
-  # Live data-pipeline diagram — vertical, self-contained SVG widget.
+  # Live data-pipeline diagram, vertical, self-contained SVG widget.
   # Auto-heights via its channel; fills the reading column up to a
   # 600px max width.
   - kind: htmlEmbed
     src: /prototypes/gwi-data-pipeline/data-pipeline-flow.html
-    title: Data pipeline — agent and MCPs
+    title: Data pipeline, agent and MCPs
     channel: gwi-data-pipeline:height
     aspect: 560 / 1040
     maxWidth: 600px
     caption: >-
-      How project data flows through the system — sources feed the RAG
+      How project data flows through the system, sources feed the RAG
       store and the agent in parallel, and the agent dispatches automation
       tasks built on that context.
   - kind: subsectionHeader
     title: "Designing agentic data flow"
-  # Live architecture diagram — a self-contained, responsive SVG widget
+  # Live architecture diagram, a self-contained, responsive SVG widget
   # embedded via iframe. Auto-heights via its channel; the 720×820 canvas
   # plus wrap padding renders ~690px tall in the reading column.
   - kind: htmlEmbed
@@ -337,7 +340,7 @@ narrative:
     channel: gwi-agent-flow:height
     aspect: 1 / 1.05
     caption: >-
-      An interactive view of the agent's runtime loop — automated flows in
+      An interactive view of the agent's runtime loop, automated flows in
       green, user-driven flows in black, MCP tool channels in amber.
 
   - kind: subsectionHeader
@@ -353,7 +356,7 @@ narrative:
     text: >
       Operators intervene in seconds rather than discovering
       problems hours after they've started costing money.
-  # Q3 loop — same bundle, ?flow=q3.
+  # Q3 loop, same bundle, ?flow=q3.
   - kind: prototypeEmbed
     src: /prototypes/gwi-prototype/index.html?flow=q3
     aspect: 1280 / 800
@@ -374,9 +377,9 @@ narrative:
         before fieldwork.
   - kind: outcomeNote
     text: >
-      Drafts catch their own gaps before fieldwork starts —
+      Drafts catch their own gaps before fieldwork starts,
       fewer late-stage rewrites, less stress at the deadline.
-  # Q5 loop — trimmed loop.html shell, ?flow=q5.
+  # Q5 loop, trimmed loop.html shell, ?flow=q5.
   - kind: prototypeEmbed
     src: /prototypes/gwi-prototype/loop.html?flow=q5
     aspect: 1280 / 800
@@ -399,9 +402,9 @@ narrative:
   - kind: outcomeNote
     text: >
       Translation moves from a multi-day third-party bottleneck
-      to a routine step inside the draft — and the same pattern
+      to a routine step inside the draft, and the same pattern
       repeats across the stack.
-  # Q4 loop — trimmed loop.html shell, ?flow=q4.
+  # Q4 loop, trimmed loop.html shell, ?flow=q4.
   - kind: prototypeEmbed
     src: /prototypes/gwi-prototype/loop.html?flow=q4
     aspect: 1280 / 800

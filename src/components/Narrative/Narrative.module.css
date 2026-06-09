@@ -722,8 +722,25 @@
   padding-left: var(--plate-inset, 100px);
   padding-right: var(--plate-inset, 100px);
 }
-/* Mobile: tighten the frame so the hero device reads larger on
-   small screens (desktop keeps the roomy 100px inset). */
+/* Mobile + tablet (≤880px): the desktop reading-column alignment doesn't
+   apply here, so the base plate would render as a full-viewport-height band
+   with a small device floating in the middle. Make it a compact, near-full-
+   width hero instead: the height hugs the media with a little backdrop, and
+   the video frame uses its 3:2 shape rather than its fixed pixel height. */
+@media (max-width: 880px) {
+  .mediaPlate {
+    height: auto;
+    padding: var(--space-6) var(--space-5);
+    justify-content: center;
+  }
+  .videoEmbed:global(.bleed) .videoFrame {
+    height: auto !important;
+    aspect-ratio: 3 / 2;
+    max-height: none;
+  }
+}
+/* Mobile: tighten the horizontal inset further so the hero device reads
+   larger on phones (this overrides the inline padding from the block above). */
 @media (max-width: 720px) {
   .mediaPlate {
     padding-left: var(--space-4);
