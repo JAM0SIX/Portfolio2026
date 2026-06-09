@@ -54,7 +54,7 @@ const NAV_LINKS = [
 
 const SOCIAL_LINKS = [
   {
-    href: "https://www.linkedin.com/in/harryspawforth",
+    href: "https://www.linkedin.com/in/harry-spawforth",
     label: "LinkedIn",
     icon: LinkedInIcon,
   },
