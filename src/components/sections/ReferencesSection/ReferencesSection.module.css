@@ -250,7 +250,10 @@
   font-size: var(--text-md);
   line-height: var(--leading-relaxed);
   color: var(--ink);
-  text-wrap: balance;
+  /* `pretty` keeps full-width greedy wrapping (so the copy fills the
+     card) while only tidying orphans — unlike `balance`, which shortens
+     the lines and leaves whitespace down the right edge. */
+  text-wrap: pretty;
 }
 
 .meta {
