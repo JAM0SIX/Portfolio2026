@@ -355,6 +355,26 @@
   }
 }
 
+/* Small desktop (881–980px): the two plates sit side-by-side here, which
+   squeezes the identity plate's 2×2 grid until the "Start a conversation"
+   CTA overflows its cell. Stack the identity plate's rows so each item gets
+   the full plate width and the CTA stays within its container. */
+@media (min-width: 881px) and (max-width: 980px) {
+  .colSplit {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+  .cellTopLeft,
+  .cellTopRight,
+  .cellBottomLeft,
+  .cellBottomRight {
+    grid-column: auto;
+    grid-row: auto;
+  }
+}
+
 @media (max-width: 720px) {
   /* Footer expands to a full-viewport-height exit ramp on mobile.
      The pixel terrain becomes an absolutely-positioned background
