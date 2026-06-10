@@ -131,11 +131,10 @@
 }
 .cvSectionTitle {
   margin: 0 0 var(--space-4);
-  font-size: calc(var(--text-xs) - 2px);
+  font-size: calc(var(--text-base) - 2px);
   font-weight: var(--weight-semibold);
-  letter-spacing: var(--track-caps);
-  text-transform: uppercase;
-  color: var(--ink-mute);
+  letter-spacing: var(--track-tight);
+  color: var(--ink-soft);
   padding-bottom: var(--space-2);
   border-bottom: var(--border-default) solid var(--rule-soft);
 }
