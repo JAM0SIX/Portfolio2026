@@ -1089,10 +1089,14 @@ main.page { position: relative; z-index: 1; }
   color: var(--ink-soft);
   margin-top: 48px;
   transition: color var(--dur-base) var(--ease-default);
-  /* Let the browser reflow the rag to avoid short last-line widows.
-     Declarative so it survives the inline glyph/key spans woven through
-     the copy; degrades to normal wrapping where unsupported. */
-  text-wrap: pretty;
+  /* Balance the rag so the lines are roughly even length and the copy
+     never ends on a stranded short last line (widow). `pretty` only
+     lightly adjusts the final line and left visible widows at the
+     standard-desktop reading measure (600px); `balance` evens all lines
+     and these paragraphs sit well under its ~6-line cap. Declarative, so
+     it survives the inline glyph/key spans; degrades to normal wrapping
+     where unsupported. */
+  text-wrap: balance;
 }
 
 /* ─── Hero body spotlight ────────────────────────────────────────
