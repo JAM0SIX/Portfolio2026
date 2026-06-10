@@ -149,7 +149,7 @@ main.page {
 @media (min-width: 1440px) {
   .col {
     grid-template-columns:
-      [bleed-start] 240px
+      [bleed-start] 200px
       [reading-start] minmax(0, 700px) [reading-end]
       minmax(56px, 1fr) [bleed-end];
   }
