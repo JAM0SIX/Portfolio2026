@@ -152,7 +152,7 @@ export default function Cv() {
           <div key={job.company} className={styles.cvEntry}>
             <div className={styles.cvEntryHead}>
               <p className={styles.cvRole}>
-                <span className={styles.cvCompany}>{job.company}</span> {job.role}
+                <span className={styles.cvCompany}>{job.company}</span>, {job.role}
               </p>
               <p className={styles.cvDates}>{job.dates}</p>
             </div>
