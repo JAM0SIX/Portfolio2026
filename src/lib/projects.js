@@ -388,7 +388,6 @@ const nexisNarrative = [
      Unicorn.Studio plate. */
   {
     kind: "imagePlaceholder",
-    caption: "Hero image",
     bleed: true,
     /* Fixed desktop hero height; below 721px the slot reverts to the
        aspect-ratio below so the mobile hero scales with the viewport. */

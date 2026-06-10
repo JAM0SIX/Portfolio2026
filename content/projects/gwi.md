@@ -74,7 +74,6 @@ narrative:
   # Shows the GWI homepage / agent-draw concept; sits inside the
   # MediaPlate at the project's standard hero height.
   - kind: imagePlaceholder
-    caption: Hero image
     bleed: true
     # Fixed desktop hero height; below 721px the slot reverts to the
     # aspect-ratio below so the mobile hero scales with the viewport.

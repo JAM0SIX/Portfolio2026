@@ -34,7 +34,6 @@ narrative:
   - kind: video
     src: /projects/philpotpearce/hero.mov
     poster: /projects/philpotpearce/hero-poster.png
-    caption: Hero, philpottpearce.com
     bleed: true
     # 10px shorter than the 650px bleed default, only the device
     # changes; the plate keeps its sidebar-matched height.

@@ -84,7 +84,7 @@
     padding: 24px 16px;
   }
   svg { display: block; width: 100%; height: auto; }
-  .lane-title { font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; fill: var(--text-muted); }
+  .lane-title { font-size: 10px; font-weight: 600; letter-spacing: 0.04em; fill: var(--text-muted); }
   .node-title { font-size: 12px; font-weight: 600; letter-spacing: 0.01em; }
   .node-sub { font-size: 10px; font-weight: 400; letter-spacing: 0.01em; }
   .edge-label { font-size: 10px; font-weight: 500; letter-spacing: 0.01em; fill: var(--text-muted); }
@@ -202,7 +202,9 @@
     <path id="t5" class="stream" d="M 460 690 L 460 720" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.65" marker-end="url(#arrow-accent)"/>
 
     <!-- ================ LAYER 5: AUTOMATION TASKS (y 720–840) ================ -->
-    <text x="20" y="736" text-anchor="start" dominant-baseline="central" class="lane-title">Automation</text>
+    <!-- Lane title lifted above the pill band (pills start at y=720) so the
+         longest label doesn't overlap the first task pill at x=60. -->
+    <text x="20" y="706" text-anchor="start" dominant-baseline="central" class="lane-title">Automation</text>
     <!-- 5 task pills at 80px wide, gap 10px, totaling 5×80 + 4×10 = 440, starting at x=60 -->
     <g>
       <rect x="60" y="720" width="80" height="80" rx="4" fill="var(--task-fill)" stroke="var(--border)" stroke-width="1"/>
