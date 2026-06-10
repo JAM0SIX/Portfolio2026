@@ -1294,11 +1294,23 @@ main.page { position: relative; z-index: 1; }
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-6);
 }
+.projects-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
 /* Stack project cards into a single column across the whole
    mobile/tablet range (≤880px) — i.e. the same breakpoint at which
    the sidebar collapses into the sticky header. Below that the cards
    were splitting into two columns while the rest of the layout had
-   already gone to its mobile treatment. */
+   already gone to its mobile treatment.
+
+   NB: this base→override order matters. The base `.projects-col`
+   rule above must come BEFORE this media query, otherwise its
+   `display: flex` (equal specificity, later in source) would win
+   even on mobile and the `display: contents` collapse below would
+   never apply — leaving cards in left-then-right column order
+   (e.g. PhilpotPearce ahead of Nexis+AI) instead of array order. */
 @media (max-width: 880px) {
   .projects-grid { grid-template-columns: 1fr; }
   /* Collapse the two column wrappers so all cards become direct grid
@@ -1307,11 +1319,6 @@ main.page { position: relative; z-index: 1; }
      array sequence (GWI, Nexis+AI, PhilpotPearce, SoundTrends) rather
      than left-column-then-right-column. */
   .projects-col { display: contents; }
-}
-.projects-col {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
 }
 
 /* .project uses the layered chamfer pattern from design-system.css.

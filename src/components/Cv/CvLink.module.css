@@ -86,14 +86,14 @@
 }
 .cvName {
   margin: 0;
-  font-size: var(--text-xl);
+  font-size: calc(var(--text-xl) - 2px);
   font-weight: var(--weight-semibold);
   letter-spacing: var(--track-tight);
   line-height: var(--leading-snug);
 }
 .cvTitle {
   margin: var(--space-1) 0 0;
-  font-size: var(--text-md);
+  font-size: calc(var(--text-md) - 2px);
   color: var(--ink-soft);
 }
 .cvContact {
@@ -103,7 +103,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2) var(--space-4);
-  font-size: var(--text-sm);
+  font-size: calc(var(--text-sm) - 2px);
   color: var(--ink-mute);
 }
 .cvContact a {
@@ -120,7 +120,7 @@
 
 .cvSummary {
   margin: var(--space-5) 0 0;
-  font-size: var(--text-md);
+  font-size: calc(var(--text-md) - 2px);
   line-height: var(--leading-relaxed);
   color: var(--ink-soft);
   max-width: 64ch;
@@ -131,7 +131,7 @@
 }
 .cvSectionTitle {
   margin: 0 0 var(--space-4);
-  font-size: var(--text-xs);
+  font-size: calc(var(--text-xs) - 2px);
   font-weight: var(--weight-semibold);
   letter-spacing: var(--track-caps);
   text-transform: uppercase;
@@ -154,24 +154,28 @@
 }
 .cvRole {
   margin: 0;
-  font-size: var(--text-md);
-  font-weight: var(--weight-medium);
-  color: var(--ink);
+  /* The position sits quieter than the company: smaller + lighter so
+     the company name carries the visual weight of the entry head. */
+  font-size: calc(var(--text-base) - 2px);
+  font-weight: var(--weight-regular);
+  color: var(--ink-soft);
 }
 .cvCompany {
+  font-size: calc(var(--text-md) - 2px);
+  font-weight: var(--weight-semibold);
   color: var(--ink);
 }
 .cvDates {
   margin: 0;
   flex: 0 0 auto;
-  font-size: var(--text-sm);
+  font-size: calc(var(--text-sm) - 2px);
   color: var(--ink-mute);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 .cvEntryMeta {
   margin: 2px 0 0;
-  font-size: var(--text-sm);
+  font-size: calc(var(--text-sm) - 2px);
   color: var(--ink-mute);
 }
 .cvBullets {
@@ -182,13 +186,13 @@
   gap: var(--space-2);
 }
 .cvBullets li {
-  font-size: var(--text-base);
+  font-size: calc(var(--text-base) - 2px);
   line-height: var(--leading-relaxed);
   color: var(--ink-soft);
 }
 .cvProjectBody {
   margin: var(--space-2) 0 0;
-  font-size: var(--text-base);
+  font-size: calc(var(--text-base) - 2px);
   line-height: var(--leading-relaxed);
   color: var(--ink-soft);
   max-width: 70ch;
@@ -201,7 +205,7 @@
 }
 .cvSkillLine {
   margin: 0;
-  font-size: var(--text-base);
+  font-size: calc(var(--text-base) - 2px);
   line-height: var(--leading-relaxed);
   color: var(--ink-soft);
 }
