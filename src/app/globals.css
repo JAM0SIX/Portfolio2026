@@ -1089,14 +1089,21 @@ main.page { position: relative; z-index: 1; }
   color: var(--ink-soft);
   margin-top: 48px;
   transition: color var(--dur-base) var(--ease-default);
-  /* Balance the rag so the lines are roughly even length and the copy
-     never ends on a stranded short last line (widow). `pretty` only
-     lightly adjusts the final line and left visible widows at the
-     standard-desktop reading measure (600px); `balance` evens all lines
-     and these paragraphs sit well under its ~6-line cap. Declarative, so
-     it survives the inline glyph/key spans; degrades to normal wrapping
-     where unsupported. */
-  text-wrap: balance;
+  /* Base: avoid short last-line widows. Declarative, so it survives the
+     inline glyph/key spans; degrades to normal wrapping where
+     unsupported. The standard-desktop override below upgrades this to
+     `balance`. */
+  text-wrap: pretty;
+}
+/* Standard desktop only (881–1439px → 600px reading measure): `pretty`
+   wasn't enough at this narrower measure and left visible widows ("and
+   philosophy." / "is capable of."), so balance the rag here. XL
+   (≥1440px, 700px measure) and mobile/tablet keep `pretty` — they don't
+   need balancing and we don't want it altering those layouts. */
+@media (min-width: 881px) and (max-width: 1439px) {
+  .hc-body {
+    text-wrap: balance;
+  }
 }
 
 /* ─── Hero body spotlight ────────────────────────────────────────
@@ -1924,6 +1931,18 @@ main.page { position: relative; z-index: 1; }
   color: var(--ink);
   font-size: 19px;
   line-height: 1.65;
+}
+/* Drop cap on the article's first letter, sunk 3 lines deep. Uses the
+   initial-letter property, which derives the sink metrics from the line
+   box automatically (cleaner than a hand-tuned float). Supported in
+   Chrome/Safari; Firefox doesn't implement it yet and gracefully falls
+   back to a normal first letter. */
+.reading-note .case-study__body .case-study__paragraph:first-child::first-letter {
+  -webkit-initial-letter: 3;
+  initial-letter: 3;
+  font-weight: var(--weight-semibold);
+  color: var(--ink);
+  margin-right: 0.09em;
 }
 
 /* "Continue reading" banner — links a multi-part piece to its next part.
