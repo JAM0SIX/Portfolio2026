@@ -116,12 +116,6 @@ export default function Cv() {
         <ul className={styles.cvContact} aria-label="Contact">
           <li>London, UK</li>
           <li>
-            Portfolio:{" "}
-            <a href="https://www.hjls.co.uk" target="_blank" rel="noopener noreferrer">
-              www.hjls.co.uk
-            </a>
-          </li>
-          <li>
             LinkedIn:{" "}
             <a href="https://www.linkedin.com/in/harry-spawforth" target="_blank" rel="noopener noreferrer">
               linkedin.com/in/harry-spawforth
