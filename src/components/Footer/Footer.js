@@ -19,6 +19,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import PixelTerrain from "@/components/PixelTerrain/PixelTerrain";
+import CvLink from "@/components/Cv/CvLink";
 import styles from "./Footer.module.css";
 
 /* Tiny inline icon set so we don't pull a whole icon library for
@@ -128,6 +129,10 @@ export default function Footer() {
                   </a>
                 </li>
               ))}
+              <li>
+                {/* Opens the read-only CV overlay (no download). */}
+                <CvLink className={styles.socialLink} label="CV" />
+              </li>
             </ul>
             <p className={`${styles.role} ${styles.cellBottomLeft}`}>Designing with intent</p>
             <a
