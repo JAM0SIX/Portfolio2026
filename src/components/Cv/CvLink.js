@@ -77,7 +77,9 @@ export default function CvLink({ className, label = "CV" }) {
             <line x1="13" y1="3" x2="3" y2="13" />
           </svg>
         </button>
-        <Cv />
+        <div className={styles.scroll}>
+          <Cv />
+        </div>
       </div>
     </div>
   );

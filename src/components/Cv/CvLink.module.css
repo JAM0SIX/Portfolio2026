@@ -25,13 +25,21 @@
   width: 100%;
   max-width: 760px;
   margin: auto;
+  /* Cap to the viewport so the panel scrolls internally and the close
+     button (absolute to the panel) stays pinned while the CV scrolls. */
+  max-height: calc(100vh - 2 * clamp(16px, 6vh, 64px));
+  display: flex;
+  flex-direction: column;
   background: var(--paper);
   border: var(--border-default) solid var(--rule);
   box-shadow:
     0 20px 50px rgba(0, 0, 0, 0.25),
     0 6px 14px rgba(0, 0, 0, 0.12);
-  padding: clamp(var(--space-6), 4vw, var(--space-9));
   animation: cv-rise var(--dur-base) var(--ease-default);
+}
+.scroll {
+  overflow-y: auto;
+  padding: clamp(var(--space-6), 4vw, var(--space-9));
 }
 @keyframes cv-rise {
   from { opacity: 0; transform: translateY(8px); }
@@ -42,6 +50,7 @@
   position: absolute;
   top: var(--space-4);
   right: var(--space-4);
+  z-index: 2;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -190,32 +199,20 @@
   flex-direction: column;
   gap: var(--space-3);
 }
-.cvSkillGroup {
-  display: grid;
-  grid-template-columns: 140px 1fr;
-  gap: var(--space-4);
-  align-items: baseline;
-}
-.cvSkillLabel {
-  margin: 0;
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-  color: var(--ink);
-}
-.cvSkillItems {
+.cvSkillLine {
   margin: 0;
   font-size: var(--text-base);
-  line-height: var(--leading-normal);
+  line-height: var(--leading-relaxed);
   color: var(--ink-soft);
+}
+.cvSkillLine strong {
+  color: var(--ink);
+  font-weight: var(--weight-semibold);
 }
 
 @media (max-width: 600px) {
   .cvEntryHead {
     flex-direction: column;
-    gap: 2px;
-  }
-  .cvSkillGroup {
-    grid-template-columns: 1fr;
     gap: 2px;
   }
 }
