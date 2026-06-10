@@ -89,6 +89,9 @@
     gap: var(--space-5);
     padding: var(--space-5) var(--space-4);
   }
+  .pl-progress {
+    margin-top: calc(var(--space-3) - var(--space-5));
+  }
 }
 
 /* ─── Rhombus stack ──────────────────────────────────────────────────
@@ -294,19 +297,19 @@
   position: relative;
   width: 100%;
   max-width: var(--pl-panel-max);
-  min-height: 220px;
+  min-height: 150px;
   text-align: center;
 }
 
 .pl-slides {
   position: relative;
   width: 100%;
-  min-height: 220px;
+  min-height: 150px;
 }
 
 @media (max-width: 800px) {
-  .pl-slides { min-height: 200px; }
-  .pl-panel  { min-height: 200px; }
+  .pl-slides { min-height: 185px; }
+  .pl-panel  { min-height: 185px; }
 }
 
 /* Slides cross-fade in place — they all share centre. */
@@ -370,7 +373,11 @@
   flex-direction: row;
   justify-content: center;
   gap: var(--space-2);
-  margin-top: var(--space-2);
+  /* `.pl-sticky` is a flex column with `gap: var(--space-7)`, which
+     otherwise pushes the pips a full step below the description. Pull
+     them back up so they sit a tight `--space-3` under the text. The
+     mobile override below matches the smaller `--space-5` sticky gap. */
+  margin-top: calc(var(--space-3) - var(--space-7));
 }
 
 .pl-dot {
