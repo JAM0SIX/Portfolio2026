@@ -142,6 +142,21 @@ main.page {
     padding: 12px 0 80px;
   }
 }
+/* Small desktop (881–980px): the sidebar still takes its fixed width but
+   the main area is now tight, so the standard 128px gutter squeezes the
+   reading column (and the project-card grid inside it) far too small.
+   Halve the gutter and drop the right-gutter minimum so the reading
+   column grows toward its 600px cap — giving the cards and body copy
+   meaningfully more width before the layout collapses to tablet at
+   880px. Keep the hero plate's padding-left in sync (Narrative.module.css). */
+@media (min-width: 881px) and (max-width: 980px) {
+  .col {
+    grid-template-columns:
+      [bleed-start] 64px
+      [reading-start] minmax(0, 600px) [reading-end]
+      minmax(16px, 1fr) [bleed-end];
+  }
+}
 /* XL desktop (≥1440px): widen the reading column to 680px and open up a
    larger left gutter so the content breathes further from the side panel
    on big displays. Bleed sections still span the full main width. The
@@ -1657,10 +1672,11 @@ main.page { position: relative; z-index: 1; }
 }
 .project__metrics {
   list-style: none;
+  margin: 0;
+  padding: var(--space-3) 0;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-3);
-  padding: var(--space-3) 0;
+  gap: var(--space-2);
   border-top: var(--border-default) solid var(--rule-soft);
   border-bottom: var(--border-default) solid var(--rule-soft);
 }
@@ -1672,21 +1688,24 @@ main.page { position: relative; z-index: 1; }
 }
 .project__metric-value {
   font-family: var(--font-sans);
-  font-size: var(--text-lg);
+  font-size: var(--text-base);
   font-weight: var(--weight-semibold);
   color: var(--ink);
   letter-spacing: var(--track-tight);
   font-variant-numeric: tabular-nums;
   line-height: 1;
+  /* Keep multi-digit values (e.g. "£750,000") on one line so they
+     never break mid-number or spill into the next column. */
+  white-space: nowrap;
 }
 .project__metric-unit {
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   font-weight: var(--weight-regular);
   color: var(--ink-mute);
   margin-left: 1px;
 }
 .project__metric-label {
-  font-size: var(--text-xs);
+  font-size: var(--text-2xs);
   color: var(--ink-mute);
   line-height: var(--leading-normal);
 }

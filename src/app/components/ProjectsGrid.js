@@ -162,6 +162,24 @@ function ProjectCard({ p, order }) {
                 visible while the card is hovered/focused. */}
             <span className="project__date">{p.date}</span>
             <p className="project__desc">{p.blurb}</p>
+            {/* Headline metrics from the case study (GWI, Nexis+AI).
+                Only cards with a non-empty metrics array render this
+                band; others (PhilpotPearce, SoundTrends) skip it. */}
+            {p.metrics?.length > 0 && (
+              <ul className="project__metrics" aria-label="Key outcomes">
+                {p.metrics.map(([label, value, unit]) => (
+                  <li key={label} className="project__metric">
+                    <span className="project__metric-value">
+                      {value}
+                      {unit ? (
+                        <span className="project__metric-unit">{unit}</span>
+                      ) : null}
+                    </span>
+                    <span className="project__metric-label">{label}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
             {!p.comingSoon && (
               <div className="project__actions">
                 <Link href={`/${p.slug}`} className="btn btn-primary">
