@@ -783,9 +783,11 @@
   }
 }
 @media (min-width: 1440px) {
+  /* Mirrors the .col XL gutter (200px) so the hero image's left edge
+     lines up with the reading column. Keep in sync with globals.css. */
   .imagePlaceholder:global(.bleed) .mediaPlateInner,
   .videoEmbed:global(.bleed) .mediaPlateInner {
-    padding-left: 260px;
+    padding-left: 200px;
   }
   .imagePlaceholder:global(.bleed) .mediaPlateInner > *,
   .videoEmbed:global(.bleed) .mediaPlateInner > * {
