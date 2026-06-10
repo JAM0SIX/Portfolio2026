@@ -149,7 +149,7 @@ main.page {
 @media (min-width: 1440px) {
   .col {
     grid-template-columns:
-      [bleed-start] 260px
+      [bleed-start] 240px
       [reading-start] minmax(0, 700px) [reading-end]
       minmax(56px, 1fr) [bleed-end];
   }
@@ -1089,6 +1089,10 @@ main.page { position: relative; z-index: 1; }
   color: var(--ink-soft);
   margin-top: 48px;
   transition: color var(--dur-base) var(--ease-default);
+  /* Let the browser reflow the rag to avoid short last-line widows.
+     Declarative so it survives the inline glyph/key spans woven through
+     the copy; degrades to normal wrapping where unsupported. */
+  text-wrap: pretty;
 }
 
 /* ─── Hero body spotlight ────────────────────────────────────────
