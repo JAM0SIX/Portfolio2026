@@ -1,5 +1,5 @@
 ---
-slug: philpotpearce
+slug: philpottpearce
 name: PhilpottPearce
 initial: P
 date: "2026"
@@ -20,7 +20,7 @@ narrative:
       name: PhilpottPearce
     clients:
       - name: PhilpottPearce
-        logo: /projects/philpotpearce/logos/philpotpearce.png
+        logo: /projects/philpottpearce/logos/philpottpearce.png
     scope: >
       I designed in collaboration with the founders, guiding them through
       how users will flow through their space, how visual hierarchy can
@@ -32,14 +32,14 @@ narrative:
   # scope poses. Poster is the first frame, also used as the
   # reduced-motion fallback.
   - kind: video
-    src: /projects/philpotpearce/hero.mov
-    poster: /projects/philpotpearce/hero-poster.png
+    src: /projects/philpottpearce/hero.mov
+    poster: /projects/philpottpearce/hero-poster.png
     bleed: true
     # 10px shorter than the 650px bleed default, only the device
     # changes; the plate keeps its sidebar-matched height.
     height: 640
     backdrop:
-      src: /projects/philpotpearce/plate-bg.png
+      src: /projects/philpottpearce/plate-bg.png
 
   # 02 · The problem
   - kind: sectionHeader
@@ -65,16 +65,16 @@ narrative:
       - name: Restraint as the brand
         summary: The visual system as a statement of values, not decoration.
         images:
-          - src: /projects/philpotpearce/restraint-1.png
+          - src: /projects/philpottpearce/restraint-1.png
             wide: true
             # Aspect tuned so the wide cell lands ~30px taller than
             # the default 16:9 at reading-column width (576/354).
             aspect: 576 / 354
             alt: Restraint in the brand system, overview frame
-          - src: /projects/philpotpearce/restraint-2.png
+          - src: /projects/philpottpearce/restraint-2.png
             square: true
             alt: Restraint in the brand system, square detail
-          - src: /projects/philpotpearce/restraint-3.png
+          - src: /projects/philpottpearce/restraint-3.png
             square: true
             alt: Restraint in the brand system, second square detail
         body:
@@ -89,7 +89,7 @@ narrative:
       - name: Navigation as thesis statement
         summary: The golden circle as information architecture.
         image:
-          src: /projects/philpotpearce/navigation.gif
+          src: /projects/philpottpearce/navigation.gif
           caption: IA as thesis
           alt: Navigation menu following the golden circle structure
         body:
@@ -105,20 +105,20 @@ narrative:
       - name: Editorial typography
         summary: A single rhythm from hero to component states.
         images:
-          - src: /projects/philpotpearce/editorial-1.png
+          - src: /projects/philpottpearce/editorial-1.png
             wide: true
             # ~20px taller than the wide default at reading-column
             # width (576/344 vs 576/324 for the stock 16:9).
             aspect: 576 / 344
             alt: Editorial typography running through the whole site
-          - src: /projects/philpotpearce/editorial-4.png
+          - src: /projects/philpottpearce/editorial-4.png
             wide: true
             # Pin the crop to the left edge, the meaningful detail
             # in this image sits on the left, and the default
             # centre-anchored object-fit was hiding it.
             position: left center
             alt: Editorial typography, second detail
-          - src: /projects/philpotpearce/editorial-6.png
+          - src: /projects/philpottpearce/editorial-6.png
             wide: true
             # Anchor the crop to the left so the meaningful detail
             # stays visible (same fix as editorial-4).
@@ -137,12 +137,12 @@ narrative:
       - name: Work as the hero
         summary: Project pages built to showcase, not narrate.
         images:
-          - src: /projects/philpotpearce/work-as-hero.gif
+          - src: /projects/philpottpearce/work-as-hero.gif
             wide: true
             # ~20px taller than the wide default (576/344 vs 576/324).
             aspect: 576 / 344
             alt: Project pages designed to put the work first
-          - src: /projects/philpotpearce/work-as-hero-1.png
+          - src: /projects/philpottpearce/work-as-hero-1.png
             wide: true
             alt: Project page detail
         body:

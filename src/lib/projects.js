@@ -8,7 +8,7 @@ import { loadProjectMarkdown } from "./loadProjectMarkdown";
    live inline in this file because they include JSX components
    (inline SidePanel triggers) that aren't expressible in YAML yet. */
 const gwiFromMarkdown = loadProjectMarkdown("gwi");
-const philpotpearceFromMarkdown = loadProjectMarkdown("philpotpearce");
+const philpottpearceFromMarkdown = loadProjectMarkdown("philpottpearce");
 
 // ─── Methodology stage presets (one set per project) ──────────────────
 // Each project's case study renders a radial Methodology diagram. The
@@ -71,7 +71,7 @@ const lexisnexisMethodologyStages = [
   },
 ];
 
-const philpotpearceMethodologyStages = [
+const philpottpearceMethodologyStages = [
   {
     id: "discover",
     label: "Branding",
@@ -643,15 +643,15 @@ const nexisNarrative = [
   },
 ];
 
-/* (philpotpearceProjectLayers removed, unused dead code.) */
+/* (philpottpearceProjectLayers removed, unused dead code.) */
 
 // ─── PhilpottPearce principle bodies (token registry) ──────────────────
 /* These stay in JS (not markdown) because the principle bodies are
    JSX with semantic <p> wrappers. The narrative in
-   /content/projects/philpotpearce.md references each principle via
+   /content/projects/philpottpearce.md references each principle via
    a `{{principle:Name}}` token; Narrative looks the body up here at
    render time. */
-const philpotpearcePrincipleBodies = {
+const philpottpearcePrincipleBodies = {
   "Synonymous brand language": (
     <p>
       The brand language had to be the studio. Type, palette, pace, and
@@ -800,16 +800,16 @@ export const projects = [
     },
   },
   {
-    /* PhilpottPearce sourced from /content/projects/philpotpearce.md.
+    /* PhilpottPearce sourced from /content/projects/philpottpearce.md.
        The principle bodies stay in JS as the token registry because
        they're JSX; the narrative references them via
        `{{principle:Name}}` tokens that Narrative resolves at render. */
-    ...philpotpearceFromMarkdown,
-    sections: narrativeTOC(philpotpearceFromMarkdown.narrative),
-    tokens: { principle: philpotpearcePrincipleBodies },
+    ...philpottpearceFromMarkdown,
+    sections: narrativeTOC(philpottpearceFromMarkdown.narrative),
+    tokens: { principle: philpottpearcePrincipleBodies },
     cardImage: {
-      default: "/projects/philpotpearce/card-default.png",
-      hover: "/projects/philpotpearce/card-hover.png",
+      default: "/projects/philpottpearce/card-default.png",
+      hover: "/projects/philpottpearce/card-hover.png",
     },
   },
   {
