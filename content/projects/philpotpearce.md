@@ -1,6 +1,6 @@
 ---
 slug: philpotpearce
-name: PhilpotPearce
+name: PhilpottPearce
 initial: P
 date: "2026"
 role: "Brand identity & website"
@@ -17,9 +17,9 @@ narrative:
   - kind: hook
     headline: A studio that speaks for itself
     company:
-      name: PhilpotPearce
+      name: PhilpottPearce
     clients:
-      - name: PhilpotPearce
+      - name: PhilpottPearce
         logo: /projects/philpotpearce/logos/philpotpearce.png
     scope: >
       I designed in collaboration with the founders, guiding them through
@@ -79,7 +79,7 @@ narrative:
             alt: Restraint in the brand system, second square detail
         body:
           - >
-            Most agencies dress up their identities. PhilpotPearce strips
+            Most agencies dress up their identities. PhilpottPearce strips
             back. Every visual decision, every word on the site, every
             component had to earn its place.
           - >
@@ -156,7 +156,7 @@ narrative:
             work has to carry the weight.
 ---
 
-# PhilpotPearce
+# PhilpottPearce
 
 Brand identity and web presence for an independent product design consultancy.
 The narrative for this page is built from the structured `narrative` array in

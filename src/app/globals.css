@@ -52,7 +52,7 @@
 [data-embed="1"] .col { padding: 0; max-width: none; }
 
 /* Hero-only mode — used when the home page is iframed into another
-   surface (the PhilpotPearce "Work as the hero" decision card) so
+   surface (the PhilpottPearce "Work as the hero" decision card) so
    only the Hero block renders. Strips the sidebar, footer, clock,
    cursor field, and every section below the hero. */
 [data-hero="1"] .sidebar,
@@ -1340,13 +1340,13 @@ main.page { position: relative; z-index: 1; }
    `display: flex` (equal specificity, later in source) would win
    even on mobile and the `display: contents` collapse below would
    never apply — leaving cards in left-then-right column order
-   (e.g. PhilpotPearce ahead of Nexis+AI) instead of array order. */
+   (e.g. PhilpottPearce ahead of Nexis+AI) instead of array order. */
 @media (max-width: 880px) {
   .projects-grid { grid-template-columns: 1fr; }
   /* Collapse the two column wrappers so all cards become direct grid
      items in one column. Each card carries an inline `order` equal to
      its index in the projects array, so the stack falls back to true
-     array sequence (GWI, Nexis+AI, PhilpotPearce, SoundTrends) rather
+     array sequence (GWI, Nexis+AI, PhilpottPearce, SoundTrends) rather
      than left-column-then-right-column. */
   .projects-col { display: contents; }
 }

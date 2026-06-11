@@ -557,7 +557,7 @@
    so the letterbox bars show the backdrop (e.g. Nexis+AI's
    Unicorn shader, PP's blurred architectural image) rather than
    a paper-deep panel. Keep the 1px rule so the hero device reads
-   as a framed plate — matching the PhilpotPearce video hero. */
+   as a framed plate — matching the PhilpottPearce video hero. */
 .imagePlaceholder:global(.bleed) .imageSlot:has(.imageMedia) {
   background: transparent;
   border: var(--border-default) solid var(--rule);
@@ -853,7 +853,7 @@
 }
 
 /* Video block — looping silent screen recording (e.g. the
-   PhilpotPearce live-site hero). Same framing language as the
+   PhilpottPearce live-site hero). Same framing language as the
    prototype embeds: square-cornered bordered box, no chamfer. */
 .videoEmbed {
   display: flex;
@@ -879,7 +879,7 @@
   object-fit: cover;
 }
 /* Mobile: a bleed hero video carries a fixed pixel height inline
-   (e.g. PhilpotPearce at 640px). On a narrow viewport that tall box
+   (e.g. PhilpottPearce at 640px). On a narrow viewport that tall box
    no longer matches the device's wide desktop shape — it crops to a
    near-portrait sliver. Drop the inline height and pin the frame to
    the desktop ~3:2 ratio so the hero just scales down, same shape,

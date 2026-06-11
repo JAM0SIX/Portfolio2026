@@ -50,7 +50,7 @@ const EXPERIENCE = [
     ],
   },
   {
-    company: "PhilpotPearce",
+    company: "PhilpottPearce",
     role: "Freelance Senior Product Design Lead",
     dates: "December 2025 – March 2026",
     bullets: [

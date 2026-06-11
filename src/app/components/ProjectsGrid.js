@@ -101,7 +101,7 @@ function ProjectCard({ p, order }) {
          On desktop it's a no-op (values stay sequential within each
          column); on mobile the column wrappers collapse to
          `display: contents` and these orders sort all cards back into
-         array sequence (GWI, Nexis+AI, PhilpotPearce, SoundTrends). */
+         array sequence (GWI, Nexis+AI, PhilpottPearce, SoundTrends). */
       style={{ order }}
     >
       {/* Image frame holds the image (clipped with a TL notch for
@@ -164,7 +164,7 @@ function ProjectCard({ p, order }) {
             <p className="project__desc">{p.blurb}</p>
             {/* Headline metrics from the case study (GWI, Nexis+AI).
                 Only cards with a non-empty metrics array render this
-                band; others (PhilpotPearce, SoundTrends) skip it. */}
+                band; others (PhilpottPearce, SoundTrends) skip it. */}
             {p.metrics?.length > 0 && (
               <ul className="project__metrics" aria-label="Key outcomes">
                 {p.metrics.map(([label, value, unit]) => (

@@ -1,7 +1,7 @@
 "use client";
 
 /* Video — narrative block that renders a looping silent screen
-   recording (e.g. the PhilpotPearce live-site hero). In-line
+   recording (e.g. the PhilpottPearce live-site hero). In-line
    figures use a square-cornered bordered frame at 16:9; bleed
    (hero) figures sit inside a MediaPlate that provides the
    colored backdrop + drop-shadow "device" treatment.
@@ -42,7 +42,7 @@ export default function Video({
   backdrop,
   /* Per-instance height override for bleed videos — useful when
      a single hero wants a slightly different device size from
-     the 650px default (e.g. PhilpotPearce at 680). Ignored when
+     the 650px default (e.g. PhilpottPearce at 680). Ignored when
      `aspect` is set or when the video is in-line (non-bleed). */
   height,
 }) {

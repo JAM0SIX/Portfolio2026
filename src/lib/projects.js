@@ -645,7 +645,7 @@ const nexisNarrative = [
 
 /* (philpotpearceProjectLayers removed, unused dead code.) */
 
-// ─── PhilpotPearce principle bodies (token registry) ──────────────────
+// ─── PhilpottPearce principle bodies (token registry) ──────────────────
 /* These stay in JS (not markdown) because the principle bodies are
    JSX with semantic <p> wrappers. The narrative in
    /content/projects/philpotpearce.md references each principle via
@@ -800,7 +800,7 @@ export const projects = [
     },
   },
   {
-    /* PhilpotPearce sourced from /content/projects/philpotpearce.md.
+    /* PhilpottPearce sourced from /content/projects/philpotpearce.md.
        The principle bodies stay in JS as the token registry because
        they're JSX; the narrative references them via
        `{{principle:Name}}` tokens that Narrative resolves at render. */
