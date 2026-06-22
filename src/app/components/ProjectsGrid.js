@@ -154,41 +154,44 @@ function ProjectCard({ p, order }) {
           </div>
         )}
       </div>
+      {/* Hover/focus reveal — the card rests on its image + title and
+          surfaces the rest on interaction: a recessed info container
+          (date, description, metrics) plus the CTA buttons. */}
       <div className="project__reveal">
         <div className="project__reveal-inner">
           <div className="project__reveal-content">
-            {/* Date moves into the hover-reveal stack — sits on
-                top of the project description, left-aligned. Only
-                visible while the card is hovered/focused. */}
-            <span className="project__date">{p.date}</span>
-            <p className="project__desc">{p.blurb}</p>
-            {/* Headline metrics from the case study (GWI, Nexis+AI).
-                Only cards with a non-empty metrics array render this
-                band; others (PhilpottPearce, SoundTrends) skip it. */}
-            {p.metrics?.length > 0 && (
-              <ul className="project__metrics" aria-label="Key outcomes">
-                {p.metrics.map(([label, value, unit]) => (
-                  <li key={label} className="project__metric">
-                    <span className="project__metric-value">
-                      {value}
-                      {unit ? (
-                        <span className="project__metric-unit">{unit}</span>
-                      ) : null}
-                    </span>
-                    <span className="project__metric-label">{label}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
+            {/* Recessed info panel: date on top of the description,
+                then the headline metrics band. Metrics only render for
+                cards with a non-empty metrics array (GWI, Nexis+AI);
+                others (PhilpottPearce, SoundTrends) skip the band. */}
+            <div className="project__info">
+              <span className="project__date">{p.date}</span>
+              <p className="project__desc">{p.blurb}</p>
+              {p.metrics?.length > 0 && (
+                <ul className="project__metrics" aria-label="Key outcomes">
+                  {p.metrics.map(([label, value, unit]) => (
+                    <li key={label} className="project__metric">
+                      <span className="project__metric-value">
+                        {value}
+                        {unit ? (
+                          <span className="project__metric-unit">{unit}</span>
+                        ) : null}
+                      </span>
+                      <span className="project__metric-label">{label}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
             {!p.comingSoon && (
               <div className="project__actions">
-                <Link href={`/${p.slug}`} className="btn btn-primary">
+                <Link href={`/${p.slug}`} className="btn btn-primary btn-skeuo">
                   View case
                 </Link>
                 {p.liveUrl && (
                   <a
                     href={p.liveUrl}
-                    className="btn btn-secondary"
+                    className="btn btn-secondary btn-skeuo"
                     target="_blank"
                     rel="noopener noreferrer"
                   >

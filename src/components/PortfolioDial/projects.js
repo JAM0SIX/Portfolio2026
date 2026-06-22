@@ -1,55 +1,60 @@
-/* Placeholder projects for the PortfolioDial experiment. Pure demo
-   data so the dial has something to render. Real project data and
-   imagery can be plugged in later by replacing this array. */
+/* Scenario: a rack of utility-tech tools — infrastructure and developer
+   utilities. Demo data so the dial has something to render. */
 
 export const PROJECTS = [
   {
-    id: "demo-1",
-    title: "Atlas",
-    role: "Product design",
+    id: "util-1",
+    title: "Ledger",
+    role: "Encrypted CLI vault",
     year: "2026",
-    tags: ["AI", "Platform", "Research"],
-    summary: "Placeholder project for the dial.",
+    tags: ["Security", "CLI"],
+    summary:
+      "A keychain for the terminal — secrets, tokens and SSH keys encrypted at rest, unlocked with a single passphrase.",
   },
   {
-    id: "demo-2",
-    title: "Currents",
-    role: "Brand & identity",
+    id: "util-2",
+    title: "Conduit",
+    role: "API gateway",
     year: "2025",
-    tags: ["Brand", "Web"],
-    summary: "Placeholder project for the dial.",
+    tags: ["Infra", "Routing"],
+    summary:
+      "Routes, rate-limits and authenticates traffic across services from one config file, with metrics out of the box.",
   },
   {
-    id: "demo-3",
-    title: "Loop",
-    role: "iOS app",
+    id: "util-3",
+    title: "Beacon",
+    role: "Uptime monitor",
     year: "2025",
-    tags: ["iOS", "Music"],
-    summary: "Placeholder project for the dial.",
+    tags: ["Observability", "Alerts"],
+    summary:
+      "Pings your endpoints from a dozen regions and pages you the moment something drifts — before users notice.",
   },
   {
-    id: "demo-4",
-    title: "Margin",
-    role: "Editorial system",
+    id: "util-4",
+    title: "Forge",
+    role: "Build pipeline",
     year: "2024",
-    tags: ["Editorial", "Type"],
-    summary: "Placeholder project for the dial.",
+    tags: ["CI/CD", "DevOps"],
+    summary:
+      "Caches aggressively and runs jobs in parallel so a green build lands in seconds, not minutes.",
   },
   {
-    id: "demo-5",
-    title: "Signal",
-    role: "Consumer insights",
+    id: "util-5",
+    title: "Relay",
+    role: "Webhook router",
     year: "2024",
-    tags: ["SaaS", "Data"],
-    summary: "Placeholder project for the dial.",
+    tags: ["Events", "Integration"],
+    summary:
+      "Catches, retries and fans out webhooks, with a replay log so a failed delivery is never lost.",
   },
   {
-    id: "demo-6",
-    title: "Foundry",
-    role: "Internal tooling",
+    id: "util-6",
+    title: "Switchboard",
+    role: "Internal admin console",
     year: "Coming soon",
     tags: ["Ops", "Tools"],
-    summary: "Placeholder project for the dial.",
+    summary:
+      "One console for feature flags, support tools and the back-office tasks the whole team can reach.",
     comingSoon: true,
   },
 ];

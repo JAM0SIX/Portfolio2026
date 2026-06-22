@@ -2,6 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import ScrambleText from "@/components/ScrambleText/ScrambleText";
+import { useEntry, LEVELS } from "./EntryProvider";
+
+const HEADLINE = "Turning complex problems into simple software.";
 import navigationLottie from "./lottie/navigation.json";
 import databaseLottie from "./lottie/database.json";
 import percentLottie from "./lottie/percent.json";
@@ -128,6 +131,13 @@ export default function Hero() {
   /* Which concept is currently spotlighted (glyph id) or null. */
   const [active, setActive] = useState(null);
   const mark = (id) => `hc-mark${active === id ? " is-lit" : ""}`;
+
+  /* Entry sequence — on first arrival the hero stays hidden (via the
+     data-entering boot flag) and reveals in order: H1 scramble → body
+     → identity. When not entering, everything renders normally. */
+  const { entering, level } = useEntry();
+  const reached = (lvl) => !entering || level >= lvl;
+  const reveal = (lvl) => (entering && level >= lvl ? " entry-in" : "");
   useEffect(() => {
     const tick = () => {
       setTime(
@@ -146,7 +156,7 @@ export default function Hero() {
 
   return (
     <>
-      <div className="hero-identity">
+      <div className={`hero-identity${reveal(LEVELS.IDENTITY)}`}>
         <span className="avatar" aria-hidden="true" />
         <span className="name">Harry Spawforth</span>
         <div className="id-meta">
@@ -163,80 +173,45 @@ export default function Hero() {
       </div>
 
       <section className="hc-root" id="profile">
-        <h1 className="hc-headline">
-          <ScrambleText
-            text="I believe the future belongs to designers who can build."
-            stagger={18}
-            as="text"
-          />
+        <h1 className={`hc-headline${reveal(LEVELS.H1)}`}>
+          {reached(LEVELS.H1) ? (
+            <ScrambleText text={HEADLINE} stagger={18} as="text" />
+          ) : (
+            <span aria-hidden="true">{HEADLINE}</span>
+          )}
         </h1>
 
         <div
-          className="hc-copy"
+          className={`hc-copy${reveal(LEVELS.BODY)}`}
           data-active={active == null ? undefined : active}
         >
           <p className="hc-body">
-            I&apos;ve been an{" "}
+            A{" "}
             <span className={mark("link")}>
               <HeroKey id="link" active={active} setActive={setActive}>
-                AI native
+                strategic
               </HeroKey>
             </span>
             <HeroGlyph
               id="link"
-              label="Spotlight: AI native designer before the hype"
+              label="Spotlight: strategic product design"
               active={active}
               setActive={setActive}
             />{" "}
-            <span className={mark("link")}>designer before the hype</span>
-            , and even co-founded an AI start-up along the way.{" "}
-            <span className={mark("stack")}>
-              I specialise in{" "}
-              <HeroKey id="stack" active={active} setActive={setActive}>
-                data-rich
-              </HeroKey>
-            </span>
-            <HeroGlyph
-              id="stack"
-              label="Spotlight: I specialise in data-rich systems and platforms"
-              active={active}
-              setActive={setActive}
-            />{" "}
-            <span className={mark("stack")}>systems and platforms</span>
-            ,{" "}
-            <span className={mark("think")}>
-              boosting user efficiency and{" "}
-              <HeroKey id="think" active={active} setActive={setActive}>
-                productivity
-              </HeroKey>
-            </span>
-            <HeroGlyph
-              id="think"
-              label="Spotlight: boosting user efficiency and productivity through design and philosophy"
-              active={active}
-              setActive={setActive}
-            />{" "}
-            <span className={mark("think")}>through design and philosophy</span>
-            .
-          </p>
-          <p className="hc-body">
-            The smarter AI becomes, knowing what not to build with human
-            judgement matters more than ever. The best way to keep that
-            judgement sharp is being creative and to{" "}
+            <span className={mark("link")}>designer</span>{" "}
+            <span className={mark("expand")}>crafting</span>{" "}
             <span className={mark("expand")}>
-              push the{" "}
               <HeroKey id="expand" active={active} setActive={setActive}>
-                boundaries
+                tools
               </HeroKey>
             </span>
             <HeroGlyph
               id="expand"
-              label="Spotlight: push the boundaries of what a designer is capable of"
+              label="Spotlight: tools people love to use"
               active={active}
               setActive={setActive}
             />{" "}
-            <span className={mark("expand")}>of what a designer is capable of</span>
-            .
+            <span className={mark("expand")}>people love to use</span>.
           </p>
         </div>
       </section>

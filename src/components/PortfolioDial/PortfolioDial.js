@@ -84,7 +84,7 @@ function TickRing({ size, accent, hudOn }) {
         y1={y1}
         x2={x2}
         y2={y2}
-        stroke={major ? "rgba(26, 24, 21, 0.62)" : "rgba(26, 24, 21, 0.22)"}
+        stroke={major ? "color-mix(in srgb, var(--ink) 62%, transparent)" : "color-mix(in srgb, var(--ink) 22%, transparent)"}
         strokeWidth={major ? 1 : 0.6}
       />,
     );
@@ -98,8 +98,8 @@ function TickRing({ size, accent, hudOn }) {
       style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
     >
       <g transform={`translate(${r} ${r})`}>
-        <circle r={outer - 1} fill="none" stroke="rgba(26, 24, 21, 0.22)" strokeWidth="0.5" />
-        <circle r={inner - 10} fill="none" stroke="rgba(26, 24, 21, 0.12)" strokeWidth="0.5" />
+        <circle r={outer - 1} fill="none" stroke="color-mix(in srgb, var(--ink) 22%, transparent)" strokeWidth="0.5" />
+        <circle r={inner - 10} fill="none" stroke="color-mix(in srgb, var(--ink) 12%, transparent)" strokeWidth="0.5" />
         {lines}
       </g>
       <g transform={`translate(${r} ${r})`}>
@@ -148,7 +148,7 @@ function DotField({ size, angle }) {
       const a = (i / spec.count) * TAU;
       const x = spec.radius * Math.cos(a);
       const y = spec.radius * Math.sin(a);
-      const fill = spec.isActive ? "rgba(26, 24, 21, 0.82)" : `rgba(26, 24, 21, ${spec.op})`;
+      const fill = spec.isActive ? "color-mix(in srgb, var(--ink) 82%, transparent)" : `color-mix(in srgb, var(--ink) ${spec.op * 100}%, transparent)`;
       rings.push(<circle key={`${ri}-${i}`} cx={x} cy={y} r={spec.dot} fill={fill} />);
     }
   });
@@ -477,7 +477,7 @@ function MiniMap({ activeIdx, n, accent }) {
     >
       <svg width={size} height={size} style={{ display: "block" }} aria-hidden="true" focusable="false">
         <g transform={`translate(${size / 2} ${size / 2})`}>
-          <circle r={r} fill="none" stroke="rgba(26, 24, 21, 0.22)" strokeWidth="0.5" />
+          <circle r={r} fill="none" stroke="color-mix(in srgb, var(--ink) 22%, transparent)" strokeWidth="0.5" />
           {Array.from({ length: n }).map((_, i) => {
             const a = SLOT_ANGLE(i, n);
             const cx = r * Math.cos(a);
@@ -489,7 +489,7 @@ function MiniMap({ activeIdx, n, accent }) {
                 cx={cx}
                 cy={cy}
                 r={active ? 3 : 1.6}
-                fill={active ? accent : "rgba(26, 24, 21, 0.62)"}
+                fill={active ? accent : "color-mix(in srgb, var(--ink) 62%, transparent)"}
               />
             );
           })}
@@ -582,7 +582,7 @@ function MobileActiveCard({ project, idx, accent, direction, onOpen }) {
   const cardStyle = {
     margin: "0 16px",
     padding: "20px 22px",
-    background: "rgba(245, 243, 238, 0.6)",
+    background: "color-mix(in srgb, var(--paper) 60%, transparent)",
     border: "none",
     "--card-slide-from": `${slideFrom}px`,
     animation: "mobCardSlide .45s cubic-bezier(.32,.72,.32,1) both",
@@ -825,7 +825,7 @@ export default function PortfolioDial() {
               pointerEvents: "none",
               opacity: 0.35,
               background:
-                "radial-gradient(120% 120% at 50% 50%, transparent 55%, rgba(26, 24, 21, 0.06))",
+                "radial-gradient(120% 120% at 50% 50%, transparent 55%, color-mix(in srgb, var(--ink) 6%, transparent))",
             }}
           />
 

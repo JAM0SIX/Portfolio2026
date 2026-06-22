@@ -27,10 +27,12 @@
 :root {
 
   /* ───── Type ─────
-     --font-sans: Sora (loaded via next/font in app/layout.js).
-     Sora ships with weights 300/400/500/600/700.
-     Used for body, UI, and headings — single typeface across the system. */
-  --font-sans: var(--font-sora), sans-serif;
+     --font-sans: JetBrains Mono (self-hosted via next/font/local in
+     app/layout.js). Ships weights 300/400/500/600/700/800 + italics.
+     Used for body, UI, and headings — single monospace typeface across
+     the whole system. */
+  --font-sans: var(--font-jetbrains), ui-monospace, "SFMono-Regular",
+    "Menlo", monospace;
 
   /* ───── Type scale ───── */
   --text-2xs: 10px;
@@ -98,6 +100,17 @@
   /* ───── Radius ───── */
   --radius-none: 0;
   --radius-full: 50%;
+  /* Shared corner radii for rounded container surfaces. Two tiers:
+     --radius-panel  (12px) — EXTERNAL containers: the outer frame of a
+                              component (project/problem cards, quote
+                              boxes, prototype/embed frames, the side
+                              panel drawer, the nav sidebar).
+     --radius-inner  (10px) — INTERNAL containers nested inside a card
+                              (project info panel, problem bubbles, the
+                              card image). Sits 2px tighter so the
+                              nesting reads as concentric. */
+  --radius-panel: 12px;
+  --radius-inner: 10px;
 
   /* ───── Sidebar tree row height ───── */
   --row-h: 30px;
@@ -527,6 +540,47 @@ button {
   );
 }
 
+/* ───── Skeuomorphic CTA modifier ─────
+   Builds on the cursor-keypad material (see .skeuo-key in globals):
+   a raised bevel at rest, a pressed-in look on :active. The .btn base
+   clip-path clips outer drop-shadows away, so the lift is carried by
+   inset bevels only — top highlight + bottom shadow. Composes on top
+   of .btn-primary (solid fill → bevel on the button itself) or
+   .btn-secondary (layered fill → bevel on the paper ::before face).
+   Used by the project + problem card CTAs. */
+.btn-skeuo {
+  transition:
+    background var(--dur-base) var(--ease-default),
+    color      var(--dur-base) var(--ease-default),
+    box-shadow var(--dur-base) var(--ease-default),
+    clip-path  var(--dur-base) var(--ease-default),
+    transform  140ms ease;
+}
+.btn-skeuo.btn-primary {
+  box-shadow:
+    inset 0 1px 0 var(--toggle-knob-bevel),
+    inset 0 -1px 1px var(--toggle-knob-shadow);
+}
+.btn-skeuo.btn-secondary::before {
+  box-shadow:
+    inset 0 1px 0 var(--toggle-knob-bevel),
+    inset 0 -1px 1px var(--toggle-knob-shadow);
+}
+.btn-skeuo:active {
+  /* Pressed — the key sinks into the plate. */
+  transform: translateY(1px);
+}
+.btn-skeuo.btn-primary:active {
+  box-shadow:
+    inset 0 2px 3px var(--toggle-knob-shadow),
+    inset 0 -1px 0 var(--toggle-knob-bevel);
+}
+.btn-skeuo.btn-secondary:active::before {
+  box-shadow:
+    inset 0 2px 3px var(--toggle-knob-shadow),
+    inset 0 -1px 0 var(--toggle-knob-bevel);
+}
+
 
 /* ─── 8. Links ─────────────────────────────────────────────────────────
    Two variants. Both use a hover underline drawn with the accent.
@@ -581,6 +635,16 @@ html.is-theme-changing *::after {
     stroke           700ms var(--ease-soft),
     box-shadow       700ms var(--ease-soft),
     opacity          700ms var(--ease-soft) !important;
+}
+/* The blanket rule above omits `left`, which is exactly the property the
+   theme knob slides on — without this it would jump across instead of
+   animating. Keep its slide (plus the theme colour fades) during the
+   change window. */
+html.is-theme-changing .skeuo-theme-knob {
+  transition:
+    left       .28s cubic-bezier(.2, .8, .2, 1),
+    background 700ms var(--ease-soft),
+    box-shadow 700ms var(--ease-soft) !important;
 }
 
 

@@ -109,44 +109,53 @@ narrative:
   - kind: sectionHeader
     chapter: "02"
     title: The problem
-  - kind: subsectionHeader
-    title: "Problem 1 Current tool has become a Frankenstein"
-  - kind: prose
-    paragraphs:
-      - >
-        As GWI scaled, RMP grew features and tools the business
-        demanded without enough thought for how they fit together.
-        The result is a tool with no cohesion. Researchers carry
-        the load of that incoherence, and it causes human error,
-        a misplaced step in one feature breaks something three
-        screens later, and the platform doesn't tell anyone.
-      - >
-        {{strong:The business risk}}: errors leak into the data
-        GWI sells. Insight quality erodes silently, client trust
-        takes the hit, and engineering capacity is spent patching
-        legacy instead of building forward.
-  - kind: subsectionHeader
-    title: "Problem 2 No communication between tools"
-  - kind: prose
-    paragraphs:
-      - >
-        The other six systems don't talk to each other and they
-        don't talk to RMP. Data doesn't move downstream, researchers
-        re-type context at every handover, institutional knowledge
-        gets blocked between stages, and the failure modes hide in
-        the gaps.
-      - >
-        {{strong:The business risk}}: dropped context shapes the
-        deliverable before anyone catches it. Bad data lands with
-        the client, and what should be insight becomes liability.
-  - kind: quote
-    body: >
-      There's so many platforms and so many steps and so many different
-      things to remember… the fact that everything lives in a different
-      place is really frustrating.
-    source: Research operator, GWI
+  # Two interactive problem cards (project-card vocabulary). Each
+  # card opens with its title; the button reveals the body, then the
+  # business-risk step, then retires. See ProblemCards.
+  - kind: problemCards
+    cards:
+      - badge: Problem 1
+        title: Current tool has become a Frankenstein
+        steps:
+          - prompt: Why was this a problem?
+            body: >
+              As GWI scaled, RMP grew features and tools the business
+              demanded without enough thought for how they fit
+              together. The result is a tool with no cohesion.
+              Researchers carry the load of that incoherence, and it
+              causes human error, a misplaced step in one feature
+              breaks something three screens later, and the platform
+              doesn't tell anyone.
+          - prompt: What risk did this pose to the business?
+            heading: "The business risk:"
+            body: >
+              Errors leak into the data GWI sells. Insight quality
+              erodes silently, client trust takes the hit, and
+              engineering capacity is spent patching legacy instead
+              of building forward.
+      - badge: Problem 2
+        title: No communication between tools
+        steps:
+          - prompt: Why was this a problem?
+            body: >
+              The other six systems don't talk to each other and they
+              don't talk to RMP. Data doesn't move downstream,
+              researchers re-type context at every handover,
+              institutional knowledge gets blocked between stages, and
+              the failure modes hide in the gaps.
+          - prompt: What risk did this pose to the business?
+            heading: "The business risk:"
+            body: >
+              Dropped context shapes the deliverable before anyone
+              catches it. Bad data lands with the client, and what
+              should be insight becomes liability.
   - kind: quoteWall
     items:
+      - quote: >
+          There's so many platforms and so many steps and so many different
+          things to remember… the fact that everything lives in a different
+          place is really frustrating.
+        label: "Research operator, GWI"
       - quote: Everything lives in a different place
         label: "Seams: context lives between tools, not in them"
       - quote: Everything is manual right now… there is no automation at all

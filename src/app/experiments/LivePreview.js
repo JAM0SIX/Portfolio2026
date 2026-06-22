@@ -1,16 +1,15 @@
 import Image from "next/image";
 import styles from "./page.module.css";
 
-/* LivePreview — static screenshot of the experiment, captured at
-   1200x720 in headless Chrome and saved to /public/experiments/.
-   Re-run scripts/capture-experiments.sh to refresh the images
-   when an experiment's visual changes. */
-export default function LivePreview({ slug }) {
+/* LivePreview — a framed thumbnail of the experiment. Fed the themed ring
+   render (/experiments/ring/<slug>(-dark).png) — clean studio scenes with no
+   site chrome, so the footer never bleeds into the thumbnail. */
+export default function LivePreview({ src, alt = "" }) {
   return (
     <div className={styles.thumb}>
       <Image
-        src={`/experiments/${slug}.png`}
-        alt=""
+        src={src}
+        alt={alt}
         fill
         sizes="(max-width: 720px) 100vw, 720px"
         className={styles.previewImage}

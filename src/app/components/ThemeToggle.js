@@ -60,27 +60,28 @@ export default function ThemeToggle() {
 
   return (
     <div className="skeuo-theme" role="group" aria-label="Theme">
-      <div className="skeuo-theme-icons">
-        <button
-          type="button"
-          className={`skeuo-theme-icon${theme === "paper" ? " is-active" : ""}`}
-          aria-label="Use light theme"
-          aria-pressed={theme === "paper"}
-          onClick={() => apply("paper")}
-        >
+      <div
+        ref={trackRef}
+        className="skeuo-theme-track"
+        onClick={(e) => {
+          /* Click anywhere on the track to send the knob to that side —
+             no dragging required. (A drag ends via onDragEnd; apply()
+             ignores a no-op so the trailing click is harmless.) */
+          if (!trackRef.current) return;
+          const rect = trackRef.current.getBoundingClientRect();
+          const midpoint = rect.left + rect.width / 2;
+          apply(e.clientX > midpoint ? "onyx" : "paper");
+        }}
+      >
+        {/* Both icons sit in the track as a dull backdrop; the knob's
+            blue icon slides over whichever side is active, leaving the
+            inactive one showing dull behind it. */}
+        <span className="skeuo-theme-bg skeuo-theme-bg--sun" aria-hidden="true">
           <SunIcon />
-        </button>
-        <button
-          type="button"
-          className={`skeuo-theme-icon${theme === "onyx" ? " is-active" : ""}`}
-          aria-label="Use dark theme"
-          aria-pressed={theme === "onyx"}
-          onClick={() => apply("onyx")}
-        >
+        </span>
+        <span className="skeuo-theme-bg skeuo-theme-bg--moon" aria-hidden="true">
           <MoonIcon />
-        </button>
-      </div>
-      <div ref={trackRef} className="skeuo-theme-track">
+        </span>
         <motion.div
           className="skeuo-theme-knob"
           style={{ x }}
@@ -99,7 +100,9 @@ export default function ThemeToggle() {
             apply(info.point.x > midpoint ? "onyx" : "paper");
           }}
           aria-hidden="true"
-        />
+        >
+          {theme === "onyx" ? <MoonIcon /> : <SunIcon />}
+        </motion.div>
       </div>
     </div>
   );

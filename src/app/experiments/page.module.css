@@ -14,18 +14,29 @@
 .entry {
   position: relative;
   display: block;
+  width: 100%;
+  text-align: left;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
   background: var(--rule);
   isolation: isolate;
   color: inherit;
   text-decoration: none;
-  clip-path: polygon(
-    var(--chamfer-size) 0,
-    100% 0,
-    100% calc(100% - var(--chamfer-size)),
-    calc(100% - var(--chamfer-size)) 100%,
-    0 100%,
-    0 var(--chamfer-size)
-  );
+  /* Rounded container (was a chamfer) — outer edge is the 1px rule colour,
+     the inner ::before paper fill rounds 1px tighter to leave the border. */
+  border-radius: var(--radius-panel);
+}
+.entry:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Live experiment embedded in the modal artefact plate. */
+.modalFrame {
+  aspect-ratio: 16 / 10;
 }
 .entry::before {
   content: "";
@@ -33,14 +44,7 @@
   inset: var(--border-default);
   z-index: -1;
   background: var(--paper);
-  clip-path: polygon(
-    var(--chamfer-inner) 0,
-    100% 0,
-    100% calc(100% - var(--chamfer-inner)),
-    calc(100% - var(--chamfer-inner)) 100%,
-    0 100%,
-    0 var(--chamfer-inner)
-  );
+  border-radius: calc(var(--radius-panel) - var(--border-default));
   transition: background var(--dur-base) var(--ease-default);
 }
 .entry:hover::before,
@@ -64,6 +68,8 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  border: var(--border-default) solid var(--rule);
+  border-radius: var(--radius-inner);
   /* Establish a size container so the inner iframe can scale
      to the thumb width with a CSS-only calc — no JS observer
      needed and no flash of un-scaled content during hydration. */
@@ -75,7 +81,7 @@
    cover the holder. */
 .previewImage {
   object-fit: cover;
-  object-position: top left;
+  object-position: center;
 }
 .entry:hover .thumb { background: var(--paper); }
 
