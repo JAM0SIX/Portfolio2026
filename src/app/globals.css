@@ -36,7 +36,7 @@
    chrome so the preview shows only the experiment itself, and lets
    the main column fill the frame. */
 [data-embed="1"] .sidebar,
-[data-embed="1"] .footer,
+[data-embed="1"] [class*="Footer-module"],
 [data-embed="1"] .local-clock,
 [data-embed="1"] .dot-field,
 [data-embed="1"] .cursor-dot-field,
@@ -247,6 +247,7 @@ main.page { position: relative; z-index: 1; }
   overflow: hidden;
   isolation: isolate;
   border: 1px solid var(--rule);
+  border-radius: var(--radius-panel);
 }
 
 /* Inner scroll wrapper. We can't put overflow: auto on .sidebar
@@ -294,7 +295,8 @@ main.page { position: relative; z-index: 1; }
   grid-template-rows: repeat(3, 1fr);
   gap: 4px;
   flex: 0 0 28px;
-  color: var(--ink);
+  /* Accent blue dots (currentColor drives the .d fills). */
+  color: var(--accent);
 }
 .logo-square .d {
   --a: 0; --b: 0; --on: var(--a);
@@ -552,22 +554,28 @@ main.page { position: relative; z-index: 1; }
    sits on the same x as the logo and menu rows. */
 .local-clock {
   position: fixed;
-  left: calc(var(--shell-gutter) + var(--space-3));
+  /* Aligned to the sidebar's inner content edge (shell gutter + 1px
+     border + sidebar-inner padding) and sized to span the full inner
+     width of the 220px nav rail, so the theme toggle + background keys
+     stretch across the panel. */
+  left: calc(var(--shell-gutter) + 1px + var(--space-3));
+  width: calc(220px - 2px - var(--space-3) * 2);
   bottom: calc(var(--shell-gutter) + var(--space-6));
   z-index: 900;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: stretch;
   gap: var(--space-3);
   font-family: var(--font-sans);
   color: var(--ink);
   user-select: none;
+  transition: opacity 600ms var(--ease-out);
 }
 /* Force every direct child (cursor toggle, theme toggle, meta block)
    flush to the container's left edge. Belt-and-braces in case any
    child has its own auto margins. */
 .local-clock > * {
-  align-self: flex-start;
+  align-self: stretch;
   margin-left: 0;
   margin-right: 0;
 }
@@ -598,6 +606,13 @@ main.page { position: relative; z-index: 1; }
     right: var(--space-7);
     bottom: auto;
     left: auto;
+    width: auto;
+    /* Span the nav bar's height (it pins at the same top:space-3) and
+       centre the toggle within it, so the slider lines up horizontally
+       with the menu grid rather than sitting high against the top edge.
+       The collapsed nav is taller on tablet than on mobile, so the
+       height is matched per range (mobile override below). */
+    height: 86px;
     flex-direction: row;
     align-items: center;
     gap: var(--space-3);
@@ -615,6 +630,22 @@ main.page { position: relative; z-index: 1; }
   .local-clock .local-clock__heading,
   .local-clock .skeuo-keypad {
     display: none;
+  }
+  /* The collapsed row sizes to content, so the theme toggle's
+     width:100% has nothing to fill and shrinks to a sliver. Give it a
+     fixed, comfortably tappable width and a taller track here. */
+  .local-clock .skeuo-theme {
+    width: 88px;
+  }
+  .local-clock .skeuo-theme-track {
+    height: 28px;
+  }
+}
+/* Mobile nav bar is shorter than tablet's — match the toggle band to it
+   so the slider stays centred against the menu grid. */
+@media (max-width: 720px) {
+  .local-clock {
+    height: 74px;
   }
 }
 /* ─── Skeuomorphic toggles — theme-aware tokens ────────────────────── */
@@ -698,7 +729,8 @@ main.page { position: relative; z-index: 1; }
   flex-direction: column;
   gap: 6px;
   padding: 6px 0 4px;     /* no horizontal padding so track flushes left */
-  width: 120px;
+  /* Span the full sidebar width (was a fixed 120px). */
+  width: 100%;
   margin-bottom: var(--space-1);
   border-radius: 0;
   background: transparent;
@@ -731,6 +763,7 @@ main.page { position: relative; z-index: 1; }
 .skeuo-theme-track {
   position: relative;
   height: 24px;
+  cursor: pointer;
   border-radius: 0;
   /* Lighter recessed-channel surface — same gradient as the
      active cursor key so the two pressed states share the exact
@@ -742,10 +775,29 @@ main.page { position: relative; z-index: 1; }
     inset 0 -1px 0 var(--toggle-knob-bevel);
   overflow: hidden;
 }
+/* Dull inactive-mode icons sitting in the track behind the knob. Each
+   centres in its half; the knob (blue active icon) slides over one. */
+.skeuo-theme-bg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--toggle-icon);
+  pointer-events: none;
+  z-index: 0;
+}
+.skeuo-theme-bg--sun { left: 0; }
+.skeuo-theme-bg--moon { right: 0; }
+.skeuo-theme-bg svg { width: 13px; height: 13px; display: block; }
+
 .skeuo-theme-knob {
   position: absolute;
   top: 2px;
   bottom: 2px;
+  z-index: 1;
   /* Resting side is driven here, not by Motion. Light → flush-left,
      dark → flush-right. The knob is half the track wide, so the dark
      resting position is left:50% (its right edge then lands ~2px from
@@ -771,12 +823,17 @@ main.page { position: relative; z-index: 1; }
 }
 [data-theme="onyx"] .skeuo-theme-knob { left: 50%; }
 .skeuo-theme-knob:active { cursor: grabbing; }
-.skeuo-theme-knob::after {
-  content: "";
-  width: 2px;
-  height: 10px;
-  background: var(--accent);
-  box-shadow: 0 0 4px color-mix(in srgb, var(--accent) 65%, transparent);
+/* Mode icon sits in the knob (replaces the old dash): sun in light,
+   moon in dark — rendered in accent blue. */
+.skeuo-theme-knob {
+  color: var(--accent);
+}
+.skeuo-theme-knob svg {
+  width: 13px;
+  height: 13px;
+  display: block;
+  pointer-events: none;
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--accent) 55%, transparent));
 }
 
 
@@ -787,18 +844,20 @@ main.page { position: relative; z-index: 1; }
    theme knob and the menu rows, so the cursor toggle and the theme
    slider read as a matched pair on the panel. */
 .skeuo-keypad {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 2px;
   padding: 4px 0;          /* no horizontal padding so keys flush left */
   margin-bottom: var(--space-1);
   border-radius: 0;
   background: transparent;
+  /* Span the full sidebar width — keys share the row equally. */
+  width: 100%;
 }
 .skeuo-key {
   appearance: none;
   cursor: pointer;
-  width: 32px;
+  flex: 1 1 0;
   height: 28px;
   display: inline-flex;
   align-items: center;
@@ -825,9 +884,10 @@ main.page { position: relative; z-index: 1; }
 }
 .skeuo-key.is-active {
   /* Pressed — inverted gradient + inverted shadow stack so the key
-     reads as recessed into the plate. */
+     reads as recessed into the plate. The active icon is accent blue
+     (inactive keys keep the dark --key-icon). */
   background: linear-gradient(180deg, var(--key-to) 0%, var(--key-from) 100%);
-  color: var(--key-icon-active);
+  color: var(--accent);
   box-shadow:
     inset 0 0 0 1px var(--key-border),
     inset 0 2px 3px var(--toggle-knob-shadow),
@@ -1091,10 +1151,12 @@ main.page { position: relative; z-index: 1; }
 }
 .hc-headline {
   font-family: var(--font-sans);
-  font-size: clamp(2.2rem, 4.4vw, 48px);
+  /* Sized so the monospace headline settles on two lines in the
+     reading column rather than three. */
+  font-size: clamp(1.7rem, 3.4vw, 38px);
   font-weight: var(--weight-medium);
   letter-spacing: var(--track-tight);
-  line-height: 1.1;
+  line-height: 1.15;
   color: var(--ink);
 }
 .hc-body {
@@ -1296,7 +1358,7 @@ main.page { position: relative; z-index: 1; }
 
 
 /* ─── Projects grid (home page Work section) ─────────────────────────── */
-.projects-section { margin-top: 240px; }
+.projects-section { margin-top: 96px; }
 .section__head {
   display: flex;
   flex-direction: column;
@@ -1364,10 +1426,10 @@ main.page { position: relative; z-index: 1; }
   padding: var(--space-4);
   color: var(--ink);
   background: var(--rule);
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 100% 100%, 0 100%, 0 0);
+  border-radius: var(--radius-panel);
   transition:
     background var(--dur-base) var(--ease-default),
-    clip-path  var(--dur-base) var(--ease-default),
+    box-shadow var(--dur-base) var(--ease-default),
     opacity    var(--dur-base) var(--ease-default),
     transform  var(--dur-base) var(--ease-default);
 }
@@ -1384,35 +1446,29 @@ main.page { position: relative; z-index: 1; }
   inset: var(--border-default);
   z-index: -1;
   background: var(--paper);
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 100% 100%, 0 100%, 0 0);
+  border-radius: calc(var(--radius-panel) - var(--border-default));
   transition:
-    background var(--dur-base) var(--ease-default),
-    clip-path var(--dur-base) var(--ease-default);
+    background var(--dur-base) var(--ease-default);
 }
 .project:hover,
 .project:focus-visible {
-  /* Border stays --rule. Outer-layer colour unchanged on hover. */
-  clip-path: polygon(
-    var(--chamfer-size) 0,
-    100% 0,
-    100% calc(100% - var(--chamfer-size)),
-    calc(100% - var(--chamfer-size)) 100%,
-    0 100%,
-    0 var(--chamfer-size)
-  );
+  /* Hover-only drop shadow — the card lifts off the page on
+     interaction. Matches the elevation used on the quote/embed cards. */
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.12),
+    0 2px 4px rgba(0, 0, 0, 0.06);
+}
+[data-theme="onyx"] .project:hover,
+[data-theme="onyx"] .project:focus-visible {
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.5),
+    0 2px 4px rgba(0, 0, 0, 0.3);
 }
 .project:hover::before,
 .project:focus-visible::before {
-  /* Fill shifts to the next step on the paper ladder — a quiet "lift". */
+  /* Fill shifts to the next step on the paper ladder — a quiet "lift"
+     that also brings the white info panel into contrast. */
   background: var(--paper-deep);
-  clip-path: polygon(
-    var(--chamfer-inner) 0,
-    100% 0,
-    100% calc(100% - var(--chamfer-inner)),
-    calc(100% - var(--chamfer-inner)) 100%,
-    0 100%,
-    0 var(--chamfer-inner)
-  );
 }
 
 /* Project card image — rectangular notches with inverse-chamfer
@@ -1495,9 +1551,12 @@ main.page { position: relative; z-index: 1; }
        10. arc  → (notch-tl-w + d, 0)         — top corner (convex, slanted) */
   clip-path: shape(
     from calc(var(--notch-tl-w) + var(--notch-corner-d)) 0,
-    line to 100% 0,
-    line to 100% 100%,
-    line to 0 100%,
+    line to calc(100% - var(--radius-inner)) 0,
+    arc to 100% var(--radius-inner) of var(--radius-inner) cw,
+    line to 100% calc(100% - var(--radius-inner)),
+    arc to calc(100% - var(--radius-inner)) 100% of var(--radius-inner) cw,
+    line to var(--radius-inner) 100%,
+    arc to 0 calc(100% - var(--radius-inner)) of var(--radius-inner) cw,
     line to 0 calc(var(--notch-tl-h) + var(--notch-radius)),
     arc to var(--notch-radius) var(--notch-tl-h)
       of var(--notch-radius) cw,
@@ -1656,6 +1715,23 @@ main.page { position: relative; z-index: 1; }
   flex-wrap: wrap;
   gap: var(--space-2);
 }
+/* Always-visible card content: date + description + metrics band.
+   Sits below the title/tags head and above the hover-revealed CTA,
+   in a recessed paper-deep panel with a hairline + inner shadow —
+   the same container vocabulary as the problem-card bubbles. */
+.project__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--paper);
+  border: var(--border-default) solid var(--rule);
+  border-radius: var(--radius-inner);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.17);
+}
+[data-theme="onyx"] .project__info {
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
+}
 .project__reveal {
   display: grid;
   grid-template-rows: 0fr;
@@ -1677,8 +1753,6 @@ main.page { position: relative; z-index: 1; }
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-2);
-  border-top: var(--border-default) solid var(--rule-soft);
-  border-bottom: var(--border-default) solid var(--rule-soft);
 }
 .project__metric {
   display: flex;
@@ -1736,26 +1810,11 @@ main.page { position: relative; z-index: 1; }
    shown, and the metrics/desc/actions reveal panel open — and the
    sibling-dim is disabled so all cards stay fully legible. */
 @media (max-width: 720px) {
-  .project {
-    clip-path: polygon(
-      var(--chamfer-size) 0,
-      100% 0,
-      100% calc(100% - var(--chamfer-size)),
-      calc(100% - var(--chamfer-size)) 100%,
-      0 100%,
-      0 var(--chamfer-size)
-    );
-  }
   .project::before {
+    /* Mobile cards rest permanently "lifted" — the white info panel
+       contrasts against the deeper fill. Corners use the base
+       border-radius (no chamfer). */
     background: var(--paper-deep);
-    clip-path: polygon(
-      var(--chamfer-inner) 0,
-      100% 0,
-      100% calc(100% - var(--chamfer-inner)),
-      calc(100% - var(--chamfer-inner)) 100%,
-      0 100%,
-      0 var(--chamfer-inner)
-    );
   }
   .project__image-img--hover { opacity: 1; }
   .project__reveal { grid-template-rows: 1fr; }
@@ -2072,3 +2131,69 @@ main.page { position: relative; z-index: 1; }
 }
 .btn-icon-sm { width: 28px; height: 22px; }
 .btn-icon-md { width: 36px; height: 32px; }
+
+
+/* ─── Entry sequence ───────────────────────────────────────────────────
+   First-arrival reveal. The inline boot script sets data-entering on
+   <html> before paint so the hero + sidebar are held hidden with zero
+   flash; the EntryOverlay then reveals them in order via .entry-in
+   (hero) and a WAAPI clip on .sidebar (see EntryProvider). */
+[data-entering] .hc-headline,
+[data-entering] .hc-copy,
+[data-entering] .hero-identity,
+[data-entering] .sidebar,
+/* The fixed theme/background controls are held hidden and faded in
+   with the sidebar (see EntryProvider) so they don't flash on the
+   wipe. */
+[data-entering] .local-clock,
+/* Every below-hero section (Recent work, etc.) is held hidden too, so
+   it never flashes on first paint and is never exposed by the circular
+   wipe — these load in as components after the wipe instead. */
+[data-entering] .col > section:not(.hc-root) {
+  opacity: 0;
+}
+
+@keyframes entry-rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
+/* Accent "charge" — copy/heading land in the brand blue and settle to
+   their resting ink. (from-only: the 100% value is the element's own
+   colour, so it returns naturally.) */
+@keyframes entry-charge {
+  from { color: var(--accent); }
+}
+
+.hc-headline.entry-in,
+.hc-copy.entry-in,
+.hero-identity.entry-in,
+.col > section.entry-in {
+  animation: entry-rise 950ms var(--ease-out) both;
+}
+.hc-headline.entry-in,
+.hc-copy.entry-in {
+  animation:
+    entry-rise 950ms var(--ease-out) both,
+    entry-charge 1300ms var(--ease-out) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hc-headline.entry-in,
+  .hc-copy.entry-in,
+  .hero-identity.entry-in,
+  .col > section.entry-in {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+
+/* ─── Experiments section ──────────────────────────────────────────────
+   Full-bleed orbiting carousel (CarouselRing). The "Experiments" label is
+   rendered inside the carousel's own pinned stage (see its `label` prop +
+   .label module style), so this just provides spacing from the My-thoughts
+   section above, matching the section rhythm. */
+#experiments {
+  margin-top: 120px;
+}

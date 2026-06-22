@@ -16,53 +16,54 @@ import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 
 // --------- Defaults ---------
 
+/* Scenario: a travel-inspiration stack — each card is a destination. */
 const DEFAULT_CARDS = [
   {
     image: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1200",
-    title: "Stat Stat Stat",
+    title: "Lago di Braies",
     description:
-      "Improve efficiency, save money, increase data productivity across research and operations teams.",
-    buttonLabel: "Open project",
+      "Dolomites, Italy. Glassy turquoise water under limestone spires — rent a rowboat at first light before the trail fills.",
+    buttonLabel: "Plan your trip",
     buttonLink: "#",
   },
   {
     image: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=1200",
-    title: "Mountain View",
+    title: "Lofoten Islands",
     description:
-      "A second card with its own story. Each slide's copy swaps in when it reaches the front.",
-    buttonLabel: "Open project",
+      "Norway. Jagged peaks dropping straight into the Arctic sea, red fishing cabins, and the midnight sun in June.",
+    buttonLabel: "Plan your trip",
     buttonLink: "#",
   },
   {
     image: "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=1200",
-    title: "Forest Run",
+    title: "Black Forest",
     description:
-      "Descriptions crossfade as the stack cycles. Everything stays in sync with the front card.",
-    buttonLabel: "Open project",
+      "Germany. Misty pine valleys, cuckoo-clock villages and slow scenic drives along the B500 ridge road.",
+    buttonLabel: "Plan your trip",
     buttonLink: "#",
   },
   {
-    image: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1200",
-    title: "Open Fields",
+    image: "https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=1200",
+    title: "Banff National Park",
     description:
-      "Hover the front card for a small lift. Auto-advance pauses while you hover.",
-    buttonLabel: "Open project",
+      "Canada. Glacier-fed lakes and the Icefields Parkway — one of the great road trips of the Rockies.",
+    buttonLabel: "Plan your trip",
     buttonLink: "#",
   },
   {
     image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200",
-    title: "Alpine Lake",
+    title: "Lake Bled",
     description:
-      "Use the arrows below to step forward or back. Pills show where you are in the stack.",
-    buttonLabel: "Open project",
+      "Slovenia. An island church on an emerald lake, a cliff-top castle, and a slice of kremšnita to finish.",
+    buttonLabel: "Plan your trip",
     buttonLink: "#",
   },
   {
     image: "https://images.unsplash.com/photo-1418065460487-3e41a6c84dc5?w=1200",
-    title: "Rolling Hills",
+    title: "Scottish Highlands",
     description:
-      "On mobile, the stack collapses to a single swipeable card for a cleaner small-screen view.",
-    buttonLabel: "Open project",
+      "Scotland. Empty single-track roads through Glencoe, lochs that never end, and weather that turns on a sixpence.",
+    buttonLabel: "Plan your trip",
     buttonLink: "#",
   },
 ];
@@ -109,13 +110,14 @@ export default function StackCarousel({
   cards = DEFAULT_CARDS,
   autoAdvance = true,
   autoAdvanceInterval = 4000,
-  backgroundColor = "#F4F6F6",
+  /* Theme-aware: tokens adapt to light/dark via the page's --vars. */
+  backgroundColor = "var(--paper-deep)",
   cardRadius = 20,
   cardWidth = 520,
   cardHeight = 340,
-  descriptionColor = "#475569",
-  titleColor = "#0F172A",
-  accentColor = "#0F172A",
+  descriptionColor = "var(--ink-mute)",
+  titleColor = "var(--ink)",
+  accentColor = "var(--ink)",
   mobileBreakpoint = 1024,
   font = "Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
 } = {}) {
@@ -347,7 +349,7 @@ export default function StackCarousel({
                   opacity: 0.85,
                 }}
               >
-                Research & Ops data tool
+                Featured destination
               </div>
               <div
                 style={{
@@ -375,7 +377,9 @@ export default function StackCarousel({
               <GlassButton
                 href={data[activeIndex].buttonLink}
                 label={data[activeIndex].buttonLabel}
-                color={titleColor}
+                /* The glass is always white-frosted, so keep its label a
+                   fixed dark for contrast in both themes. */
+                color="#0F172A"
               />
             </motion.div>
           </AnimatePresence>
@@ -581,7 +585,9 @@ function Pills({ total, activeIndex, onSelect, accentColor }) {
               width: isActive ? 24 : 8,
               height: 8,
               borderRadius: 999,
-              background: isActive ? accentColor : "rgba(15,23,42,0.2)",
+              background: isActive
+                ? accentColor
+                : "color-mix(in srgb, var(--ink) 22%, transparent)",
               border: "none",
               padding: 0,
               cursor: "pointer",
@@ -725,7 +731,7 @@ const arrowButtonStyle = {
   alignItems: "center",
   justifyContent: "center",
   cursor: "pointer",
-  color: "#111",
+  color: "var(--ink)",
 };
 
 const pillsRowStyle = {

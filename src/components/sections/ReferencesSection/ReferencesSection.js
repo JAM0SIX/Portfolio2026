@@ -208,6 +208,13 @@ export default function ReferencesSection() {
           const naturalW = `${100 / total}%`;
           const tabX = i === 0 ? naturalX : `calc(${naturalX} - 1px)`;
           const tabW = i === 0 ? naturalW : `calc(${naturalW} + 1px)`;
+          /* Card top-corner radii. Each card rounds its top corners EXCEPT the
+             corner its own tab sits in at the very edge: the first card's tab
+             is at the far left (no top-left radius) and the last card's tab is
+             at the far right (no top-right radius). */
+          const rp = "var(--radius-panel)";
+          const cardTL = i === 0 ? "0px" : rp;
+          const cardTR = i === total - 1 ? "0px" : rp;
           return (
             <article
               key={r.name}
@@ -220,6 +227,8 @@ export default function ReferencesSection() {
                 "--depth": depth,
                 "--tab-x": tabX,
                 "--tab-w": tabW,
+                "--card-tl": cardTL,
+                "--card-tr": cardTR,
                 zIndex: total - depth,
               }}
               aria-current={isActive ? "true" : undefined}

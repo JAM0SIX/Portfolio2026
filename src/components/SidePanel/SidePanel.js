@@ -41,50 +41,25 @@ const OPEN_EVENT = "sidepanel:open";
 const DURATION = 800;
 const EASING = "cubic-bezier(0.4, 0, 0.2, 1)";
 
-/* Clip-path polygons for each stage of the open/close animation.
-   All three polygons have exactly 6 vertices so the Web Animations
-   API can interpolate between them smoothly. Point-by-point mapping
-   (vertex 1 in DOT_CLIP morphs into vertex 1 in LINE_CLIP, etc.)
-   keeps the shape transition predictable.
+/* Clip-path stages for the open/close animation. All three use the
+   inset()+round form (rather than polygon) so the reveal carries the
+   shared --radius-panel rounding instead of a chamfer. The Web
+   Animations API interpolates between inset() shapes by their four
+   edge offsets, with the round radius held constant throughout — so
+   the corners stay rounded across the whole expansion.
 
-   DOT: a 6×4 px nubbin centred on the panel.
-   LINE: a full-width 4 px tall strip at vertical centre.
-   CHAMFER: full panel area with top-left + bottom-right cut.
-
-   Note: there's deliberately no "sharp rectangle" stage between
-   line and chamfer. Including one would animate the chamfer
-   corners IN at the end of the reveal (line → sharp rect → chamfer);
-   skipping it means the corners morph straight from their line
-   positions to their chamfered positions, so the chamfer is
-   present throughout the expansion instead of being cut at the
-   final beat. */
+   DOT:  a ~6×4 px rounded nubbin centred on the panel.
+   LINE: a full-width 4 px tall rounded strip at vertical centre.
+   FULL: the full panel area with the rounded-panel radius. */
 const DOT_CLIP =
-  "polygon(" +
-  "calc(50% - 3px) calc(50% - 2px), " +
-  "calc(50% + 3px) calc(50% - 2px), " +
-  "calc(50% + 3px) calc(50% + 2px), " +
-  "calc(50% + 3px) calc(50% + 2px), " +
-  "calc(50% - 3px) calc(50% + 2px), " +
-  "calc(50% - 3px) calc(50% - 2px)" +
-  ")";
+  "inset(" +
+  "calc(50% - 2px) calc(50% - 3px) calc(50% - 2px) calc(50% - 3px) " +
+  "round var(--radius-panel))";
 const LINE_CLIP =
-  "polygon(" +
-  "0% calc(50% - 2px), " +
-  "100% calc(50% - 2px), " +
-  "100% calc(50% + 2px), " +
-  "100% calc(50% + 2px), " +
-  "0% calc(50% + 2px), " +
-  "0% calc(50% - 2px)" +
-  ")";
-const CHAMFER_CLIP =
-  "polygon(" +
-  "var(--chamfer-size) 0%, " +
-  "100% 0%, " +
-  "100% calc(100% - var(--chamfer-size)), " +
-  "calc(100% - var(--chamfer-size)) 100%, " +
-  "0% 100%, " +
-  "0% var(--chamfer-size)" +
-  ")";
+  "inset(" +
+  "calc(50% - 2px) 0px calc(50% - 2px) 0px " +
+  "round var(--radius-panel))";
+const FULL_CLIP = "inset(0px 0px 0px 0px round var(--radius-panel))";
 
 export default function SidePanel({ heading, body, children, variant = "button" }) {
   const id = useId();
@@ -159,29 +134,28 @@ export default function SidePanel({ heading, body, children, variant = "button" 
        the destination state to inline style directly and bail. */
     if (skipNextAnimRef.current) {
       skipNextAnimRef.current = false;
-      el.style.clipPath = open ? CHAMFER_CLIP : DOT_CLIP;
+      el.style.clipPath = open ? FULL_CLIP : DOT_CLIP;
       el.style.opacity = open ? "1" : "0";
       return;
     }
 
-    /* Animated path — three keyframes for open, three for close.
-       Without an intermediate sharp-rectangle stage, the chamfer
-       is present throughout the reveal (rather than being cut in
-       at the very end).
-       - Open: dot (0%) → line (15%) → chamfered rect (100%).
+    /* Animated path — three keyframes for open, three for close. The
+       rounded-panel radius is held constant across the inset() stages
+       so the corners stay rounded throughout the reveal (rather than
+       appearing only at the end).
+       - Open: dot (0%) → line (15%) → full rounded rect (100%).
          Fast horizontal expansion at the start (dot to line in
-         ~120 ms); the remaining 680 ms reveals the height with
-         chamfer corners already in their final positions.
-       - Close: reverses — chamfered rect collapses to a line in
+         ~120 ms); the remaining 680 ms reveals the height.
+       - Close: reverses — full rect collapses to a line in
          ~680 ms, then line snaps to dot in ~120 ms. */
     const frames = open
       ? [
           { clipPath: DOT_CLIP, opacity: 0, offset: 0 },
           { clipPath: LINE_CLIP, opacity: 1, offset: 0.15 },
-          { clipPath: CHAMFER_CLIP, opacity: 1, offset: 1 },
+          { clipPath: FULL_CLIP, opacity: 1, offset: 1 },
         ]
       : [
-          { clipPath: CHAMFER_CLIP, opacity: 1, offset: 0 },
+          { clipPath: FULL_CLIP, opacity: 1, offset: 0 },
           { clipPath: LINE_CLIP, opacity: 1, offset: 0.85 },
           { clipPath: DOT_CLIP, opacity: 0, offset: 1 },
         ];

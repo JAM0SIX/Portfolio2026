@@ -1,0 +1,79 @@
+/* FilmReelView — scroll container + sticky reel stage.
+   The .scroller fills its parent and scrolls internally; the .sticky stage
+   stays pinned while the tall track scrolls past, feeding the reel. */
+.scroller {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+.sticky {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  /* background set inline from the `background` prop */
+}
+.canvas {
+  /* three sets the drawing-buffer size (setSize(w, h, false) — no inline
+     style), so pin the CSS box to the stage or it defaults to the dpr-scaled
+     attribute size and overflows. */
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* FilmReelModal — the bundled open/close wrapper (the experiments page uses
+   FilmReelView inside the shared Modal instead, but this keeps the standalone
+   export usable). */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6, 24px);
+  background: rgba(0, 0, 0, 0.45);
+}
+.modal {
+  position: relative;
+  width: min(1100px, 100%);
+  height: min(80vh, 760px);
+  max-height: calc(100vh - var(--space-6, 24px) * 2);
+  overflow: hidden;
+  background: var(--paper-deep, #ebebeb);
+  border: 1px solid var(--rule, #dcdcd8);
+  border-radius: var(--radius-panel, 12px);
+  box-shadow:
+    0 30px 70px -24px rgba(0, 0, 0, 0.5),
+    0 8px 20px -12px rgba(0, 0, 0, 0.3);
+}
+.close {
+  position: absolute;
+  top: var(--space-5, 16px);
+  right: var(--space-5, 16px);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-inner, 10px);
+  background: color-mix(in srgb, var(--ink, #1a1815) 6%, transparent);
+  color: var(--ink-mute, #6b6b6b);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.14s ease, color 0.14s ease;
+}
+.close:hover {
+  background: color-mix(in srgb, var(--ink, #1a1815) 12%, transparent);
+  color: var(--ink, #1a1815);
+}

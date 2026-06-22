@@ -43,11 +43,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* Full ink at rest — dots read as a solid mark rather than a
-     faded one. Hover keeps the same colour (no further darkening
-     to do); the only hover signal is the row background tint
-     applied to .link. */
-  color: var(--ink);
+  /* Accent blue — the dot-matrix sigils read as a lively brand mark
+     rather than plain ink. (circles use fill: currentColor.) */
+  color: var(--accent);
 }
 .matrix {
   display: block;

@@ -27,6 +27,7 @@ import ProjectLayers from "@/components/ProjectLayers/ProjectLayers";
 import PhilosophyVisuals from "@/components/PhilosophyVisuals/PhilosophyVisuals";
 import SidePanel from "@/components/SidePanel/SidePanel";
 import PillarScroll from "@/components/PillarScroll/PillarScroll";
+import ProblemCards from "@/components/ProblemCards/ProblemCards";
 import ScrambleText from "@/components/ScrambleText/ScrambleText";
 import QuoteWall from "./QuoteWall";
 import HtmlEmbedFrame from "./HtmlEmbedFrame";
@@ -567,6 +568,10 @@ const RENDERERS = {
   pillarScroll: PillarScroll,
   outcomes: Outcomes,
   orbit: ({ satellites }) => <Orbit satellites={satellites} />,
+  /* problemCards — two interactive progressive-disclosure cards in
+     the project-card visual vocabulary. Each card reveals its body
+     then its business-risk on click. See ProblemCards. */
+  problemCards: ({ cards }) => <ProblemCards cards={cards} />,
   layers: ({ problem, value, solution }) => (
     <ProjectLayers compact problem={problem} value={value} solution={solution} />
   ),

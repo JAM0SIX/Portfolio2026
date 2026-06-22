@@ -24,28 +24,28 @@ const CATEGORIES = {
     accent: "#e7d8b8",
   },
   strategy: {
-    label: "Strategy",
+    label: "Fiction",
     spine: "#3d5a4a",
     c0: "#3d5a4a",
     c1: "#1f3027",
     accent: "#f1ece2",
   },
   "ai-and-technology": {
-    label: "AI & Technology",
+    label: "Science Fiction",
     spine: "#b24a37",
     c0: "#b24a37",
     c1: "#7a2e1f",
     accent: "#f6d27b",
   },
   "business-and-product": {
-    label: "Business & Product",
+    label: "Poetry",
     spine: "#c69a52",
     c0: "#c69a52",
     c1: "#8a6b35",
     accent: "#1b1424",
   },
   research: {
-    label: "Research",
+    label: "Tragedy",
     spine: "#3a4a7a",
     c0: "#3a4a7a",
     c1: "#1f2a55",
@@ -264,8 +264,8 @@ function CoverSVG({ article, coverW, bookH }) {
 
 export default function Notebook({
   articles = DEFAULT_ARTICLES,
-  bgColor = "#F3F6F6",
-  fgColor = "#1a2330",
+  bgColor: bgColorProp = "#F3F6F6",
+  fgColor: fgColorProp = "#1a2330",
   accentColor = "#b2562e",
   bookHeight = 280,
   spineWidth = 60,
@@ -274,6 +274,24 @@ export default function Notebook({
   const [activeIdx, setActiveIdx] = React.useState(-1);
   const [hoverIdx, setHoverIdx] = React.useState(null);
   const [visited, setVisited] = React.useState(() => new Set());
+
+  /* Theme-aware shelf: the bg/fg are kept as plain hex (the styles append
+     alpha suffixes like `${fgColor}80`), so flip them per the page theme
+     rather than using CSS vars. */
+  const [dark, setDark] = React.useState(false);
+  React.useEffect(() => {
+    const read = () =>
+      setDark(document.documentElement.dataset.theme === "onyx");
+    read();
+    const mo = new MutationObserver(read);
+    mo.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
+    return () => mo.disconnect();
+  }, []);
+  const bgColor = dark ? "#1C1C22" : bgColorProp;
+  const fgColor = dark ? "#F5F3EE" : fgColorProp;
 
   const viewportRef = React.useRef(null);
   const rowRef = React.useRef(null);
@@ -364,6 +382,13 @@ export default function Notebook({
   const activeCategory = active
     ? CATEGORIES[active.category] || CATEGORIES.philosophy
     : null;
+  /* The spine colours are dark book covers — on the dark shelf they vanish,
+     so lighten them toward the ink for labels/borders in dark mode. */
+  const labelInk = activeCategory
+    ? dark
+      ? `color-mix(in srgb, ${activeCategory.spine} 42%, #F5F3EE)`
+      : activeCategory.spine
+    : "transparent";
 
   /* Deterministic per-book lean for organic shelf feel. */
   const leanFor = (i) =>
@@ -667,7 +692,7 @@ export default function Notebook({
                   fontWeight: 700,
                 }}
               >
-                <span style={{ color: activeCategory.spine }}>{activeCategory.label}</span>
+                <span style={{ color: labelInk }}>{activeCategory.label}</span>
                 {active.readingTime ? (
                   <span style={{ color: `${fgColor}88` }}>
                     {active.readingTime} min read
@@ -709,7 +734,7 @@ export default function Notebook({
                         lineHeight: 1.4,
                         margin: "28px 0 0",
                         paddingLeft: 18,
-                        borderLeft: `2px solid ${activeCategory.spine}`,
+                        borderLeft: `2px solid ${labelInk}`,
                         color: `${fgColor}cc`,
                       }}
                     >
@@ -753,7 +778,7 @@ export default function Notebook({
                         textTransform: "uppercase",
                         textDecoration: "none",
                         color: bgColor,
-                        background: activeCategory.spine,
+                        background: labelInk,
                         borderRadius: 999,
                         transition: "transform 0.2s ease",
                       }}
@@ -817,58 +842,62 @@ function stepArrowStyle(enabled, accent, bg, fg) {
   };
 }
 
+/* Scenario: a shelf of classic books — category drives the genre tag + spine
+   colour; title + author + a famous line stand in for the article copy. */
 const DEFAULT_ARTICLES = [
   {
     id: "philosophy",
-    title: "Design philosophy for data navigation",
+    title: "Meditations",
     category: "philosophy",
     readingTime: 6,
     summary:
-      "Notes on the principles I lean on when designing tools for navigating dense, high-stakes data — progressive disclosure, hierarchy, and the case for skeuomorphic familiarity.",
+      "Marcus Aurelius, c. 180. The private notebook of a Roman emperor — Stoic reminders on duty, mortality, and keeping a steady mind in an unsteady world.",
     pullQuote:
-      "I design therefore I am, and I use paradigms to take on challenging, complex problems on their own terms.",
+      "You have power over your mind — not outside events. Realize this, and you will find strength.",
     link: "#",
     font: "instrument-serif",
   },
   {
     id: "strategy",
-    title: "Strategy as an act of subtraction",
+    title: "Moby-Dick",
     category: "strategy",
     readingTime: 5,
     summary:
-      "Why the hardest part of product strategy is deciding what not to build, and how I use a small set of forcing constraints to get teams to the right answer.",
+      "Herman Melville, 1851. A whaling voyage that swells into a study of obsession and fate — equal parts adventure, encyclopedia, and sermon.",
+    pullQuote: "Call me Ishmael.",
     link: "#",
     font: "fraunces",
   },
   {
     id: "ai-and-technology",
-    title: "AI & technology in everyday tools",
+    title: "Frankenstein",
     category: "ai-and-technology",
     readingTime: 7,
     summary:
-      "How modern AI changes the surface of the products we use every day, and why the design discipline of restraint matters more, not less, in an era of automation.",
-    pullQuote:
-      "The model isn't the product. The product is the conversation between the user and the model.",
+      "Mary Shelley, 1818. A scientist gives life to a creature and abandons it — the original cautionary tale about making something you cannot control.",
+    pullQuote: "Beware; for I am fearless, and therefore powerful.",
     link: "#",
     font: "space-grotesk",
   },
   {
     id: "business-and-product",
-    title: "Business and product, two sides of the same brief",
+    title: "Leaves of Grass",
     category: "business-and-product",
     readingTime: 4,
     summary:
-      "A short essay on collapsing the wall between commercial and product thinking. The best decisions sit on both sides of the line at once.",
+      "Walt Whitman, 1855. A sprawling, free-verse celebration of self, body, and democracy — a book the poet kept rewriting for the rest of his life.",
+    pullQuote: "I am large, I contain multitudes.",
     link: "#",
     font: "dm-serif-display",
   },
   {
     id: "research",
-    title: "Research as raw material",
+    title: "Hamlet",
     category: "research",
     readingTime: 6,
     summary:
-      "What I've learned from running design research at scale: the most useful insights come from looking at the same thing repeatedly until it stops being familiar.",
+      "William Shakespeare, c. 1600. A prince, a ghost, and a kingdom out of joint — the tragedy of a mind that thinks itself to a standstill.",
+    pullQuote: "To be, or not to be, that is the question.",
     link: "#",
     font: "geist",
   },

@@ -1,0 +1,106 @@
+/* Shared modal — experiment/freelance title, artefact (image or live iframe),
+   short description. */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  background: rgba(0, 0, 0, 0.45);
+  animation: modal-fade 0.18s ease both;
+}
+.modal {
+  position: relative;
+  width: min(960px, 100%);
+  max-height: calc(100vh - var(--space-6) * 2);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-6);
+  background: var(--paper-deep);
+  border: var(--border-default) solid var(--rule);
+  border-radius: var(--radius-panel);
+  box-shadow:
+    0 30px 70px -24px rgba(0, 0, 0, 0.5),
+    0 8px 20px -12px rgba(0, 0, 0, 0.3);
+  animation: modal-pop 0.22s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+/* Wide variant — used by the experiments page so the live embed has more room. */
+.modalWide {
+  width: min(1240px, 100%);
+}
+.title {
+  margin: 0;
+  padding-right: var(--space-7); /* clear the close button */
+  font-family: var(--font-sans);
+  font-size: clamp(1.4rem, 2.6vw, 2rem);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-tight);
+  color: var(--ink);
+}
+.close {
+  position: absolute;
+  top: var(--space-5);
+  right: var(--space-5);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-inner);
+  background: transparent;
+  color: var(--ink-mute);
+  cursor: pointer;
+  transition: background 0.14s ease, color 0.14s ease;
+}
+.close:hover {
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+  color: var(--ink);
+}
+.close:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+/* The artefact — plate carrying the working image or live experiment. */
+.artefact {
+  background: var(--paper);
+  border: var(--border-default) solid var(--rule);
+  border-radius: var(--radius-inner);
+  overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+.artefact > img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.artefact > iframe {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: var(--paper);
+}
+.desc {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--ink-mute);
+  text-wrap: pretty;
+}
+@keyframes modal-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes modal-pop {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .backdrop, .modal { animation: none; }
+}

@@ -1,0 +1,189 @@
+/* CarouselRing.module.css — horizontal ring carousel.
+   Card transforms are written inline by CarouselRing.jsx. This owns layout,
+   the 3D context, and the utility-branding card look. */
+
+.section {
+  position: relative;
+  /* height set inline (scrollLength vh) for scroll room */
+}
+
+.sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  /* background set inline from config */
+}
+/* Phone: break the pinned stage out of the 12px shell gutter to the full
+   viewport width, so the enlarged ring's images bleed cleanly to the true
+   screen edges instead of being clipped at the gutter. */
+@media (max-width: 720px) {
+  .sticky {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+  }
+}
+
+/* Optional label rendered inside the pinned stage. It sits in normal flow
+   at the top of the sticky viewport, so it's part of the carousel's pinned
+   scene (visible the whole time the ring is up) without being its own
+   sticky element. Left padding mirrors the page reading-column offset so
+   the label lines up with the other section headers. */
+.label {
+  position: relative;
+  z-index: 2;
+  padding: 88px 0 0 128px;
+  pointer-events: none;
+}
+/* Constrain the header (and so its rule line) to the page reading-column
+   width so the line matches the other section headers exactly. */
+.label > * {
+  max-width: 600px;
+}
+@media (min-width: 1440px) {
+  .label { padding-left: 200px; }
+  .label > * { max-width: 700px; }
+}
+@media (min-width: 881px) and (max-width: 980px) {
+  .label { padding-left: 64px; }
+}
+@media (max-width: 880px) {
+  /* Clear the sticky top nav bar (≈86px) that the sidebar collapses to,
+     with a comfortable gap beneath it before the heading. */
+  .label { padding: 136px 16px 0; }
+  .label > * { max-width: none; }
+}
+@media (max-width: 720px) {
+  /* The stage breaks out full-bleed on phones, but the heading should keep
+     the page gutter so it lines up with the other section labels. */
+  .label { padding-left: var(--shell-gutter); padding-right: var(--shell-gutter); }
+}
+
+/* 3D viewing volume for the ring. Capped at 1440px and centred so the ring
+   doesn't sprawl across ultra-wide displays; the sticky background stays
+   full-bleed. (The label is a sibling of the stage, so it keeps aligning
+   to the page reading column rather than this capped box.) */
+.stage {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 1440px;
+  overflow: hidden;
+  perspective: 1200px;
+}
+
+/* holder positions the ring centre on screen */
+.ringHolder {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+}
+
+/* the ring itself carries the SLANT (transform set inline from slantZ/slantX) so
+   the whole orbit plane is tipped back and leaned diagonally */
+.ring {
+  position: absolute;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+}
+
+.card {
+  position: absolute;
+  margin: 0;
+  transform-style: preserve-3d;
+  /* visible from behind too, so back-of-ring cards still show their image */
+  backface-visibility: visible;
+  will-change: transform, opacity;
+  cursor: pointer;
+}
+
+/* Inner wrapper carries the hover grow/lift/tilt (written by the rAF loop)
+   so it composes on top of the card's orbit transform without the loop
+   fighting it. */
+.cardInner {
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--reel-line, #d8d8d5);
+  box-shadow: 0 24px 50px -28px rgba(0, 0, 0, 0.5);
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* A card hosting a live component (e.g. Ripple) — same frame as .card img,
+   with the live content clipped to the rounded corners. The child fills it. */
+.card .live {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 10px;
+  border: 1px solid var(--reel-line, #d8d8d5);
+  box-shadow: 0 24px 50px -28px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Project placement override ──────────────────────────────────────
+   The slanted ring lifts the front cards above the ring's centre, so at
+   the default top:50% the carousel reads too high on larger viewports.
+   Drop the ring centre (and match the perspective origin) so it sits
+   more centrally. Desktop + XL only — the smaller layouts are fine. */
+@media (min-width: 881px) {
+  .stage {
+    perspective-origin: 50% 62%;
+  }
+  .ringHolder {
+    top: 62%;
+  }
+}
+/* Tablet / mobile: the sticky nav + label sit at the top, so centre the
+   ring in the remaining space below them rather than at the geometric
+   middle (where the slant otherwise leaves a large empty lower half). */
+@media (max-width: 880px) {
+  .stage {
+    perspective-origin: 50% 58%;
+  }
+  .ringHolder {
+    top: 58%;
+  }
+}
+/* Short desktop windows: the label is anchored near the top at a fixed
+   offset, so on limited viewport height the slant-lifted upper cards ride
+   up into it. Drop the ring further the shorter the window gets so it
+   stays clear of the heading. */
+@media (min-width: 881px) and (max-height: 880px) {
+  .stage {
+    perspective-origin: 50% 70%;
+  }
+  .ringHolder {
+    top: 70%;
+  }
+}
+@media (min-width: 881px) and (max-height: 760px) {
+  .stage {
+    perspective-origin: 50% 76%;
+  }
+  .ringHolder {
+    top: 76%;
+  }
+}
+
+/* Live-experiment iframe inside the shared Modal (cards with an href). */
+.modalFrame {
+  aspect-ratio: 16 / 10;
+}

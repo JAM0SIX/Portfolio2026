@@ -58,6 +58,11 @@
      pixel-perfectly with the card edges. */
   color: inherit;
   font: inherit;
+  /* Bottom corners always round; top corners round per-card (set via
+     --card-tl / --card-tr) EXCEPT the corner the card's own edge tab sits in
+     (first card top-left, last card top-right). The inset-shadow outline
+     follows the radius automatically. */
+  border-radius: var(--card-tl, 0) var(--card-tr, 0) var(--radius-panel) var(--radius-panel);
   transform: translate3d(0, calc(var(--depth) * var(--stack-offset) * -1), 0);
   /* Only transition box-shadow and background. The transform is
      animated imperatively via the Web Animations API so we get a
@@ -65,51 +70,23 @@
   transition:
     box-shadow var(--dur-base) var(--ease-default),
     background var(--dur-base) var(--ease-default);
+  /* Single uniform 1px inset outline — follows the border-radius at a
+     consistent weight on every edge and corner. The tab's fill covers the
+     1px of this top border that sits under it, so the tab still merges into
+     the card. */
   box-shadow:
-    inset 1px 0 0 var(--rule),
-    inset -1px 0 0 var(--rule),
-    inset 0 -1px 0 var(--rule),
+    inset 0 0 0 1px var(--rule),
     0 1px 2px rgba(0, 0, 0, 0.05);
-}
-/* Top border, split into two pieces around the card's tab slot.
-   ::before draws from the card's left edge to the tab's left edge;
-   ::after picks up at the tab's right edge and runs to the card's
-   right edge. For the first tab (tab-x = 0%) ::before has width 0;
-   for the last tab (tab-x + tab-w = 100%) ::after has width 0. */
-.card::before,
-.card::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  height: 1px;
-  background: var(--rule);
-  pointer-events: none;
-}
-.card::before {
-  left: 0;
-  width: var(--tab-x);
-}
-.card::after {
-  left: calc(var(--tab-x) + var(--tab-w));
-  right: 0;
-  /* Each card establishes its own 3D context so rotateX inside
-     the keyframes renders independently per card. */
-  transform-style: preserve-3d;
-  transform-origin: 50% 100%;
 }
 .cardActive {
   box-shadow:
-    inset 1px 0 0 var(--rule),
-    inset -1px 0 0 var(--rule),
-    inset 0 -1px 0 var(--rule),
+    inset 0 0 0 1px var(--rule),
     0 6px 18px rgba(0, 0, 0, 0.12),
     0 2px 4px rgba(0, 0, 0, 0.06);
 }
 :global([data-theme="onyx"]) .cardActive {
   box-shadow:
-    inset 1px 0 0 var(--rule),
-    inset -1px 0 0 var(--rule),
-    inset 0 -1px 0 var(--rule),
+    inset 0 0 0 1px var(--rule),
     0 6px 18px rgba(0, 0, 0, 0.5),
     0 2px 4px rgba(0, 0, 0, 0.3);
 }
@@ -158,16 +135,13 @@
      The fill is a custom property too so `:hover` only swaps that
      layer — the border gradients stay intact. */
   --tab-fill: var(--paper-deep);
-  /* Side borders run full height so they merge with the card
-     outline at clean L corners. The card no longer draws a top
-     border under this tab (split via ::before/::after with a gap
-     at the tab slot), so a full-height side border can't visually
-     "eat" into the card top — there's nothing there to clash with. */
-  background:
-    linear-gradient(var(--rule), var(--rule)) top    left  / 100% 1px no-repeat,
-    linear-gradient(var(--rule), var(--rule)) top    left  / 1px 100% no-repeat,
-    linear-gradient(var(--rule), var(--rule)) top    right / 1px 100% no-repeat,
-    var(--tab-fill);
+  /* Real top/left/right border (no bottom) with rounded top corners —
+     a real border follows border-radius cleanly, where the previous
+     background-gradient outline got clipped at the rounded corners. */
+  background: var(--tab-fill);
+  border: var(--border-default) solid var(--rule);
+  border-bottom: 0;
+  border-radius: var(--radius-inner) var(--radius-inner) 0 0;
   /* Pull the tab down by 1 px so its bottom edge sits inside the
      card's top-border row — the tab fill covers the 1 px gap
      between the card's left/right inset shadows so the L-junctions
@@ -218,6 +192,7 @@
   margin: 0;
   background: var(--paper-deep);
   border: 1px solid var(--rule);
+  border-radius: var(--radius-inner);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -246,6 +221,13 @@
 
 .quote {
   margin: 0;
+  /* Recessed paper container — same inner-shadow vocabulary as the
+     problem + project card copy panels. */
+  padding: var(--space-4);
+  background: var(--paper);
+  border: var(--border-default) solid var(--rule);
+  border-radius: var(--radius-inner);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.17);
   font-family: var(--font-sans);
   font-size: var(--text-md);
   line-height: var(--leading-relaxed);
@@ -254,6 +236,9 @@
      card) while only tidying orphans — unlike `balance`, which shortens
      the lines and leaves whitespace down the right edge. */
   text-wrap: pretty;
+}
+:global([data-theme="onyx"]) .quote {
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
 }
 
 .meta {
@@ -294,19 +279,15 @@
     gap: var(--space-4);
   }
   .card {
-    /* `relative` (not `static`) keeps each card a positioning context
-       so the absolutely-positioned top-border ::before anchors to the
-       card itself rather than escaping up to .stack. Cards still sit in
-       normal flow since relative doesn't remove them from it. */
+    /* `relative` (not `static`) keeps each card in normal flow as a
+       positioning context for its tab/body. */
     position: relative !important;
     transform: none !important;
     padding: var(--space-5) var(--space-4);
+    /* Flat list (no floating tab) — round every corner. The uniform
+       inset outline already follows this radius. */
+    border-radius: var(--radius-panel) !important;
   }
-  /* The top border was split into ::before/::after to notch a gap
-     under the floating tab. With no floating tab on mobile, restore
-     a single continuous top rule. */
-  .card::before { width: 100% !important; }
-  .card::after { display: none !important; }
 
   /* Tab → in-flow name header at the top of each card. Strip the
      absolute positioning, the folder-edge border gradients and the
@@ -320,6 +301,11 @@
     padding: 0 !important;
     justify-content: flex-start;
     background: none !important;
+    /* Strip the folder-tab border + rounded top corners — on mobile
+       the tab is a plain in-flow name header, so the leftover border
+       drew a stray box/line around each name. */
+    border: 0 !important;
+    border-radius: 0 !important;
     cursor: default;
   }
   .tabText {

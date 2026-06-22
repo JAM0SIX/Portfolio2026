@@ -424,10 +424,46 @@ const nexisNarrative = [
     kind: "prose",
     paragraphs: [
       "Consultants are paid to identify root causes to business problems and make big calls. Whether the task is competitive intelligence, M&A, market analysis, or strategy and advisory, the work turns on the same thing: pulling the few signals that matter out of a vast and growing wall of news, filings, and reports, then shaping them into a recommendation that holds up in a partner review.",
-      "The generic AI chat interfaces consultants were already leaning on limit that work in two specific ways. First, they flatten a depth-of-research task into a single confident answer, so the user loses the ability to scope, weight, and shape their own investigation.",
-      "{{strong:The business risk}}: AI search tools lack specificity and depth. Getting this wrong means we just become another disappointing tool that consultants won't buy.",
-      "Second, they hide the sources behind the answer, which for a consultant whose recommendation will be acted on is not a usability complaint, it's a serious concern.",
-      "{{strong:The business risk}}: Confident answers don't mean anything unless the user is able to see the source of truth. One hallucination can lead to removal of trust and engagement, as the risk of a mistake for these users is too high.",
+      "The generic AI chat interfaces consultants were already leaning on limit that work in two specific ways.",
+    ],
+  },
+  {
+    kind: "problemCards",
+    cards: [
+      {
+        badge: "Problem 1",
+        title: "One answer, no depth",
+        steps: [
+          {
+            prompt: "Why was this a problem?",
+            body:
+              "They flatten a depth-of-research task into a single confident answer, so the user loses the ability to scope, weight, and shape their own investigation.",
+          },
+          {
+            prompt: "What risk did this pose to the business?",
+            heading: "The business risk:",
+            body:
+              "AI search tools lack specificity and depth. Getting this wrong means we just become another disappointing tool that consultants won't buy.",
+          },
+        ],
+      },
+      {
+        badge: "Problem 2",
+        title: "The sources stay hidden",
+        steps: [
+          {
+            prompt: "Why was this a problem?",
+            body:
+              "They hide the sources behind the answer, which for a consultant whose recommendation will be acted on is not a usability complaint, it's a serious concern.",
+          },
+          {
+            prompt: "What risk did this pose to the business?",
+            heading: "The business risk:",
+            body:
+              "Confident answers don't mean anything unless the user can see the source of truth. One hallucination can lead to removal of trust and engagement, as the risk of a mistake for these users is too high.",
+          },
+        ],
+      },
     ],
   },
   // 03 · The experience I built

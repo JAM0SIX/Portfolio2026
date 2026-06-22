@@ -14,90 +14,91 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styles from "./BookLogExperiment.module.css";
 
+/* Scenario: a shelf of operator's / service manuals for iconic equipment. */
 const ARTICLES = [
   {
     id: "001", num: "001",
-    title: "The Patient Reader",
-    subtitle: "On the long arc of finishing what you start",
-    author: "Marguerite Vale",
+    title: "Hasselblad 500C/M",
+    subtitle: "Operator's manual — loading, metering, the V-system",
+    author: "Victor Hasselblad AB",
     issue: "VOL.07 / ISSUE 04",
-    date: "2026.04.18",
-    readtime: "11 MIN",
-    section: "ESSAY",
+    date: "1972.04.18",
+    readtime: "48 PP",
+    section: "OPERATION",
     excerpt:
-      "Somewhere between the hundredth and two-hundredth page, a book stops being a stranger. The compact between reader and writer becomes specific. You learn the cadence, the tics, the small generosities, and patience starts to feel less like waiting and more like listening.",
+      "Before loading, confirm the magazine dark slide is withdrawn only with the body attached. Cock the shutter with the winding crank, set the lens to the metered aperture, and compose on the ground glass. The mirror returns on wind, not release — keep the slide closed between exposures.",
     cover: { hue: 32, chroma: 0.04, lightness: 0.62 },
-    coords: "51.50 N / 00.12 W", field: "ESS_04", revision: "R.04",
+    coords: "57.70 N / 11.97 E", field: "OP_04", revision: "R.04",
   },
   {
     id: "002", num: "002",
-    title: "Margins, Notebooks, and the Second Reading",
-    subtitle: "Why the second pass is the only one that matters",
-    author: "Idris Okafor",
+    title: "Land Rover Series III",
+    subtitle: "Workshop manual — engine, axles, electrics",
+    author: "Rover Co. Ltd",
     issue: "VOL.07 / ISSUE 04",
-    date: "2026.04.11",
-    readtime: "08 MIN",
-    section: "FIELD NOTES",
+    date: "1974.04.11",
+    readtime: "312 PP",
+    section: "SERVICE",
     excerpt:
-      "The first reading is a survey. You are mapping the terrain, finding the rivers, the ridges, the places that snag. The second reading is the field walk. Pen in hand, you stop, you double back, you write in the margin. The book becomes a place you have been.",
+      "Torque the cylinder head in three stages, working from the centre outward to the figures in Section B. Check tappet clearances cold: 0.010 in inlet, 0.010 in exhaust. Grease the propshaft nipples every 3,000 miles and inspect the swivel housings for the correct oil level.",
     cover: { hue: 220, chroma: 0.03, lightness: 0.58 },
-    coords: "40.71 N / 74.00 W", field: "FN_11", revision: "R.02",
+    coords: "52.40 N / 01.51 W", field: "SV_11", revision: "R.02",
   },
   {
     id: "003", num: "003",
-    title: "On Rereading Middlemarch at Forty",
-    subtitle: "What the book remembers that you forgot",
-    author: "Helena Crisp",
+    title: "Roland TR-808",
+    subtitle: "Owner's manual — patterns, sync, the drum voices",
+    author: "Roland Corporation",
     issue: "VOL.07 / ISSUE 03",
-    date: "2026.03.27",
-    readtime: "14 MIN",
-    section: "LONGFORM",
+    date: "1980.03.27",
+    readtime: "64 PP",
+    section: "OPERATION",
     excerpt:
-      "I first read Middlemarch at twenty and thought it was about marriage. I read it again at thirty and thought it was about ambition. Now, at forty, I am quite sure it is about disappointment, that ordinary, productive, indispensable form of grief that nobody warns you about.",
+      "Program a rhythm in PATTERN WRITE: select the instrument, then tap the sixteen step keys to place hits on the bar. Chain patterns into a song in COMPOSE. Sync to tape via the DIN connector at 24 pulses per quarter note, and tune the bass drum with the DECAY and TONE trimmers.",
     cover: { hue: 88, chroma: 0.025, lightness: 0.55 },
-    coords: "55.95 N / 03.18 W", field: "LF_27", revision: "R.07",
+    coords: "34.69 N / 135.50 E", field: "OP_27", revision: "R.07",
   },
   {
     id: "004", num: "004",
-    title: "A Small Defense of Difficult Books",
-    subtitle: "Where friction does its quiet work",
-    author: "Tomás Reinhard",
+    title: "Leica M3",
+    subtitle: "Instruction book — rangefinder, frame lines, film",
+    author: "Ernst Leitz GmbH",
     issue: "VOL.07 / ISSUE 03",
-    date: "2026.03.14",
-    readtime: "09 MIN",
-    section: "ARGUMENT",
+    date: "1954.03.14",
+    readtime: "40 PP",
+    section: "OPERATION",
     excerpt:
-      "A difficult book is not the same as a bad one. The difficulty is the point, the place where the writer stops doing your thinking for you and asks you to climb the next sentence under your own power. Some of the best hours of my reading life have been spent on a single page.",
+      "Focus by aligning the bright central rangefinder patch. The viewfinder selects the 50, 90 and 135 mm frame lines automatically as the lens is mounted. Advance with a single stroke or several short strokes of the lever; the frame counter resets when the baseplate is removed.",
     cover: { hue: 18, chroma: 0.04, lightness: 0.48 },
-    coords: "48.85 N / 02.35 E", field: "ARG_14", revision: "R.03",
+    coords: "50.61 N / 08.68 E", field: "OP_14", revision: "R.03",
   },
   {
     id: "005", num: "005",
-    title: "The Bookshelf as Self-Portrait",
-    subtitle: "What our shelves say when no one is reading them",
-    author: "Saoirse Lin",
+    title: "Eames Lounge Chair",
+    subtitle: "Assembly & care — shock mounts, shells, leather",
+    author: "Herman Miller",
     issue: "VOL.07 / ISSUE 02",
-    date: "2026.02.28",
-    readtime: "06 MIN",
-    section: "ESSAY",
+    date: "1956.02.28",
+    readtime: "16 PP",
+    section: "ASSEMBLY",
     excerpt:
-      "Every shelf is a confession. The novels you finished, the ones you meant to. The history you bought in a fit of ambition; the poetry you returned to in grief. A shelf is not a library, it is a record of selves, the ones you were, the ones you tried to be.",
+      "Seat the back shell onto the armrest with the rubber shock mounts aligned; do not over-tighten — the mounts are designed to flex. Buff the leather with a soft, dry cloth only. Keep the rosewood veneer out of direct sun, and check the five-star base glides for wear annually.",
     cover: { hue: 58, chroma: 0.05, lightness: 0.66 },
-    coords: "37.77 N / 122.41 W", field: "ESS_28", revision: "R.05",
+    coords: "42.79 N / 85.76 W", field: "AS_28", revision: "R.05",
   },
   {
     id: "006", num: "006",
-    title: "Notes on Quitting a Book",
-    subtitle: "The 80-page rule, and the right to walk away",
-    author: "Beatrix Hand",
+    title: "Braun SK 4",
+    subtitle: "Service guide — the lid, the platter, the cartridge",
+    author: "Braun AG",
     issue: "VOL.07 / ISSUE 02",
-    date: "2026.02.14",
-    readtime: "07 MIN",
-    section: "FIELD NOTES",
+    date: "1956.02.14",
+    readtime: "24 PP",
+    section: "SERVICE",
     excerpt:
-      "There is no virtue in finishing a book that does not earn it. Eighty pages is a fair audition. If by then it has not pulled you in (by voice, by argument, by the thinness of a single line) close it gently and put it back. Your time is the only library you cannot replace.",
+      "Set the tracking force to 2 grams at the counterweight and level the platter before play. The acrylic lid (the reason for the nickname) lifts clear for stylus access. Replace the cartridge with the leads colour-matched, and check the idler wheel for flat spots if the speed drifts.",
     cover: { hue: 260, chroma: 0.025, lightness: 0.42 },
-    coords: "52.52 N / 13.40 E", field: "FN_14", revision: "R.02",
+    coords: "50.11 N / 08.68 E", field: "SV_14", revision: "R.02",
   },
 ];
 
@@ -139,11 +140,14 @@ function Insignia({ id, ink, inkSoft }) {
       <svg viewBox="0 0 100 100">
         <circle cx="50" cy="50" r="34" fill="none" stroke={stroke} strokeWidth="0.5" />
         {Array.from({ length: 24 }).map((_, i) => {
+          /* Round so the server and client emit identical strings — raw
+             IEEE-754 trig values differ in the last digit and trip hydration. */
+          const f = (n) => +n.toFixed(3);
           const a = (i / 24) * Math.PI * 2;
-          const x1 = 50 + Math.cos(a) * 34;
-          const y1 = 50 + Math.sin(a) * 34;
-          const x2 = 50 + Math.cos(a) * (i % 4 === 0 ? 28 : 31);
-          const y2 = 50 + Math.sin(a) * (i % 4 === 0 ? 28 : 31);
+          const x1 = f(50 + Math.cos(a) * 34);
+          const y1 = f(50 + Math.sin(a) * 34);
+          const x2 = f(50 + Math.cos(a) * (i % 4 === 0 ? 28 : 31));
+          const y2 = f(50 + Math.sin(a) * (i % 4 === 0 ? 28 : 31));
           return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={stroke} strokeWidth="0.5" />;
         })}
         <line x1="50" y1="50" x2="78" y2="36" stroke={stroke} strokeWidth="0.7" />
@@ -228,7 +232,7 @@ function Cover({ article, focused }) {
       <span className={styles.coverSpine} aria-hidden="true" />
 
       <div className={`${styles.coverBand} ${styles.coverBandTop}`}>
-        <span className={styles.xs}>BOOKLOG / {issue}</span>
+        <span className={styles.xs}>MANUALS / {issue}</span>
         <span className={styles.xs}>{field}</span>
       </div>
 
@@ -334,7 +338,7 @@ function PreviewPanel({ article }) {
       </div>
 
       <div className={`${styles.previewFoot} ${styles.xs} ${styles.muted}`}>
-        <span>BOOKLOG / {article.issue}</span>
+        <span>MANUALS / {article.issue}</span>
         <span>{article.coords}</span>
       </div>
     </div>
@@ -411,9 +415,9 @@ export default function BookLogExperiment() {
     <div className={styles.carouselRoot} ref={containerRef}>
       <header className={styles.topbar}>
         <div className={styles.topbarLeft}>
-          <span className={styles.xs}>BOOKLOG</span>
+          <span className={styles.xs}>MANUALS</span>
           <span className={styles.topbarSep} />
-          <span className={`${styles.xs} ${styles.muted}`}>VOL.07 / 2026</span>
+          <span className={`${styles.xs} ${styles.muted}`}>ARCHIVE / 2026</span>
         </div>
         <div />
         <div className={styles.topbarRight}>

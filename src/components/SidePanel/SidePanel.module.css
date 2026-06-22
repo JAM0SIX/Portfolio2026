@@ -97,14 +97,12 @@
      The clip-path written here is the *resting closed* state. The
      opening animation writes inline style via fill: 'forwards', so
      once it runs the inline style overrides this. Before the user
-     has ever interacted, this rule keeps the panel invisible. */
-  clip-path: polygon(
-    calc(50% - 3px) calc(50% - 2px),
-    calc(50% + 3px) calc(50% - 2px),
-    calc(50% + 3px) calc(50% + 2px),
-    calc(50% + 3px) calc(50% + 2px),
-    calc(50% - 3px) calc(50% + 2px),
-    calc(50% - 3px) calc(50% - 2px)
+     has ever interacted, this rule keeps the panel invisible. Uses
+     inset()+round (matching the JS stages) so the reveal carries the
+     shared rounded-panel radius instead of a chamfer. */
+  clip-path: inset(
+    calc(50% - 2px) calc(50% - 3px) calc(50% - 2px) calc(50% - 3px)
+    round var(--radius-panel)
   );
   opacity: 0;
   /* No CSS transition — JS animation owns the reveal. */
@@ -116,14 +114,7 @@
   inset: var(--border-default);
   z-index: -1;
   background: var(--paper-deep);                 /* inner = tinted fill */
-  clip-path: polygon(
-    var(--chamfer-inner) 0,
-    100% 0,
-    100% calc(100% - var(--chamfer-inner)),
-    calc(100% - var(--chamfer-inner)) 100%,
-    0 100%,
-    0 var(--chamfer-inner)
-  );
+  border-radius: calc(var(--radius-panel) - var(--border-default));
   /* Inset bevel highlight + bottom-edge shadow. Lives on ::before
      (not .panel) because the inner layer's chamfer-inner clip is
      wide enough to render thin inset shadows; .panel's outer
@@ -253,6 +244,7 @@
     background: var(--paper-deep);
     border: var(--border-default) solid var(--rule);
     border-bottom: 0;
+    border-radius: var(--radius-panel) var(--radius-panel) 0 0;
     isolation: auto;
     clip-path: none;
     filter: none;

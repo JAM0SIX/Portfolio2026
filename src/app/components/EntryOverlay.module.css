@@ -1,0 +1,49 @@
+/* EntryOverlay — full-screen first-arrival sequence.
+   Backdrop (solid page colour) + ripple canvas + centred scramble
+   text. On the shockwave the backdrop is wiped from the centre
+   outward via a radial mask (driven by JS), revealing the page. */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  /* Block interaction with the page underneath while the entry plays. */
+  cursor: default;
+}
+
+/* Solid ground that hides the page; masked away on the shockwave. */
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--paper);
+  z-index: 0;
+}
+
+.center {
+  position: relative;
+  z-index: 2;
+  padding: 0 var(--space-6);
+  text-align: center;
+  font-family: var(--font-sans);
+  font-size: clamp(var(--text-lg), 3.4vw, var(--text-xl));
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--track-tight);
+  line-height: var(--leading-snug);
+  /* Accent-forward entry — the message reads in the brand blue. */
+  color: var(--accent);
+  transition: opacity 360ms var(--ease-out, ease), transform 360ms var(--ease-out, ease);
+}
+/* Faded out as the shockwave wipes the overlay. */
+.centerOut {
+  opacity: 0;
+  transform: scale(0.96);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .center {
+    transition: none;
+  }
+}

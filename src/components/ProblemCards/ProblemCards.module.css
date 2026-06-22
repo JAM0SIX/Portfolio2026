@@ -1,0 +1,266 @@
+/* ProblemCards — two progressive-disclosure cards in the Problem
+   section. Borrows the homepage project-card vocabulary: a slanted
+   top-left notch on a paper bubble, the badge sitting in the cleared
+   notch, a status dot, and a recessed paper-deep frame. */
+
+/* ─── Layout ──────────────────────────────────────────────────────
+   Two columns on desktop with the right column dropped down for the
+   staggered/diagonal arrangement; single column on mobile. Cards
+   fade + rise in (staggered) once the section scrolls into view. */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: var(--space-4);
+  row-gap: var(--space-6);
+  /* Cards align on their top edge — no diagonal stagger. */
+  align-items: start;
+  /* Extra breathing room before the quote block that follows. */
+  margin-bottom: var(--space-7);
+}
+
+@media (max-width: 880px) {
+  .grid {
+    grid-template-columns: 1fr;
+    row-gap: var(--space-5);
+  }
+}
+
+/* ─── Card frame ──────────────────────────────────────────────────
+   Recessed paper-deep panel. Entrance: each card starts faded +
+   shifted down, then settles when `.gridShown` is set (per-card
+   delay via --card-delay). */
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--paper-deep);
+  border: var(--border-default) solid var(--rule);
+  border-radius: var(--radius-panel);
+  /* Typical card drop shadow (matches the quote/elevated surfaces). */
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.12),
+    0 2px 4px rgba(0, 0, 0, 0.06);
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 600ms var(--ease-out),
+    transform 600ms var(--ease-out);
+  transition-delay: var(--card-delay, 0ms);
+}
+.gridShown .card {
+  opacity: 1;
+  transform: none;
+}
+:global([data-theme="onyx"]) .card {
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.5),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* ─── Head bubble (notched) ───────────────────────────────────────
+   The head is the unclipped frame holding the badge + dot. The white
+   surface behind the title carries the slanted notch clip-path
+   (identical maths to .project__image), so the paper-deep card shows
+   through the cleared corner where the badge sits. */
+.head {
+  position: relative;
+  /* No min-height — the bubble hugs its title so a single-line head
+     doesn't carry dead space below the copy. The top padding clears
+     the notch + "Problem N" label strip and gives the title room. */
+  padding: 44px var(--space-4) var(--space-4);
+  /* Notch geometry — slant + radius are the source of truth read by
+     the JS that computes the slanted-corner fillet offsets. The
+     width/height + corner offsets are set per-card from the measured
+     badge. */
+  --notch-slant: 10px;
+  --notch-radius: 8px;
+  --notch-tl-w: 0px;
+  --notch-tl-h: 0px;
+  --notch-corner-d: 0px;
+  --notch-corner-dx: 0px;
+  --notch-corner-dy: 0px;
+}
+/* White surface — clipped with the same notched shape() the project
+   cards use, plus rounded outer corners so it reads as a bubble. A
+   four-way drop-shadow traces a hairline outline that follows the
+   notch (border + clip-path don't combine, so the shadow fakes it). */
+.headSurface {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--paper);
+  --bubble-r: var(--radius-inner);
+  clip-path: shape(
+    from calc(var(--notch-tl-w) + var(--notch-corner-d)) 0,
+    line to calc(100% - var(--bubble-r)) 0,
+    arc to 100% var(--bubble-r) of var(--bubble-r) cw,
+    line to 100% calc(100% - var(--bubble-r)),
+    arc to calc(100% - var(--bubble-r)) 100% of var(--bubble-r) cw,
+    line to var(--bubble-r) 100%,
+    arc to 0 calc(100% - var(--bubble-r)) of var(--bubble-r) cw,
+    line to 0 calc(var(--notch-tl-h) + var(--notch-radius)),
+    arc to var(--notch-radius) var(--notch-tl-h) of var(--notch-radius) cw,
+    line to calc(var(--notch-tl-w) - var(--notch-slant) - var(--notch-corner-d)) var(--notch-tl-h),
+    arc to
+      calc(var(--notch-tl-w) - var(--notch-slant) + var(--notch-corner-dx))
+      calc(var(--notch-tl-h) - var(--notch-corner-dy))
+      of var(--notch-radius) ccw,
+    line to
+      calc(var(--notch-tl-w) - var(--notch-corner-dx))
+      var(--notch-corner-dy),
+    arc to calc(var(--notch-tl-w) + var(--notch-corner-d)) 0
+      of var(--notch-radius) cw,
+    close
+  );
+  /* Subtle inner shadow so the bubble reads as recessed into the
+     card. Clipped to the notched shape along with the surface. */
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.17);
+  /* Hairline traced with drop-shadows (border + notch clip-path can't
+     combine). Uses the same 1px --border-default weight + --rule colour
+     as every other container's real border, so they read consistently. */
+  filter:
+    drop-shadow(var(--border-default) 0 0 var(--rule))
+    drop-shadow(calc(-1 * var(--border-default)) 0 0 var(--rule))
+    drop-shadow(0 var(--border-default) 0 var(--rule))
+    drop-shadow(0 calc(-1 * var(--border-default)) 0 var(--rule));
+}
+:global([data-theme="onyx"]) .headSurface {
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+/* Status dot now sits in the cleared notch (flush top-left), reading
+   on the paper-deep frame behind the bubble. It also drives the notch
+   size via the measuring ref. */
+.dot {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  z-index: 2;
+  width: 9px;
+  height: 9px;
+  border-radius: var(--radius-full);
+  background: var(--accent);
+}
+/* "Problem N" label sits in the bubble's top-right corner, opposite
+   the dot in the notch. */
+.label {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  z-index: 2;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-regular);
+  line-height: 1;
+  color: var(--ink-soft);
+  letter-spacing: var(--track-normal);
+}
+.title {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--track-tight, normal);
+  color: var(--ink);
+}
+
+/* ─── Reveal steps ────────────────────────────────────────────────
+   Each step animates open via grid-template-rows 0fr → 1fr (height),
+   with the divider drawing left-to-right and the content fading +
+   rising. Steps are revealed one at a time by the button. */
+.reveals {
+  display: flex;
+  flex-direction: column;
+}
+.step {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 460ms var(--ease-out),
+    opacity 300ms var(--ease-out);
+}
+.stepOpen {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+.stepInner {
+  min-height: 0;
+  overflow: hidden;
+}
+/* Revealed copy sits in its own paper bubble — same paper fill,
+   hairline, rounded corners and inner shadow as the heading
+   container (minus the notch). The top margin lives inside the
+   collapsing .stepInner so it disappears with the step when closed. */
+.stepContent {
+  margin-top: var(--space-3);
+  padding: var(--space-4);
+  background: var(--paper);
+  border: var(--border-default) solid var(--rule);
+  border-radius: var(--radius-inner);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.17);
+  transform: translateY(10px);
+  transition: transform 460ms var(--ease-out);
+}
+:global([data-theme="onyx"]) .stepContent {
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+.stepOpen .stepContent {
+  transform: none;
+}
+.stepHeading {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  color: var(--ink);
+}
+.stepBody {
+  margin: 0;
+  /* Fill the card width — a max-width here left the copy short of
+     the card edge and read as a layout bug, most visibly on tablet. */
+  max-width: none;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--ink-soft);
+}
+
+/* ─── Reveal button ───────────────────────────────────────────────
+   Uses the design-system `.btn .btn-secondary` for the standard +
+   chamfer-on-hover states; this only stretches it full-width and
+   pins it to the bottom of the card. Retires (unmounted) once the
+   last step is revealed. */
+/* `.card` prefix lifts specificity above the design-system `.btn`
+   base so the font-size override actually lands. */
+.card .button {
+  align-self: stretch;
+  width: 100%;
+  margin-top: auto;
+  font-size: var(--text-sm);
+}
+
+/* ─── Reduced motion ──────────────────────────────────────────────
+   No entrance drift, no rise/draw — reveals still toggle height +
+   opacity so the disclosure stays functional, just without the
+   directional motion. */
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .stepContent,
+  .rule {
+    transition: none;
+    transform: none;
+  }
+  .step {
+    transition: opacity 200ms linear;
+  }
+}
