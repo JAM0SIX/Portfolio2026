@@ -187,9 +187,10 @@ export default function Hero() {
         >
           <p className="hc-body">
             A{" "}
+            <span className={mark("link")}>strategic</span>{" "}
             <span className={mark("link")}>
               <HeroKey id="link" active={active} setActive={setActive}>
-                strategic
+                designer
               </HeroKey>
             </span>
             <HeroGlyph
@@ -198,7 +199,6 @@ export default function Hero() {
               active={active}
               setActive={setActive}
             />{" "}
-            <span className={mark("link")}>designer</span>{" "}
             <span className={mark("expand")}>crafting</span>{" "}
             <span className={mark("expand")}>
               <HeroKey id="expand" active={active} setActive={setActive}>
