@@ -1,39 +1,54 @@
-/* Skills / Stack — carousel content.
-   ───────────────────────────────────
-   Two rows: STACK (tools / tech) on top, SKILLS (capabilities)
-   underneath. Each row scrolls horizontally in opposite directions.
+/* Skills / Stack — bento grid content.
+   ─────────────────────────────────────
+   Four cards arranged as a pinwheel bento (1 + 2 / 2 + 1 on a 3-col
+   grid). Each card has a 3D wireframe shape icon (shape-icons.js /
+   ShapeCanvas), a status badge seated in the icon tile's slanted notch,
+   a title, and a short description in a recessed paper bubble.
 
-   `icon` is a filename inside /public/icons/skills/. Drop matching
-   SVG (or PNG) files there and they appear automatically; until then
-   the pill renders label-only (the <img> hides itself on load error).
-   Add / remove / reorder freely — the marquee re-measures itself. */
+   Fields
+     · title  — the capability name (card heading)
+     · badge  — short label seated in the icon tile's TL notch
+     · shape  — key from SHAPE_KEYS in shape-icons.js:
+                cubes, bars, torus, octahedron, tetra, icosa, dodeca,
+                sphere, helix, pyramid, knot, gem
+     · wide   — true → 2-col tile with the icon beside the text;
+                false → 1-col tile with the icon stacked above the text
+     · blurb  — the card description
 
-export const STACK = [
-  { name: "Claude Code", icon: "claude-code.png" },
-  { name: "Cursor", icon: "cursor.png" },
-  { name: "Vercel", icon: "vercel.svg" },
-  { name: "Paper", icon: "paper.png" },
-  { name: "Unicorn Studio", icon: "unicorn-studio.png" },
-  { name: "Figma", icon: "figma.png" },
-  { name: "Framer", icon: "framer.webp" },
-  { name: "Next.js", icon: "nextjs.png" },
-  { name: "v0", icon: "v0.svg" },
-  { name: "GitHub", icon: "github.svg" },
-  { name: "Codex", icon: "codex.png" },
-  { name: "FloraAI", icon: "flora-ai.png" },
-];
+   Source order packs the pinwheel under grid-auto-flow: dense —
+   compact, wide, wide, compact. */
 
-export const SKILLS = [
-  { name: "Product Strategy", icon: "product-strategy.svg" },
-  { name: "Interaction Design", icon: "interaction-design.svg" },
-  { name: "Design Systems", icon: "design-systems.svg" },
-  { name: "Design Engineering", icon: "design-engineering.svg" },
-  { name: "UX Research", icon: "ux-research.svg" },
-  { name: "AI-agent workflows", icon: "ai-agent-workflows.svg" },
-  { name: "AI-Native Design", icon: "ai-native-design.svg" },
-  { name: "End-to-end ownership", icon: "end-to-end-ownership.svg" },
-  { name: "Behavioural product thinking", icon: "behavioural-product-thinking.svg" },
-  { name: "Psychological problem solving", icon: "psychological-problem-solving.svg" },
-  { name: "Human-AI interface design", icon: "human-ai-interface-design.svg" },
-  { name: "Vibe coder", icon: "vibe-coder.svg" },
+export const BENTO = [
+  {
+    title: "Designing in Codebases",
+    badge: "New",
+    shape: "cubes",
+    wide: false,
+    blurb:
+      "A unified workflow bridging the gap between design tokens and production code. This system embeds design systems directly into engineering pipelines, enabling designers to ship production-ready components with absolute visual fidelity and zero handoff loss.",
+  },
+  {
+    title: "AI Product Frameworks",
+    badge: "Framework",
+    shape: "tetra",
+    wide: true,
+    blurb:
+      "Structuring the cognitive architecture of agentic systems. This framework defines how multi-agent pipelines collaborate, manage state, and handle uncertainty, translating complex machine learning capabilities into predictable, high-value user experiences.",
+  },
+  {
+    title: "Research & Measurement",
+    badge: "Case Study",
+    shape: "bars",
+    wide: true,
+    blurb:
+      "GWI's internal data system. Redesigned to make the research process radically more efficient and save the business significant money.",
+  },
+  {
+    title: "Designing AI Interfaces",
+    badge: "System",
+    shape: "torus",
+    wide: false,
+    blurb:
+      "Crafting the next generation of human-machine collaboration. Moving beyond static layouts to dynamic, context-aware interfaces that adapt in real-time to user intent, system confidence, and multi-modal inputs.",
+  },
 ];
