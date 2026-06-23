@@ -466,10 +466,53 @@ const nexisNarrative = [
       },
     ],
   },
-  // 03 · The experience I built
+
+  // 03 · Mental models
+  { kind: "sectionHeader", chapter: "03", title: "Mental models" },
+  {
+    kind: "prose",
+    paragraphs: [
+      "Before I start designing any visuals or user flows, it is important to me to get into the users boots and understand their problems deeply. I try to figure out and log the friction points, the behaviours and I then build out different mental model approaches that I believe articulate the ideal solution for the user. These are typically metaphors or abstract principles but they are key to my meticulous workflow with understanding the problem and what the solution should be.",
+    ],
+  },
+  {
+    /* Three bespoke canvas scenes, one per principle, each picked to
+       mirror how the principle actually behaves inside Nexis+AI:
+       a constellation the user can re-connect for new patterns, a
+       branching search tree, and a calm helix that earns each turn. */
+    kind: "philosophyVisuals",
+    items: [
+      {
+        variant: "constellation",
+        label: "Constellation of data",
+        eyebrow: "Principle 01",
+        title: "Constellation of Data",
+        body:
+          "The same field of data points, read differently. How those points get connected is what tells the story, competitive intelligence draws one constellation, M&A draws another, market sizing draws a third. The interface makes those connections legible instead of collapsing them into a single confident answer.",
+      },
+      {
+        variant: "search-paths",
+        label: "Branching",
+        eyebrow: "Principle 02",
+        title: "Branching",
+        body:
+          "Research isn't a straight line. From a single question, the consultant branches into sub-threads, follows the rabbit holes that look promising, prunes the ones that don't. Every search is a tree the user can fork, return to, and shape, the investigative work stays legible rather than flattening into a chat log.",
+      },
+      {
+        variant: "helix",
+        label: "Progressive disclosure",
+        eyebrow: "Principle 03",
+        title: "Progressive Disclosure",
+        body:
+          "Answer first. Evidence second. Source on demand. Each turn of the helix earns the next, the consultant sees the recommendation, then the supporting points, then the citation, only when they ask for it. The interface stays calm at the top and still rewards the consultant who wants to go all the way down.",
+      },
+    ],
+  },
+
+  // 04 · The experience I built
   {
     kind: "sectionHeader",
-    chapter: "03",
+    chapter: "04",
     title: "The experience I built",
     subtitle:
       "Independent product design, research, interaction, art direction, and design system are all my own contribution.",
@@ -607,48 +650,6 @@ const nexisNarrative = [
     nativeWidth: 1440,
     nativeHeight: 1080,
     poster: "/prototypes/q4-verification/poster.png",
-  },
-
-  // 04 · Philosophy
-  { kind: "sectionHeader", chapter: "04", title: "Philosophy" },
-  {
-    kind: "prose",
-    paragraphs: [
-      "Before any pixels moved I built a set of principles: ways of approaching the problem that every following design had to earn its place against. They turned the brief from \"build an AI search tool\" into \"design for defensible answers, not impressive ones\", and gave the team a shared yardstick when the trade-offs got tight.",
-    ],
-  },
-  {
-    /* Three bespoke canvas scenes, one per principle, each picked to
-       mirror how the principle actually behaves inside Nexis+AI:
-       a constellation the user can re-connect for new patterns, a
-       branching search tree, and a calm helix that earns each turn. */
-    kind: "philosophyVisuals",
-    items: [
-      {
-        variant: "constellation",
-        label: "Constellation of data",
-        eyebrow: "Principle 01",
-        title: "Constellation of Data",
-        body:
-          "The same field of data points, read differently. How those points get connected is what tells the story, competitive intelligence draws one constellation, M&A draws another, market sizing draws a third. The interface makes those connections legible instead of collapsing them into a single confident answer.",
-      },
-      {
-        variant: "search-paths",
-        label: "Branching",
-        eyebrow: "Principle 02",
-        title: "Branching",
-        body:
-          "Research isn't a straight line. From a single question, the consultant branches into sub-threads, follows the rabbit holes that look promising, prunes the ones that don't. Every search is a tree the user can fork, return to, and shape, the investigative work stays legible rather than flattening into a chat log.",
-      },
-      {
-        variant: "helix",
-        label: "Progressive disclosure",
-        eyebrow: "Principle 03",
-        title: "Progressive Disclosure",
-        body:
-          "Answer first. Evidence second. Source on demand. Each turn of the helix earns the next, the consultant sees the recommendation, then the supporting points, then the citation, only when they ask for it. The interface stays calm at the top and still rewards the consultant who wants to go all the way down.",
-      },
-    ],
   },
 
   // 05 · Success benchmarks

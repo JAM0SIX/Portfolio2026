@@ -198,6 +198,18 @@
   gap: var(--space-3);
   max-width: 64ch;
 }
+/* At XL the reading column is a fixed 700px measure (set on .col),
+   intentionally wider than the 64ch line length. Below XL the column
+   can go fluid (≥ full width minus gutters), so the ch cap still does
+   the readability work there — but at XL it leaves body copy stopping
+   short of the column. Lift it so prose fills the column and lines up
+   with the headings, images, and other full-column content. */
+@media (min-width: 1440px) {
+  .prose,
+  .sectionSubtitle {
+    max-width: none;
+  }
+}
 .proseParagraph {
   margin: 0;
   font-family: var(--font-sans);

@@ -29,16 +29,25 @@
    draw routine based on `variant`, pauses when off-screen via
    IntersectionObserver, and respects prefers-reduced-motion. */
 
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, useCallback } from "react";
+import ScrambleText from "@/components/ScrambleText/ScrambleText";
 import styles from "./PhilosophyVisuals.module.css";
 
 /* ─── Shared canvas wrapper ──────────────────────────────────────
    Sizes the canvas to its container with DPR scaling, runs the
    variant's draw routine on every frame, and gates the loop on
-   viewport visibility + reduced-motion preference. */
-function VisualCanvas({ variant, label }) {
+   viewport visibility + reduced-motion preference + whether this
+   card is the active (on-top) one in the scroller. */
+function VisualCanvas({ variant, active = true }) {
   const canvasRef = useRef(null);
   const stateRef = useRef(null);
+  /* The active flag flips as the user scrolls between cards; mirror
+     it into a ref so the rAF loop reads the latest value without the
+     whole canvas effect re-running (which would reset the scene). */
+  const activeRef = useRef(active);
+  useEffect(() => {
+    activeRef.current = active;
+  }, [active]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -119,7 +128,8 @@ function VisualCanvas({ variant, label }) {
 
     let raf = 0;
     const loop = (t) => {
-      if (visible && !reduced) scene.draw(ctx, width, height, t, colorFn);
+      if (visible && activeRef.current && !reduced)
+        scene.draw(ctx, width, height, t, colorFn);
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
@@ -135,7 +145,6 @@ function VisualCanvas({ variant, label }) {
 
   return (
     <div className={styles.visual}>
-      {label && <span className={styles.label}>{label}</span>}
       <canvas ref={canvasRef} className={styles.canvas} />
     </div>
   );
@@ -150,9 +159,9 @@ function VisualCanvas({ variant, label }) {
    time and share the same star field, the visual is constantly
    re-reading the same points as different stories. */
 function makeConstellation() {
-  const POINT_COUNT = 95;
-  const PATTERN_SIZE_MIN = 5;
-  const PATTERN_SIZE_MAX = 9;
+  const POINT_COUNT = 48;
+  const PATTERN_SIZE_MIN = 4;
+  const PATTERN_SIZE_MAX = 7;
   const HOLD_DURATION = 5200;       // ms each constellation stays full-strength
   const FADE_DURATION = 1100;       // ms in/out cross-fade
   const SPAWN_GAP = 1700;           // ms between new constellation births
@@ -183,8 +192,13 @@ function makeConstellation() {
       points.push({
         x: u * w,
         y: v * h,
-        size: 0.6 + rand() * 1.8,
-        ring: rand() > 0.78,
+        /* Smaller pinpoints so they read as distant stars rather than
+           nodes; a few sit a touch larger/brighter to give depth. */
+        size: 0.4 + rand() * 1.0,
+        bright: 0.2 + rand() * 0.5,
+        /* Each star twinkles on its own slow cycle. */
+        twPhase: rand() * Math.PI * 2,
+        twSpeed: 0.0008 + rand() * 0.0014,
       });
     }
     active = [];
@@ -248,19 +262,23 @@ function makeConstellation() {
     return -1; // dead
   }
 
-  function drawField(ctx, c) {
+  function drawField(ctx, c, now) {
     for (const p of points) {
-      ctx.fillStyle = c(0.35);
+      /* Twinkle: brightness eases around the star's base level. */
+      const tw = 0.7 + 0.3 * Math.sin(now * p.twSpeed + p.twPhase);
+      const a = p.bright * tw;
+      /* Soft halo on the brighter stars only — a hint of glow rather
+         than the old hard target ring, so the field reads as sky. */
+      if (p.bright > 0.5) {
+        ctx.fillStyle = c(a * 0.16);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size + 2.4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.fillStyle = c(a);
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
       ctx.fill();
-      if (p.ring) {
-        ctx.strokeStyle = c(0.22);
-        ctx.lineWidth = 0.8;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size + 2, 0, Math.PI * 2);
-        ctx.stroke();
-      }
     }
   }
 
@@ -297,7 +315,7 @@ function makeConstellation() {
   function draw(ctx, w, h, now, c) {
     ctx.clearRect(0, 0, w, h);
 
-    drawField(ctx, c);
+    drawField(ctx, c, now);
 
     /* Spawn new constellations on cadence; prune dead ones. */
     if (now - lastSpawn > SPAWN_GAP && active.length < MAX_ACTIVE) {
@@ -316,315 +334,276 @@ function makeConstellation() {
 }
 
 /* ─── Search Paths ───────────────────────────────────────────────
-   A horizontal main path runs from the source anchor on the left
-   toward the right edge. Side branches fork off the trunk at
-   varying points along its length, curving up or down to terminal
-   tip-dots. Branches grow, hold, then peel back from tip to fork —
-   so the trunk stays continuously present while the side threads
-   come and go around it. */
+   "Research isn't a straight line." A faint branching tree is drawn
+   in full; a bright cursor traces it depth-first — descending a thread
+   to a leaf, pausing, then backtracking to the nearest fork and taking
+   another branch. Only the route from the root to the cursor stays
+   lit, so at any moment you read the current line of enquiry against
+   the whole shape of the search. When the tour finishes it pauses and
+   regrows a fresh tree. */
 function makeSearchPaths() {
-  const MAX_BRANCHES = 5;           // concurrent side branches
-  const BRANCH_SPAWN_GAP = 1100;    // ms between new branch spawns
-  const GROW_SPEED = 0.0014;        // progress per ms (grow phase)
-  /* Hold durations: most branches live short, a minority anchor for
-     much longer so the visual has a few persistent threads while
-     others come and go around them. */
-  const HOLD_SHORT_MIN = 900;
-  const HOLD_SHORT_MAX = 2200;
-  const HOLD_LONG_MIN = 5000;
-  const HOLD_LONG_MAX = 9000;
-  const LONG_HOLD_CHANCE = 0.3;     // probability a new branch gets a long hold
-  const RETRACT_SPEED = 0.0018;     // progress per ms (retract phase)
+  const TRUNK_MIN = 4;          // fewest core-trunk segments
+  const TRUNK_MAX = 6;          // most core-trunk segments
+  const TRUNK_SPAN_FRAC = 0.86; // trunk length as a fraction of width
+  const BRANCH_DEPTH = 2;       // levels of sub-branching off a side branch
+  const BRANCH_LEN_FRAC = 0.3;  // first side-branch length as a fraction of height
+  const PIXELS_PER_MS = 0.19;   // cursor travel speed
+  const LEAF_PAUSE = 260;       // ms dwell when a leaf (rabbit hole) is reached
+  const RESET_PAUSE = 1000;     // ms hold on the bare trunk start before regrowing
 
-  let trunk = null;   // { sx,sy,tx,ty,cx,cy,progress } — grows once, stays
-  let branches = [];  // [{ tParent, sx,sy,tx,ty,cx,cy,phase,progress,retract,holdUntil,tipPulse }]
-  let lastSpawn = 0;
+  let nodes = [];        // [{ x, y, parent }]
+  let children = [];      // parallel: child index lists
+  let moves = [];         // Euler tour: [{ from, to, dir }] dir 1 = descend, -1 = back
+  let moveIdx = 0;
+  let prog = 0;           // 0..1 along the current move
+  let stack = [];         // node indices from root down to the cursor
+  let phase = "traverse"; // or "reset"
+  let resetAt = 0;
+  let pauseUntil = 0;
   let lastFrame = 0;
-  let widthRef = 0;
-  let heightRef = 0;
+  let seed = 1;
+
+  /* Mulberry32 — seeded PRNG so a tree is stable across resizes within
+     a mount, but each regrow cycle advances the seed for variety. */
+  function rand() {
+    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  }
+
+  function build(w, h) {
+    nodes = [];
+    children = [];
+    const add = (x, y, parent) => {
+      const i = nodes.length;
+      nodes.push({ x, y, parent });
+      children.push([]);
+      if (parent >= 0) children[parent].push(i);
+      return i;
+    };
+
+    /* A single core trunk runs left → right (the line always travels
+       it); side branches fork off it and sub-branch. `trunkNext` maps
+       each trunk node to its trunk-continuation child so the tour can
+       keep that edge for last — the cursor detours into the branches at
+       a node, then carries on along the spine. */
+    const trunkNext = new Map();
+
+    /* Off-trunk side branches recurse to fan into sub-threads — kept
+       sparse so the spine stays readable. */
+    function grow(parent, angle, len, depth) {
+      if (depth >= BRANCH_DEPTH) return;
+      const n = depth === 0 ? (rand() < 0.4 ? 2 : 1) : rand() < 0.35 ? 1 : 0;
+      const spread = 0.45 + rand() * 0.3;
+      for (let k = 0; k < n; k++) {
+        const frac = n > 1 ? k / (n - 1) - 0.5 : 0;
+        const a = angle + frac * spread + (rand() - 0.5) * 0.25;
+        const l = len * (0.7 + rand() * 0.2);
+        const p = nodes[parent];
+        const child = add(p.x + Math.cos(a) * l, p.y + Math.sin(a) * l, parent);
+        grow(child, a, l, depth + 1);
+      }
+    }
+
+    /* Build the trunk: a chain stepping rightward with gentle vertical
+       wobble, kept within the middle band of the frame. */
+    const root = add(w * 0.06, h * 0.5, -1);
+    const segCount = TRUNK_MIN + Math.floor(rand() * (TRUNK_MAX - TRUNK_MIN + 1));
+    const seg = (w * TRUNK_SPAN_FRAC) / segCount;
+    const trunk = [root];
+    let py = h * 0.5;
+    let prev = root;
+    for (let i = 0; i < segCount; i++) {
+      const px = nodes[prev].x + seg * (0.85 + rand() * 0.3);
+      py += (rand() - 0.5) * h * 0.12;
+      py = Math.max(h * 0.3, Math.min(h * 0.7, py));
+      const node = add(px, py, prev);
+      trunkNext.set(prev, node);
+      trunk.push(node);
+      prev = node;
+    }
+
+    /* One branch per interior trunk node, leaning forward (toward the
+       right, the trunk's direction of travel) at roughly 45–60° off
+       the spine, and alternating up / down node-to-node — so the tree
+       reads as a balanced feather flowing rightward rather than a
+       random scatter. */
+    const branchLen = h * BRANCH_LEN_FRAC;
+    /* Steeper than before so the branches clearly rise off the spine,
+       but still angled forward toward the right. ~52–69° off +x. */
+    const forwardAngle = () => 0.9 + rand() * 0.3;
+    let side = rand() < 0.5 ? -1 : 1; // up-right or down-right to start
+    for (let i = 1; i < trunk.length; i++) {
+      const tn = trunk[i];
+      grow(tn, side * forwardAngle(), branchLen * (0.8 + rand() * 0.4), 0);
+      side = -side; // alternate sides along the spine
+    }
+
+    /* Euler tour: at each node explore the side branches (shuffled)
+       first, then continue along the trunk — so the cursor takes the
+       rabbit holes and returns to the spine before moving on. */
+    moves = [];
+    (function dfs(node) {
+      const trunkChild = trunkNext.has(node) ? trunkNext.get(node) : -1;
+      const rest = children[node].filter((c) => c !== trunkChild);
+      for (let i = rest.length - 1; i > 0; i--) {
+        const j = Math.floor(rand() * (i + 1));
+        [rest[i], rest[j]] = [rest[j], rest[i]];
+      }
+      const order = trunkChild >= 0 ? [...rest, trunkChild] : rest;
+      for (const ch of order) {
+        moves.push({ from: node, to: ch, dir: 1 });
+        dfs(ch);
+        moves.push({ from: ch, to: node, dir: -1 });
+      }
+    })(root);
+
+    restart();
+  }
+
+  /* Replay the existing tree from the trunk start. Used both after a
+     build and when the tour loops — so the branching stays identical
+     every cycle (it resets rather than regrowing a new shape). */
+  function restart() {
+    moveIdx = 0;
+    prog = 0;
+    stack = [0]; // root is always the first node added
+    phase = "traverse";
+    pauseUntil = 0;
+  }
 
   function init(w, h) {
-    widthRef = w;
-    heightRef = h;
-    branches = [];
-    lastSpawn = 0;
     lastFrame = 0;
-
-    /* Trunk: left side → right side, gently undulating. Control
-       point pushes it slightly above the midline so the curve
-       reads as a path, not a ruler. */
-    const sx = w * 0.06;
-    const sy = h * 0.55;
-    const tx = w * 0.94;
-    const ty = h * 0.5;
-    const cx = w * 0.5;
-    const cy = h * 0.42;
-    trunk = { sx, sy, tx, ty, cx, cy, progress: 0 };
+    seed = 1;
+    build(w, h);
   }
 
-  function pointOnQuad(b, t) {
-    const u = 1 - t;
-    const x = u * u * b.sx + 2 * u * t * b.cx + t * t * b.tx;
-    const y = u * u * b.sy + 2 * u * t * b.cy + t * t * b.ty;
-    return { x, y };
+  const lerp = (a, b, t) => a + (b - a) * t;
+
+  function drawFaintTree(ctx, c) {
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = c(0.15);
+    ctx.beginPath();
+    for (let i = 1; i < nodes.length; i++) {
+      const n = nodes[i];
+      const p = nodes[n.parent];
+      ctx.moveTo(p.x, p.y);
+      ctx.lineTo(n.x, n.y);
+    }
+    ctx.stroke();
+    for (const n of nodes) {
+      ctx.fillStyle = c(0.16);
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, 1.1, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
 
-  function tangentOnQuad(b, t) {
-    /* Derivative of quadratic Bézier — gives the local direction
-       of the trunk at parameter t. We use the perpendicular of
-       this vector to send branches "off" the trunk rather than
-       parallel to it. */
-    const dx = 2 * (1 - t) * (b.cx - b.sx) + 2 * t * (b.tx - b.cx);
-    const dy = 2 * (1 - t) * (b.cy - b.sy) + 2 * t * (b.ty - b.cy);
-    const len = Math.hypot(dx, dy) || 1;
-    return { x: dx / len, y: dy / len };
-  }
+  /* Bright route from the root to the cursor. During a descend the
+     full stack is solid and the leading edge extends to the cursor;
+     during a backtrack the last stack edge retracts toward the cursor
+     instead, so the thread is visibly withdrawn. */
+  function drawActiveRoute(ctx, c, current) {
+    const dir = current ? current.dir : 1;
+    const solidEnd = dir === -1 ? stack.length - 1 : stack.length;
 
-  function spawnBranch(now) {
-    /* Pick a fork point in the early-to-mid section of the trunk —
-       branches always need room to flow right toward the trunk's
-       end. Each branch tip lies to the *right* of its fork (in the
-       trunk's general direction of travel), with vertical
-       displacement giving it its shape. The result is a tributary
-       feel: branches diverge above and below the trunk but every
-       one keeps progressing rightward, like rivers heading to the
-       sea. */
-    const tParent = 0.1 + Math.random() * 0.55;
-    const root = pointOnQuad(trunk, tParent);
-    const side = Math.random() < 0.5 ? -1 : 1; // up or down off trunk
+    ctx.lineWidth = 1.7;
+    ctx.strokeStyle = c(0.88);
+    ctx.beginPath();
+    for (let i = 1; i < solidEnd; i++) {
+      const a = nodes[stack[i - 1]];
+      const b = nodes[stack[i]];
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+    }
+    ctx.stroke();
 
-    /* Pick a shape archetype. All archetypes are net-rightward;
-       they vary in how dramatically they peel away from the trunk
-       and how much they wobble on the way. */
-    const archetype = Math.random();
-    let shape;
-    if (archetype < 0.4) shape = "arc";       // gentle outward arc, continues right
-    else if (archetype < 0.7) shape = "S";    // S-shape, but still rightward overall
-    else if (archetype < 0.9) shape = "swoop"; // dips far before rising back near trunk
-    else shape = "long";                       // long sweeping arc to the right edge
-
-    /* Tip position: forward (rightward) distance dominates, vertical
-       displacement varies by shape. The trunk's end is roughly at
-       trunk.tx, so branches aim for somewhere between their root and
-       past it (long sweeps can finish near the right edge). */
-    const remainingX = trunk.tx - root.x;
-    let forward;
-    let vertical;
-    if (shape === "long") {
-      forward = remainingX * (0.7 + Math.random() * 0.45);
-      vertical = heightRef * (0.08 + Math.random() * 0.08);
-    } else if (shape === "swoop") {
-      forward = remainingX * (0.45 + Math.random() * 0.35);
-      vertical = heightRef * (0.05 + Math.random() * 0.06);
-    } else {
-      forward = remainingX * (0.3 + Math.random() * 0.35);
-      vertical = heightRef * (0.07 + Math.random() * 0.08);
+    for (let i = 0; i < solidEnd; i++) {
+      const n = nodes[stack[i]];
+      ctx.fillStyle = c(0.9);
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, 1.8, 0, Math.PI * 2);
+      ctx.fill();
     }
 
-    const tx = root.x + forward;
-    const ty = root.y + side * vertical;
-
-    /* Cubic Bézier control points. c1 governs the launch direction
-       (how the branch peels off the trunk); c2 governs the approach
-       direction (how it returns toward horizontal). Both are biased
-       rightward in their x component so the curve never doubles
-       back on itself. */
-    let c1x, c1y, c2x, c2y;
-    const dx = tx - root.x;
-
-    if (shape === "arc") {
-      /* Single bow: peel outward then ease back rightward toward
-         the tip. */
-      const bow = 0.6 + Math.random() * 0.4;
-      c1x = root.x + dx * 0.3;
-      c1y = root.y + side * vertical * bow * 1.4;
-      c2x = root.x + dx * 0.7;
-      c2y = ty + side * vertical * bow * 0.4;
-    } else if (shape === "S") {
-      /* Opposite-sign control points → S-curve, but both control
-         xs sit between root and tip so the branch still progresses
-         right. */
-      c1x = root.x + dx * 0.25;
-      c1y = root.y - side * vertical * (0.5 + Math.random() * 0.4);
-      c2x = root.x + dx * 0.75;
-      c2y = ty + side * vertical * (0.5 + Math.random() * 0.4);
-    } else if (shape === "swoop") {
-      /* Pulls deep away from the trunk early, then comes back close
-         to it near the tip — a wide swoop that often crosses or
-         brushes against neighbouring branches. */
-      const swoopDepth = 1.6 + Math.random() * 0.8;
-      c1x = root.x + dx * 0.4;
-      c1y = root.y + side * vertical * swoopDepth;
-      c2x = root.x + dx * 0.8;
-      c2y = ty - side * vertical * 0.3;
-    } else { // long
-      /* Long arc with a randomised crest position — early-crest vs
-         late-crest variations so two long branches don't trace the
-         same line. */
-      const crestT = 0.3 + Math.random() * 0.4;
-      const bow = 1.2 + Math.random() * 0.5;
-      c1x = root.x + dx * crestT;
-      c1y = root.y + side * vertical * bow;
-      c2x = root.x + dx * (crestT + 0.35);
-      c2y = ty + side * vertical * 0.5;
+    if (current) {
+      const { from, to, dir: d } = current;
+      const cx = lerp(from.x, to.x, current.prog);
+      const cy = lerp(from.y, to.y, current.prog);
+      ctx.lineWidth = 1.7;
+      ctx.strokeStyle = c(0.88);
+      ctx.beginPath();
+      if (d === 1) {
+        ctx.moveTo(from.x, from.y);
+      } else {
+        ctx.moveTo(to.x, to.y); // parent end stays put; segment shrinks to it
+      }
+      ctx.lineTo(cx, cy);
+      ctx.stroke();
+      return { x: cx, y: cy };
     }
-
-    /* Decide whether this branch is one of the long-hold "anchor"
-       threads or a short-lived one. Long-shape branches lean toward
-       longer hold so the most-tangled threads tend to stick around. */
-    const wantsLong =
-      Math.random() < (shape === "long" ? 0.7 : LONG_HOLD_CHANCE);
-    const holdMs = wantsLong
-      ? HOLD_LONG_MIN + Math.random() * (HOLD_LONG_MAX - HOLD_LONG_MIN)
-      : HOLD_SHORT_MIN + Math.random() * (HOLD_SHORT_MAX - HOLD_SHORT_MIN);
-
-    branches.push({
-      tParent,
-      sx: root.x,
-      sy: root.y,
-      tx,
-      ty,
-      c1x, c1y, c2x, c2y,
-      shape,
-      holdMs,
-      phase: "grow",
-      progress: 0,
-      retract: 0,
-      holdUntil: 0,
-      tipPulse: 0,
-      bornAt: now,
-    });
+    return null;
   }
 
-  function pointOnCubic(b, t) {
-    const u = 1 - t;
-    const x =
-      u * u * u * b.sx +
-      3 * u * u * t * b.c1x +
-      3 * u * t * t * b.c2x +
-      t * t * t * b.tx;
-    const y =
-      u * u * u * b.sy +
-      3 * u * u * t * b.c1y +
-      3 * u * t * t * b.c2y +
-      t * t * t * b.ty;
-    return { x, y };
+  function drawCursor(ctx, c, cur) {
+    if (!cur) return;
+    ctx.fillStyle = c(0.22);
+    ctx.beginPath();
+    ctx.arc(cur.x, cur.y, 4.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = c(1);
+    ctx.beginPath();
+    ctx.arc(cur.x, cur.y, 2.1, 0, Math.PI * 2);
+    ctx.fill();
   }
 
   function draw(ctx, w, h, now, c) {
     if (!lastFrame) lastFrame = now;
-    const dt = now - lastFrame;
+    const dt = Math.min(64, now - lastFrame);
     lastFrame = now;
 
     ctx.clearRect(0, 0, w, h);
+    drawFaintTree(ctx, c);
 
-    /* Advance trunk growth (one-shot, then it stays at full length). */
-    if (trunk.progress < 1) {
-      trunk.progress = Math.min(1, trunk.progress + 0.0009 * dt);
+    if (phase === "reset") {
+      drawActiveRoute(ctx, c, null); // only the trunk start remains lit
+      if (now >= resetAt) restart(); // replay the same tree
+      return;
     }
 
-    /* Spawn side branches only once the trunk is mostly grown, so
-       the eye reads "main path first, branches off it" — not all
-       fanning out from the source at once. */
-    if (
-      trunk.progress > 0.55 &&
-      now - lastSpawn > BRANCH_SPAWN_GAP &&
-      branches.length < MAX_BRANCHES
-    ) {
-      spawnBranch(now);
-      lastSpawn = now;
-    }
-
-    /* Step each branch's lifecycle. Each branch carries its own
-       `holdMs` (set at spawn) so short-lived and long-hold branches
-       coexist. */
-    for (const b of branches) {
-      if (b.phase === "grow") {
-        b.progress = Math.min(1, b.progress + GROW_SPEED * dt);
-        if (b.progress >= 1) {
-          b.phase = "hold";
-          b.holdUntil = now + b.holdMs;
+    /* Advance the cursor unless dwelling at a leaf. */
+    if (now >= pauseUntil) {
+      const m = moves[moveIdx];
+      if (m) {
+        const from = nodes[m.from];
+        const to = nodes[m.to];
+        const len = Math.hypot(to.x - from.x, to.y - from.y) || 1;
+        prog += (dt * PIXELS_PER_MS) / len;
+        if (prog >= 1) {
+          prog = 0;
+          if (m.dir === 1) stack.push(m.to);
+          else stack.pop();
+          /* Dwell when a rabbit hole bottoms out (leaf reached). */
+          if (m.dir === 1 && children[m.to].length === 0) {
+            pauseUntil = now + LEAF_PAUSE;
+          }
+          moveIdx++;
+          if (moveIdx >= moves.length) {
+            phase = "reset";
+            resetAt = now + RESET_PAUSE;
+          }
         }
-      } else if (b.phase === "hold") {
-        b.tipPulse += dt;
-        if (now >= b.holdUntil) b.phase = "retract";
-      } else if (b.phase === "retract") {
-        b.retract = Math.min(1, b.retract + RETRACT_SPEED * dt);
-      }
-    }
-    branches = branches.filter((b) => b.retract < 1);
-
-    /* Source anchor on the left */
-    ctx.fillStyle = c(0.95);
-    ctx.beginPath();
-    ctx.arc(trunk.sx, trunk.sy, 2.6, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = c(0.4);
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.arc(trunk.sx, trunk.sy, 6, 0, Math.PI * 2);
-    ctx.stroke();
-
-    /* Draw the trunk — full strength so it reads as the spine. */
-    {
-      ctx.strokeStyle = c(0.85);
-      ctx.lineWidth = 1.6;
-      ctx.beginPath();
-      const steps = 36;
-      for (let i = 0; i <= steps; i++) {
-        const t = (i / steps) * trunk.progress;
-        const p = pointOnQuad(trunk, t);
-        if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
-      }
-      ctx.stroke();
-
-      /* Trunk tip dot once fully grown. */
-      if (trunk.progress >= 1) {
-        ctx.fillStyle = c(0.95);
-        ctx.beginPath();
-        ctx.arc(trunk.tx, trunk.ty, 2.2, 0, Math.PI * 2);
-        ctx.fill();
       }
     }
 
-    /* Draw side branches — slightly lighter than the trunk so the
-       trunk stays dominant. Retract peels start-of-line toward the
-       tip just like before. Cubic Bézier — branches have varied
-       shape (C, S, hook, long sweep) and can entangle. */
-    for (const b of branches) {
-      const tStart = b.retract * b.progress;
-      const tEnd = b.progress;
-      if (tEnd - tStart < 0.001) continue;
-
-      /* Long-sweep / swoop branches get a touch more weight so they
-         read as the more-deliberate threads. */
-      const isAnchor = b.shape === "long" || b.shape === "swoop";
-      ctx.strokeStyle = c(isAnchor ? 0.7 : 0.55);
-      ctx.lineWidth = isAnchor ? 1.25 : 1.05;
-      ctx.beginPath();
-      const steps = 28;
-      for (let i = 0; i <= steps; i++) {
-        const t = tStart + ((tEnd - tStart) * i) / steps;
-        const p = pointOnCubic(b, t);
-        if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
-      }
-      ctx.stroke();
-
-      /* Fork marker — small dot where the branch leaves the trunk,
-         only visible while the branch itself is on screen. */
-      ctx.fillStyle = c(0.7);
-      ctx.beginPath();
-      ctx.arc(b.sx, b.sy, 1.6, 0, Math.PI * 2);
-      ctx.fill();
-
-      if (b.phase === "hold") {
-        const pulse = 1 + Math.sin(b.tipPulse / 360) * 0.2;
-        ctx.fillStyle = c(0.95);
-        ctx.beginPath();
-        ctx.arc(b.tx, b.ty, 1.9 * pulse, 0, Math.PI * 2);
-        ctx.fill();
-      }
+    let current = null;
+    if (phase === "traverse" && moves[moveIdx]) {
+      const m = moves[moveIdx];
+      current = { from: nodes[m.from], to: nodes[m.to], prog, dir: m.dir };
     }
+    const cur = drawActiveRoute(ctx, c, current);
+    drawCursor(ctx, c, cur);
   }
 
   return { init, draw };
@@ -687,25 +666,298 @@ function makeHelix() {
   return { init, draw };
 }
 
-/* ─── Section renderer ───────────────────────────────────────────
-   Takes an array of { variant, eyebrow, title, body, label } items
-   and lays them out in alternating rows (visual left → right → left). */
-export default function PhilosophyVisuals({ items = [] }) {
-  /* Cards stay inside the reading column so they line up with the
-     prose either side of them. (Earlier this section bleeded to fit
-     a 3-up grid; now that the layout is a vertical stack each card
-     reads fine at reading-column width.) */
+/* ─── Section renderer (scroll-driven) ───────────────────────────
+   A two-column sticky scroller. The left column lists the principle
+   titles, each with a progress bar that fills as the reader scrolls
+   through that principle's step. The right column is a stack of
+   cards: one is pinned in place while the next slides up over it and
+   takes its place. Only one title + card is "active" at a time.
+
+   Mechanics: the outer section is `STEP_VH × N` tall and the inner
+   row is `position: sticky`, so it pins while the reader scrolls the
+   section's full height. We map the section's scroll position to a
+   continuous `total ∈ [0, N]`; `floor(total)` is the active index
+   and the fraction is that step's progress (bar fill). The next card
+   slides in over the back half of each step.
+
+   Below the layout breakpoint (or under prefers-reduced-motion) the
+   scroller degrades to a plain vertical stack of cards — every card
+   visible, no pinning, no transforms. */
+
+const STEP_VH = 100; // section height per card, in vh
+const SCAN_MS = 720; // duration of the scanline reveal sweep
+
+/* ─── Scanline reveal ────────────────────────────────────────────
+   When the card becomes active, a panel the colour of the recessed
+   frame slides down off the visual — revealing it top-to-bottom —
+   with a bright line riding its leading edge. The panel moves on
+   `transform` only (a `--reveal` custom property 0 → 100 → translateY),
+   so it's compositor-driven and never forces the live canvas beneath
+   it to repaint. Driven via direct DOM writes (no React state) so the
+   sweep doesn't re-render the card. Keyed by `trigger`: replays each
+   change. */
+function Scanline({ targetRef, trigger }) {
+  useLayoutEffect(() => {
+    if (!trigger) return; // trigger 0 = never activated yet
+    const target = targetRef.current;
+    if (!target) return;
+
+    /* Start fully covered, synchronously (before paint) so the visual
+       doesn't flash in for a frame before the sweep. */
+    target.style.setProperty("--reveal", "0");
+
+    let raf = 0;
+    let start = 0;
+    const easeInOut = (p) =>
+      p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+
+    const step = (t) => {
+      if (!start) start = t;
+      const p = Math.min(1, (t - start) / SCAN_MS);
+      target.style.setProperty("--reveal", (easeInOut(p) * 100).toFixed(2));
+      if (p < 1) raf = requestAnimationFrame(step);
+      else target.style.setProperty("--reveal", "100");
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [trigger, targetRef]);
+
+  return <div className={styles.cover} aria-hidden="true" />;
+}
+
+/* A single card — visual frame on top, copy panel underneath. The
+   outer/inner surfaces mirror the landing-page project cards (rule
+   border via the outer fill + an inset `--paper` fill behind).
+
+   When the card becomes active it plays a transition: the visual
+   tunes in out of static fuzz and the copy reveals with the
+   character-scramble effect. `animate` is false under reduced motion,
+   where the copy renders as plain settled text and no fuzz plays. */
+function PhilosophyCard({ item, active, style, animate }) {
+  /* `play` increments each time the card transitions inactive→active,
+     re-keying the fuzz burst and the scramble so they replay. */
+  const [play, setPlay] = useState(0);
+  const wasActive = useRef(false);
+  const visualRef = useRef(null);
+  useEffect(() => {
+    if (active && !wasActive.current) setPlay((p) => p + 1);
+    wasActive.current = active;
+  }, [active]);
+
   return (
-    <div className={styles.section}>
-      {items.map((it, i) => (
-        <div key={i} className={styles.row}>
-          <VisualCanvas variant={it.variant} />
-          <div className={styles.copy}>
-            <h3 className={styles.title}>{it.title}</h3>
-            <p className={styles.body}>{it.body}</p>
+    <article className={styles.card} style={style} aria-hidden={!active}>
+      <div className={styles.cardVisual} ref={visualRef}>
+        <VisualCanvas variant={item.variant} active={active} />
+        {animate && <Scanline targetRef={visualRef} trigger={play} />}
+      </div>
+      <div className={styles.cardCopy}>
+        {item.eyebrow && (
+          <span className={styles.eyebrow}>
+            {animate && active ? (
+              <ScrambleText
+                key={play}
+                text={item.eyebrow}
+                as="text"
+                once={false}
+                lockWidths={false}
+                stagger={14}
+                duration={180}
+              />
+            ) : (
+              item.eyebrow
+            )}
+          </span>
+        )}
+        <h3 className={styles.title}>
+          {animate && active ? (
+            <ScrambleText
+              key={play}
+              text={item.title}
+              as="text"
+              once={false}
+              lockWidths={false}
+              stagger={16}
+              duration={200}
+            />
+          ) : (
+            item.title
+          )}
+        </h3>
+        <p className={styles.body}>
+          {animate && active ? (
+            <ScrambleText
+              key={play}
+              text={item.body}
+              as="text"
+              once={false}
+              lockWidths={false}
+              stagger={3}
+              duration={260}
+            />
+          ) : (
+            item.body
+          )}
+        </p>
+      </div>
+    </article>
+  );
+}
+
+export default function PhilosophyVisuals({ items = [] }) {
+  const sectionRef = useRef(null);
+  const N = items.length;
+
+  /* `total` is the continuous scroll position across all steps. We
+     keep it in state so the React tree (nav fills + card transforms)
+     re-renders on scroll; the scroll math itself is rAF-throttled. */
+  const [total, setTotal] = useState(0);
+  /* `scroller` gates the whole sticky behaviour: false on narrow
+     viewports or under reduced-motion, where we render a plain stack
+     instead. Resolved on mount (and on resize) to stay SSR-safe. */
+  const [scroller, setScroller] = useState(false);
+  /* `animate` gates the transition effects (fuzz + scramble). On by
+     default; off under reduced-motion so the copy renders settled and
+     no static plays. Resolved on mount to stay SSR-safe. */
+  const [animate, setAnimate] = useState(false);
+
+  useEffect(() => {
+    const wide = window.matchMedia("(min-width: 881px)");
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const evaluate = () => {
+      setScroller(wide.matches && !reduced.matches);
+      setAnimate(!reduced.matches);
+    };
+    evaluate();
+    wide.addEventListener?.("change", evaluate);
+    reduced.addEventListener?.("change", evaluate);
+    return () => {
+      wide.removeEventListener?.("change", evaluate);
+      reduced.removeEventListener?.("change", evaluate);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!scroller) return;
+    let raf = 0;
+    const measure = () => {
+      raf = 0;
+      const el = sectionRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const scrollable = rect.height - window.innerHeight;
+      /* progress 0→1 as the section travels through the pinned zone. */
+      const progress =
+        scrollable > 0 ? clamp(-rect.top / scrollable, 0, 1) : 0;
+      /* Scale to [0, N] but cap just shy of N so the last card holds
+         its place (floor never lands on the out-of-range Nth index). */
+      setTotal(Math.min(progress * N, N - 0.0001));
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(measure);
+    };
+    measure();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [scroller, N]);
+
+  const activeIndex = scroller ? Math.min(Math.floor(total), N - 1) : 0;
+  const stepProgress = scroller ? total - activeIndex : 0;
+
+  /* Jump the page so the given step sits at the start of its pinned
+     zone — lets the nav titles act as a table of contents. */
+  const scrollToStep = useCallback(
+    (i) => {
+      const el = sectionRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const scrollable = rect.height - window.innerHeight;
+      const target =
+        window.scrollY + rect.top + (scrollable * i) / N + 1;
+      window.scrollTo({ top: target, behavior: "smooth" });
+    },
+    [N]
+  );
+
+  /* Fill amount for a given title's progress bar: past steps full,
+     the active step tracks its own progress, future steps empty. */
+  const fillFor = (i) => {
+    if (!scroller) return 0;
+    if (i < activeIndex) return 1;
+    if (i === activeIndex) return clamp(stepProgress, 0, 1);
+    return 0;
+  };
+
+  /* Cards don't move — they share one stacked cell and swap in place.
+     Only the active card is shown; the fuzz + scramble carry the
+     transition. Inactive cards stay mounted (hidden) so their canvas
+     state and activation triggers persist. */
+  const cardStyle = (i) => {
+    if (!scroller) return undefined;
+    const active = i === activeIndex;
+    return {
+      opacity: active ? 1 : 0,
+      visibility: active ? "visible" : "hidden",
+      zIndex: active ? 2 : 1,
+    };
+  };
+
+  return (
+    <div
+      ref={sectionRef}
+      className={styles.section}
+      data-scroller={scroller ? "1" : "0"}
+      style={scroller ? { height: `${STEP_VH * N}vh` } : undefined}
+    >
+      <div className={styles.sticky}>
+        <div className={styles.grid}>
+          {/* Left column — title list with scroll-fill progress bars. */}
+          <nav className={styles.nav} aria-label="Design principles">
+            <ol className={styles.navList}>
+              {items.map((it, i) => (
+                <li key={i} className={styles.navItem}>
+                  <button
+                    type="button"
+                    className={styles.navButton}
+                    data-active={scroller && i === activeIndex ? "1" : "0"}
+                    onClick={() => scrollToStep(i)}
+                    disabled={!scroller}
+                  >
+                    {it.label ?? it.title}
+                  </button>
+                  <div className={styles.track} aria-hidden="true">
+                    <span
+                      className={styles.trackFill}
+                      style={{ transform: `scaleX(${fillFor(i)})` }}
+                    />
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </nav>
+
+          {/* Right column — stacked cards. */}
+          <div className={styles.stage}>
+            {items.map((it, i) => (
+              <PhilosophyCard
+                key={i}
+                item={it}
+                active={!scroller || i === activeIndex}
+                animate={animate}
+                style={cardStyle(i)}
+              />
+            ))}
           </div>
         </div>
-      ))}
+      </div>
     </div>
   );
+}
+
+function clamp(v, lo, hi) {
+  return v < lo ? lo : v > hi ? hi : v;
 }

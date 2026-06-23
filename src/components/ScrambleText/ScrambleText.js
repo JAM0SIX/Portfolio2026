@@ -35,6 +35,11 @@ import { useLayoutEffect, useRef, useState } from "react";
 const DEFAULT_POOL =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*?";
 
+/* How often (ms) unsettled characters re-randomise in random mode.
+   Decoupled from the frame rate so churn cost stays bounded on long
+   copy regardless of refresh rate. */
+const CYCLE_MS = 70;
+
 /* Session-scoped store of every text that has finished animating in
    this tab. */
 const SEEN_KEY = "harrys-scrambled-seen";
@@ -73,6 +78,26 @@ export default function ScrambleText({
      <span>; a parent like an h1 can pass `as="text"` to receive just
      the character spans (skipping the outer span). */
   as = "span",
+  /* By default each text animates only once per tab session. Pass
+     `once={false}` to replay on every mount — useful where the same
+     copy re-enters the viewport (e.g. a scroller that re-reveals a
+     card's copy each time it becomes active, keyed by the caller). */
+  once = true,
+  /* Settle order:
+       "random" (default) — every character cycles through glyphs
+         continuously and they clear in a shuffled order, so the new
+         copy resolves out of churning noise rather than a
+         left-to-right wipe. Used site-wide.
+       "linear" — characters settle left-to-right, each holding a
+         single random glyph until its turn (the original behaviour,
+         kept available per-caller). */
+  order = "random",
+  /* Width-locking measures each character's advance and pins the slot
+     so a random glyph can't reflow the line. It's only needed for
+     proportional fonts; in a monospace context (every glyph the same
+     width) it's pure overhead — a forced layout over every span — so
+     pass `lockWidths={false}` to skip it. */
+  lockWidths = true,
 }) {
   /* Initial state matches the target so SSR markup equals the first
      client render (no hydration mismatch). */
@@ -83,63 +108,131 @@ export default function ScrambleText({
   const spanRefs = useRef([]);
 
   useLayoutEffect(() => {
-    /* Already animated this text in the session — render settled. */
-    if (seenTexts.has(text)) return;
+    /* Already animated this text in the session — render settled.
+       Skipped when once={false}, so the caller can replay via key. */
+    if (once && seenTexts.has(text)) return;
 
     const target = text.split("");
 
     /* Measure each character's true advance from the natural render
-       (chars still equal target here). Within a word, the advance is
-       the delta to the next character's left edge so inter-character
-       kerning is captured; the last character of a word uses its own
-       measured width. */
-    const measured = target.map((tc, i) => {
-      if (isSpace(tc)) return null;
-      const el = spanRefs.current[i];
-      if (!el) return null;
-      const rect = el.getBoundingClientRect();
-      const next = target[i + 1];
-      if (next != null && !isSpace(next) && spanRefs.current[i + 1]) {
-        return spanRefs.current[i + 1].getBoundingClientRect().left - rect.left;
+       (chars still equal target here) so the slot can be pinned during
+       scramble. Skipped entirely when lockWidths is false (monospace),
+       which avoids a forced layout over every span. */
+    const measured = lockWidths
+      ? target.map((tc, i) => {
+          if (isSpace(tc)) return null;
+          const el = spanRefs.current[i];
+          if (!el) return null;
+          const rect = el.getBoundingClientRect();
+          const next = target[i + 1];
+          if (next != null && !isSpace(next) && spanRefs.current[i + 1]) {
+            return (
+              spanRefs.current[i + 1].getBoundingClientRect().left - rect.left
+            );
+          }
+          return rect.width;
+        })
+      : null;
+
+    const randGlyph = () => pool[Math.floor(Math.random() * pool.length)];
+
+    /* Settle sequence — the order in which characters lock to their
+       real value. Linear keeps source order; random shuffles the
+       non-space slots (Fisher-Yates) so they clear unpredictably. */
+    const nonSpace = [];
+    for (let i = 0; i < target.length; i++) {
+      if (!isSpace(target[i])) nonSpace.push(i);
+    }
+    const sequence = nonSpace.slice();
+    if (order === "random") {
+      for (let i = sequence.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [sequence[i], sequence[j]] = [sequence[j], sequence[i]];
       }
-      return rect.width;
-    });
+    }
+    const settleTimeOf = new Map();
+    sequence.forEach((idx, rank) => settleTimeOf.set(idx, rank * stagger + duration));
 
-    /* Pick one random glyph per non-space slot, then lock widths +
-       scramble in the same paint. */
-    const scrambled = target.map((tc) =>
-      isSpace(tc) ? tc : pool[Math.floor(Math.random() * pool.length)],
-    );
+    const lastRank = nonSpace.length > 0 ? nonSpace.length - 1 : 0;
+    const finalSettleAt = lastRank * stagger + duration;
+
+    /* Lock widths + initial scramble in the same paint. */
     setWidths(measured);
-    setChars(scrambled);
+    setChars(target.map((tc) => (isSpace(tc) ? tc : randGlyph())));
 
-    const timers = target.map((tc, i) => {
-      if (isSpace(tc)) return null;
-      const settleAt = i * stagger + duration;
-      return setTimeout(() => {
-        setChars((prev) => {
-          const next = prev.slice();
-          next[i] = tc;
-          return next;
-        });
-      }, settleAt);
-    });
+    let raf = 0;
+    let timers = [];
 
-    /* Once the last character settles, release the width lock (the
-       locked widths equal the natural advances, so this is a no-op
-       visually but restores responsiveness to viewport changes) and
-       mark the text seen. */
-    const finalSettleAt = (target.length - 1) * stagger + duration;
-    const doneTimer = setTimeout(() => {
-      setWidths(null);
-      markSeen(text);
-    }, finalSettleAt + 60);
+    if (order === "random") {
+      /* Single rAF loop drives the whole animation: each frame, settle
+         every character whose time has come and re-randomise the rest
+         at most every CYCLE_MS. Batching all updates into ONE setState
+         per frame (and skipping frames where nothing changes) keeps
+         re-renders at frame-rate instead of one-per-character — which
+         is what made long body copy stutter. */
+      let start = 0;
+      let lastCycle = 0;
+      let prevDue = -1;
+      const step = (t) => {
+        if (!start) start = t;
+        const elapsed = t - start;
+        const churn = t - lastCycle >= CYCLE_MS;
+        if (churn) lastCycle = t;
+
+        let due = 0;
+        for (const idx of nonSpace) {
+          if (elapsed >= settleTimeOf.get(idx)) due++;
+        }
+        /* Only re-render when a character settles or it's a churn
+           frame — otherwise the frame is a no-op. */
+        if (churn || due !== prevDue) {
+          prevDue = due;
+          setChars((prev) => {
+            const nextArr = prev.slice();
+            for (const idx of nonSpace) {
+              if (elapsed >= settleTimeOf.get(idx)) nextArr[idx] = target[idx];
+              else if (churn) nextArr[idx] = randGlyph();
+            }
+            return nextArr;
+          });
+        }
+
+        if (elapsed < finalSettleAt) {
+          raf = requestAnimationFrame(step);
+        } else {
+          setChars(target.slice());
+          setWidths(null);
+          if (once) markSeen(text);
+        }
+      };
+      raf = requestAnimationFrame(step);
+    } else {
+      /* Linear: each character holds a single random glyph until its
+         scheduled settle. Per-character timers are fine for the short
+         headings that opt into this mode. */
+      timers = target.map((tc, i) => {
+        if (isSpace(tc)) return null;
+        return setTimeout(() => {
+          setChars((prev) => {
+            const nextArr = prev.slice();
+            nextArr[i] = tc;
+            return nextArr;
+          });
+        }, settleTimeOf.get(i) ?? 0);
+      });
+      timers.push(
+        setTimeout(() => {
+          setWidths(null);
+          if (once) markSeen(text);
+        }, finalSettleAt + 60),
+      );
+    }
 
     return () => {
+      if (raf) cancelAnimationFrame(raf);
       timers.forEach((t) => t && clearTimeout(t));
-      clearTimeout(doneTimer);
     };
-  }, [text, duration, stagger, pool]);
+  }, [text, duration, stagger, pool, once, order, lockWidths]);
 
   /* Build the span tree grouped by word so the width lock (inline-block
      slots) can never create a mid-word break — only the standalone

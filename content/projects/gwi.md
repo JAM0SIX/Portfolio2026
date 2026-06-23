@@ -173,10 +173,10 @@ narrative:
           makes the audit significantly harder
         label: "Business risk: workarounds compound into audit liability"
 
-  # 03 · Philosophy
+  # 03 · System principles
   - kind: sectionHeader
     chapter: "03"
-    title: Philosophy
+    title: System principles
   - kind: prose
     paragraphs:
       - >

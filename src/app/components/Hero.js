@@ -202,12 +202,12 @@ export default function Hero() {
             <span className={mark("expand")}>crafting</span>{" "}
             <span className={mark("expand")}>
               <HeroKey id="expand" active={active} setActive={setActive}>
-                tools
+                experiences
               </HeroKey>
             </span>
             <HeroGlyph
               id="expand"
-              label="Spotlight: tools people love to use"
+              label="Spotlight: experiences people love to use"
               active={active}
               setActive={setActive}
             />{" "}

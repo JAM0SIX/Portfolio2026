@@ -1,39 +1,184 @@
-/* PhilosophyVisuals — three custom canvas visuals for the Nexis
-   philosophy section. Each principle now sits inside a card so the
-   three read as a row of equal-weight artefacts rather than a long
-   stack of alternating rows. Each card carries: a square visual at
-   the top, the principle's title and body underneath, all on a
-   subtle panel surface with a rule border. */
+/* PhilosophyVisuals — a scroll-driven, two-column "principles"
+   scroller for Nexis+AI.
+
+   Left column  → the three principle titles, each with a progress
+                  bar that fills as the reader scrolls through that
+                  principle's step. Exactly one is active at a time.
+   Right column → a stack of cards. One is pinned in place while the
+                  next slides up over it and takes its place. The card
+                  surface mirrors the landing-page project cards (rule
+                  border via the outer fill + an inset --paper fill),
+                  with the canvas visual nested in a recessed frame and
+                  the copy in a lighter inset panel beneath.
+
+   Below 880px (or under prefers-reduced-motion) the component drops
+   the [data-scroller="1"] hook and degrades to a plain vertical stack
+   of cards — no pinning, no transforms, every card visible. */
 
 .section {
+  position: relative;
+}
+
+/* ─── Sticky pinned row ──────────────────────────────────────────
+   In scroller mode the inner row pins for the section's full height
+   and centres its content in the viewport. In stack mode it is a
+   plain static block. */
+.sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+}
+.section[data-scroller="0"] .sticky {
+  position: static;
+  height: auto;
+  padding: 0;
+}
+
+.grid {
+  width: 100%;
+  display: grid;
+  /* Reading-column width is tight, so the title rail is kept narrow
+     and the card takes the remainder. */
+  grid-template-columns: minmax(0, 0.62fr) minmax(0, 1fr);
+  gap: var(--space-5);
+  /* Title rail top-aligns with the top of the card stack. */
+  align-items: start;
+}
+.section[data-scroller="0"] .grid {
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+/* ─── Left column — title list + progress bars ───────────────────── */
+.nav {
+  align-self: start;
+}
+/* In stack mode the nav has no meaning without scroll — each card
+   carries its own title/body, so the rail is hidden. */
+.section[data-scroller="0"] .nav {
+  display: none;
+}
+.navList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+.navItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.navButton {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--track-tight);
+  color: var(--ink-mute);
+  transition: color var(--dur-base) var(--ease-default);
+}
+.navButton[data-active="1"] {
+  color: var(--ink);
+  font-weight: var(--weight-semibold);
+}
+.navButton:hover:not([data-active="1"]) {
+  color: var(--ink-soft);
+}
+
+/* Progress bar under each title. The fill is scaled on the X axis
+   from a JS-driven `scaleX(0..1)`; a short linear transition keeps it
+   smooth between scroll frames without lagging the pin. */
+.track {
+  width: 100%;
+  height: 3px;
+  background: var(--rule);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.trackFill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--ink);
+  border-radius: inherit;
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 120ms linear;
+}
+
+/* ─── Right column — stacked cards ───────────────────────────────── */
+.stage {
+  position: relative;
+}
+/* Scroller: all cards share one grid cell so they overlap and the
+   cell auto-sizes to the tallest card; transforms slide them. */
+.section[data-scroller="1"] .stage {
+  display: grid;
+  align-items: start;
+  overflow: hidden;
+  border-radius: var(--radius-panel);
+}
+.section[data-scroller="1"] .stage > .card {
+  grid-area: 1 / 1;
+  will-change: opacity;
+}
+/* Stack: cards flow normally, one beneath the next. */
+.section[data-scroller="0"] .stage {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
 }
 
-.row {
+/* Card surface — mirrors the landing-page project card: the outer box
+   is the rule (hairline) colour, an inset ::before is the paper fill,
+   so the 1px gap reads as a crisp border at the panel radius. */
+.card {
+  position: relative;
+  isolation: isolate;
   display: flex;
-  /* Visual on top, copy under it — internal stack matches the
-     outer stack of cards. */
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-3);
   padding: var(--space-4);
+  color: var(--ink);
+  background: var(--rule);
+  border-radius: var(--radius-panel);
+}
+.card::before {
+  content: "";
+  position: absolute;
+  inset: var(--border-default);
+  z-index: -1;
+  background: var(--paper);
+  border-radius: calc(var(--radius-panel) - var(--border-default));
+}
+
+/* Visual frame — recessed panel that holds the canvas scene. */
+.cardVisual {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-inner);
   background: var(--paper-deep);
-  border: var(--border-default) solid var(--rule);
-  /* Square corners — matches the rest of the project's panel
-     vocabulary (outcomes, prototypes, hero plate). */
-  border-radius: 0;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+[data-theme="onyx"] .cardVisual {
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .visual {
-  position: relative;
-  /* Visual fills the card's content width with a 4:3 aspect so it
-     reads as a hero illustration above the copy rather than a
-     tight square thumbnail. */
-  aspect-ratio: 4 / 3;
-  width: 100%;
-  background: transparent;
-  overflow: hidden;
+  position: absolute;
+  inset: 0;
   isolation: isolate;
 }
 .canvas {
@@ -43,33 +188,56 @@
   height: 100%;
   display: block;
 }
-.label {
+
+/* Scanline reveal — JS drives `--reveal` (0 → 100) on the visual
+   frame. A cover panel the colour of the recessed frame sits over the
+   canvas and slides down via `transform: translateY` to reveal it
+   top-to-bottom; a bright line rides its leading edge. Because only
+   the cover's transform animates (compositor-driven), the live canvas
+   beneath never has to repaint during the sweep. At rest (default
+   100 → translated fully off) the visual shows normally, so
+   non-animated and reduced-motion cards are unaffected. */
+.cardVisual {
+  --reveal: 100;
+}
+.cover {
   position: absolute;
-  top: var(--space-3);
-  left: var(--space-3);
-  font-family: var(--font-sans);
-  font-size: var(--text-xs);
-  letter-spacing: var(--track-caps);
-  text-transform: uppercase;
-  color: var(--ink-mute);
-  z-index: 1;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: var(--paper-deep);
+  transform: translateY(calc(var(--reveal) * 1%));
+  will-change: transform;
+}
+/* The bright scan line on the cover's leading (top) edge — the
+   boundary between the revealed visual above and the cover below. */
+.cover::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: var(--ink);
+  box-shadow:
+    0 0 8px color-mix(in srgb, var(--ink) 60%, transparent),
+    0 -4px 10px -4px color-mix(in srgb, var(--ink) 35%, transparent);
 }
 
-.copy {
+/* Copy panel — lighter inset well beneath the visual, matching the
+   project card's reveal panel. */
+.cardCopy {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
-  max-width: 56ch;
-  /* Pressed-in skeuomorphic well — same vocabulary as the active
-     sidebar menu row. A small ink-tint background (auto-adapts per
-     theme because --ink flips light↔dark), plus a top inset shadow
-     + bottom inset bevel using the themed --toggle-knob-* vars so
-     the panel reads as recessed into the card. */
-  padding: var(--space-3) var(--space-4);
-  background: color-mix(in srgb, var(--ink) 8%, transparent);
-  box-shadow:
-    inset 0 1px 2px color-mix(in srgb, var(--toggle-knob-shadow) 50%, transparent),
-    inset 0 -1px 0 color-mix(in srgb, var(--toggle-knob-bevel) 45%, transparent);
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: var(--paper);
+  border: var(--border-default) solid var(--rule);
+  border-radius: var(--radius-inner);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+[data-theme="onyx"] .cardCopy {
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 .eyebrow {
   font-family: var(--font-sans);
@@ -94,4 +262,3 @@
   line-height: var(--leading-relaxed);
   color: var(--ink-soft);
 }
-
